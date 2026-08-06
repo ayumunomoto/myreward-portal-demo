@@ -136,18 +136,20 @@
   /* ---------- mode switch ---------- */
   .mode-switch {
     flex: none;
-    display: flex; gap: 8px; padding: 10px 16px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+    display: flex; gap: 6px; padding: 10px 14px; overflow-x: auto; -webkit-overflow-scrolling: touch;
     background: color-mix(in srgb, var(--surface) 92%, transparent);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--divider);
     scrollbar-width: none;
   }
   .mode-switch::-webkit-scrollbar { display: none; }
+  .mode-switch[hidden] { display: none; }
   .mode-pill {
-    flex: none; display: flex; align-items: center; gap: 6px;
-    padding: 7px 14px; border-radius: 999px; border: 1px solid var(--divider);
+    flex: 1 1 0; min-width: 0; height: 34px;
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+    padding: 0 8px; border-radius: 999px; border: 1px solid var(--divider);
     background: #f2f3f5; color: var(--ink-soft);
-    font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap;
+    font: inherit; font-size: 11.5px; font-weight: 700; cursor: pointer; white-space: nowrap;
     transition: background .2s ease, color .2s ease, border-color .2s ease, transform .12s ease;
   }
   .mode-pill:hover { transform: translateY(-1px); }
@@ -158,7 +160,8 @@
     background: var(--accent); border-color: var(--accent); color: var(--accent-ink);
   }
   .mode-pill-tag {
-    font-size: 8.5px; font-weight: 800; letter-spacing: .03em; padding: 1px 6px; border-radius: 999px;
+    flex: none;
+    font-size: 8px; font-weight: 800; letter-spacing: .02em; padding: 1px 5px; border-radius: 999px;
     background: rgba(255,255,255,.35); color: inherit;
   }
   .mode-pill:not([aria-current="page"]) .mode-pill-tag {
@@ -1968,6 +1971,7 @@
       var panel = $("panel-" + name);
       panel.hidden = name !== tab;
     });
+    $("mode-switch").hidden = tab !== "home";
     var current = $("panel-" + tab);
     current.classList.remove("tab-enter");
     void current.offsetWidth;
