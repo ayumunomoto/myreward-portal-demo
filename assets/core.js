@@ -113,7 +113,7 @@
     history: []
   };
 
-  var qrState = { type: null, amount: 0, shop: null, bonusApplied: 0 };
+  var qrState = { type: null, amount: 0, shop: null, bonusApplied: 0, minAmount: 0 };
 
   var app = document.getElementById("app");
   var toastTimer = null;
@@ -724,6 +724,7 @@
     qrState.amount = 0;
     qrState.shop = null;
     qrState.bonusApplied = 0;
+    qrState.minAmount = 0;
     showQRStep("menu");
     $("qr-flow").hidden = false;
   }
@@ -735,6 +736,7 @@
     animateNumber($("card-points"), state.points);
     logHistory("ボーナスポイント取消", "支払いQRの利用を中止したため", -amount);
     qrState.bonusApplied = 0;
+    qrState.minAmount = 0;
     if (!silent) showToast("ボーナスポイントは取り消されました");
   }
 
@@ -754,6 +756,7 @@
     var shop = QR_SHOPS[state.theme];
     qrState.type = "pay";
     qrState.shop = shop;
+    qrState.minAmount = 0;
     var balance = state.points;
     qrState.amount = Math.min(balance, balance >= 1000 ? 1000 : balance);
 
@@ -761,6 +764,8 @@
     $("qr-shop-name").textContent = shop.name;
     $("qr-balance").textContent = balance.toLocaleString("ja-JP");
     $("qr-bonus-banner").hidden = true;
+    $("qr-balance-arrow").hidden = true;
+    $("qr-balance-bonus-col").hidden = true;
     updateQRAmountDisplay();
 
     setTimeout(function () { showQRStep("amount"); }, 650);
@@ -774,18 +779,23 @@
     qrState.shop = shop;
 
     setTimeout(function () {
+      var beforeBonus = state.points;
       state.points += bonus;
       qrState.bonusApplied = bonus;
+      qrState.minAmount = bonus;
       animateNumber($("card-points"), state.points);
       logHistory("ボーナスポイント付与", shop.name + "（支払いQR特典）", bonus);
 
       var balance = state.points;
-      qrState.amount = Math.min(balance, balance >= 1000 ? 1000 : balance);
+      qrState.amount = Math.min(balance, Math.max(bonus, 1000));
 
       $("qr-shop-icon").innerHTML = ICONS[shop.icon];
       $("qr-shop-name").textContent = shop.name;
-      $("qr-balance").textContent = balance.toLocaleString("ja-JP");
+      $("qr-balance").textContent = beforeBonus.toLocaleString("ja-JP");
+      $("qr-balance-bonus").textContent = balance.toLocaleString("ja-JP");
       $("qr-bonus-banner").hidden = false;
+      $("qr-balance-arrow").hidden = false;
+      $("qr-balance-bonus-col").hidden = false;
       updateQRAmountDisplay();
       showQRStep("amount");
 
@@ -799,6 +809,7 @@
     var shop = QR_SHOPS[state.theme];
     qrState.type = "earn";
     qrState.shop = shop;
+    qrState.minAmount = 0;
     qrState.amount = QR_CHECKIN_BONUS[state.theme];
 
     setTimeout(function () {
@@ -810,7 +821,14 @@
 
   function updateQRAmountDisplay() {
     $("qr-amount").textContent = qrState.amount.toLocaleString("ja-JP");
-    $("qr-amount-next").disabled = qrState.amount <= 0;
+    $("qr-amount-next").disabled = qrState.amount <= 0 || qrState.amount < qrState.minAmount;
+    var minNote = $("qr-amount-min-note");
+    if (qrState.minAmount > 0) {
+      $("qr-amount-min-value").textContent = qrState.minAmount.toLocaleString("ja-JP");
+      minNote.hidden = false;
+    } else {
+      minNote.hidden = true;
+    }
   }
 
   function finishQREarn() {
@@ -834,7 +852,8 @@
       state.points -= qrState.amount;
       animateNumber($("card-points"), state.points);
       logHistory(qrState.shop.name + "でのお支払い", "QR決済", -qrState.amount);
-        qrState.bonusApplied = 0;
+      qrState.bonusApplied = 0;
+      qrState.minAmount = 0;
 
       $("qr-complete-title").textContent = "お支払いが完了しました！";
       $("qr-complete-amount").textContent = qrState.amount.toLocaleString("ja-JP");
@@ -998,7 +1017,7 @@
     btn.addEventListener("click", function () {
       var delta = parseInt(btn.dataset.delta, 10);
       var balance = state.points;
-      qrState.amount = Math.max(0, Math.min(balance, qrState.amount + delta));
+      qrState.amount = Math.max(qrState.minAmount, Math.min(balance, qrState.amount + delta));
       updateQRAmountDisplay();
     });
   });
@@ -1007,7 +1026,7 @@
     updateQRAmountDisplay();
   });
   $("qr-amount-next").addEventListener("click", function () {
-    if (qrState.amount <= 0) return;
+    if (qrState.amount <= 0 || qrState.amount < qrState.minAmount) return;
     $("qr-confirm-amount").textContent = qrState.amount.toLocaleString("ja-JP");
     $("qr-confirm-shop").textContent = qrState.shop.name;
     resetQRSwipe();

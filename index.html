@@ -287,8 +287,19 @@
       </div>
     </div>
 
-    <p class="qr-balance-label">利用可能ポイント合計</p>
-    <p class="qr-balance-value"><span id="qr-balance">0</span><span>pt</span></p>
+    <div class="qr-balance-row">
+      <div class="qr-balance-col">
+        <p class="qr-balance-label">利用可能ポイント合計</p>
+        <p class="qr-balance-value"><span id="qr-balance">0</span><span>pt</span></p>
+      </div>
+      <span class="qr-balance-arrow" id="qr-balance-arrow" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+      </span>
+      <div class="qr-balance-col qr-balance-col-bonus" id="qr-balance-bonus-col" hidden>
+        <p class="qr-balance-label qr-balance-label-bonus">ボーナス適用後の合計</p>
+        <p class="qr-balance-value qr-balance-value-bonus"><span id="qr-balance-bonus">0</span><span>pt</span></p>
+      </div>
+    </div>
     <div class="qr-bonus-banner" id="qr-bonus-banner" hidden>
       <span class="qr-bonus-tag">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 2.6 6.1L21 9l-4.9 4.3L17.5 20 12 16.7 6.5 20l1.4-6.7L3 9l6.4-.9Z"/></svg>
@@ -300,6 +311,7 @@
     <div class="qr-amount-box">
       <p class="qr-amount-label">利用ポイント数</p>
       <p class="qr-amount-value"><span id="qr-amount">0</span><span>pt</span></p>
+      <p class="qr-amount-min-note" id="qr-amount-min-note" hidden>※ボーナス分の<span id="qr-amount-min-value">2,000</span>pt以上のご利用が必要です</p>
       <div class="qr-amount-buttons">
         <button type="button" class="qr-step-btn" data-delta="-1000">-1,000</button>
         <button type="button" class="qr-step-btn" data-delta="-100">-100</button>
