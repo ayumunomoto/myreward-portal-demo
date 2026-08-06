@@ -1,5 +1,6 @@
 <title>マイリワードポータル</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" id="theme-color-meta" content="#142a63">
 <style>
   :root {
     --page-bg: #eef1f4;
@@ -1582,7 +1583,8 @@
       badgeTitle: "通常口座モード",
       badgeSub: "STANDARD BANKING",
       cardPhoto: "skyline",
-      confetti: ["#1e3a8a", "#3457b2", "#b8860b", "#ffffff"]
+      confetti: ["#1e3a8a", "#3457b2", "#b8860b", "#ffffff"],
+      accentStrong: "#142a63"
     },
     sports: {
       title: "スタジアム&観光パス",
@@ -1594,7 +1596,8 @@
       badgeTitle: "スポーツ&観光モード",
       badgeSub: "COLLABORATION PASS",
       cardPhoto: "stadiumbg",
-      confetti: ["#059669", "#0369a1", "#f59e0b", "#ffffff"]
+      confetti: ["#059669", "#0369a1", "#f59e0b", "#ffffff"],
+      accentStrong: "#035c44"
     },
     wakaoshi: {
       title: "KIYO×わかおしっ！",
@@ -1606,7 +1609,8 @@
       badgeTitle: "わかおしっ！モード",
       badgeSub: "SEASON LIMITED",
       cardPhoto: null,
-      confetti: ["#db2777", "#f472b6", "#fbcfe8", "#ffffff"]
+      confetti: ["#db2777", "#f472b6", "#fbcfe8", "#ffffff"],
+      accentStrong: "#9d174d"
     }
   };
 
@@ -1781,6 +1785,7 @@
       mascot.hidden = true;
     }
     animateNumber($("card-points"), state.points);
+    $("theme-color-meta").setAttribute("content", t.accentStrong);
   }
 
   function renderPanelCopy() {
