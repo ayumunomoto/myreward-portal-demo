@@ -369,12 +369,12 @@
 
   /* ---------- common-point brand tile ---------- */
   .brand-tile { display: flex; flex-direction: column; align-items: center; gap: 7px; }
-  .brand-chip {
+  .point-chip {
     width: 52px; height: 52px; border-radius: 16px; display: flex; align-items: center; justify-content: center;
     box-shadow: 0 8px 18px -8px rgba(20, 20, 30, .4);
   }
-  .brand-chip svg { width: 62%; height: 62%; }
-  .brand-chip .brand-chip-mark { font-size: 24px; font-weight: 900; color: #fff; }
+  .point-chip svg { width: 62%; height: 62%; }
+  .point-chip .point-chip-mark { font-size: 24px; font-weight: 900; color: #fff; }
   .brand-tile .brand-label { font-size: 10.5px; font-weight: 800; letter-spacing: .02em; color: var(--ink); }
   .brand-tile-wordmark { gap: 1px; }
   .brand-tile-wordmark .brand-r-mark {
@@ -385,15 +385,15 @@
     width: 24px; height: 5px; background: #bf0000; border-radius: 3px; transform: skewX(-18deg); margin: 3px 0 2px;
   }
   .brand-tile-wordmark .brand-label { color: #171717; font-size: 12px; font-weight: 900; letter-spacing: .04em; }
-  .coupon-media .brand-chip { width: 38px; height: 38px; border-radius: 12px; }
-  .coupon-media .brand-chip .brand-chip-mark { font-size: 16px; }
+  .coupon-media .point-chip { width: 38px; height: 38px; border-radius: 12px; }
+  .coupon-media .point-chip .point-chip-mark { font-size: 16px; }
   .coupon-media .brand-tile { gap: 5px; }
   .coupon-media .brand-tile .brand-label { font-size: 8.5px; }
   .coupon-media .brand-tile-wordmark .brand-r-mark { font-size: 23px; }
   .coupon-media .brand-tile-wordmark .brand-r-bar { width: 17px; height: 4px; margin: 2px 0 1px; }
   .coupon-media .brand-tile-wordmark .brand-label { font-size: 9.5px; }
-  .rd-media .brand-chip { width: 72px; height: 72px; border-radius: 20px; }
-  .rd-media .brand-chip .brand-chip-mark { font-size: 32px; }
+  .rd-media .point-chip { width: 72px; height: 72px; border-radius: 20px; }
+  .rd-media .point-chip .point-chip-mark { font-size: 32px; }
   .rd-media .brand-tile-wordmark .brand-r-mark { font-size: 48px; }
   .rd-media .brand-tile .brand-label { font-size: 12.5px; }
   .coupon-media-badge {
@@ -580,49 +580,41 @@
   .gacha-result.rarity-n { border-color: #94a3b8; }
   .prize-name { margin: 0; font-size: 13px; font-weight: 700; color: var(--ink); }
 
-  /* ---------- bottom nav (floating pill) ---------- */
+  /* ---------- bottom nav (solid themed bar) ---------- */
   .bottom-nav {
     flex: none;
     display: flex; justify-content: space-around; align-items: center;
-    margin: 0 14px calc(12px + env(safe-area-inset-bottom));
-    padding: 8px 8px;
-    border-radius: 24px;
-    background: color-mix(in srgb, var(--surface) 72%, transparent);
-    backdrop-filter: blur(18px) saturate(1.7);
-    -webkit-backdrop-filter: blur(18px) saturate(1.7);
-    border: 1px solid rgba(255, 255, 255, .55);
-    box-shadow:
-      0 18px 34px -14px rgba(20, 20, 30, .32),
-      0 3px 10px -2px rgba(20, 20, 30, .12),
-      inset 0 1px 0 rgba(255, 255, 255, .5);
+    padding: 9px 6px calc(9px + env(safe-area-inset-bottom));
+    background: var(--accent-strong);
+    box-shadow: 0 -6px 18px -8px rgba(0, 0, 0, .35);
+    transition: background .5s ease;
     z-index: 40;
   }
   .nav-item {
     display: flex; flex-direction: column; align-items: center; gap: 3px;
     background: none; border: none; cursor: pointer; font: inherit;
-    font-size: 9.5px; font-weight: 600; color: var(--ink-faint);
+    font-size: 9.5px; font-weight: 700; color: color-mix(in srgb, var(--accent-ink) 62%, transparent);
     padding: 6px 8px; border-radius: 14px;
-    transition: background .22s ease, color .22s ease, transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .22s ease;
+    transition: background .22s ease, color .22s ease, transform .22s cubic-bezier(.34,1.56,.64,1);
     flex: 1 1 0; min-width: 0;
   }
   .nav-item svg { width: 19px; height: 19px; transition: width .22s ease, height .22s ease; }
   .nav-item[aria-current="page"] {
-    color: var(--accent); font-weight: 800; font-size: 10.5px;
-    background: color-mix(in srgb, var(--accent) 16%, #fff);
-    transform: translateY(-5px) scale(1.1);
-    box-shadow: 0 10px 20px -10px color-mix(in srgb, var(--accent) 65%, transparent);
+    color: var(--accent-ink); font-weight: 800; font-size: 10.5px;
+    background: color-mix(in srgb, var(--accent-ink) 18%, transparent);
+    transform: translateY(-3px) scale(1.08);
   }
   .nav-item[aria-current="page"] svg { width: 23px; height: 23px; }
-  .nav-item:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  .nav-item-qr { color: var(--ink-soft); }
+  .nav-item:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
+  .nav-item-qr { color: color-mix(in srgb, var(--accent-ink) 62%, transparent); }
   .nav-qr-icon {
     display: flex; align-items: center; justify-content: center;
     width: 38px; height: 38px; margin-top: -14px; border-radius: 50%;
     background: var(--accent); color: var(--accent-ink);
     box-shadow:
-      0 10px 18px -6px color-mix(in srgb, var(--accent) 70%, transparent),
-      0 0 0 4px color-mix(in srgb, var(--surface) 80%, transparent);
-    transition: background .5s ease, transform .12s ease;
+      0 10px 18px -6px rgba(0, 0, 0, .4),
+      0 0 0 4px var(--accent-strong);
+    transition: background .5s ease, box-shadow .5s ease, transform .12s ease;
   }
   .nav-qr-icon svg { width: 19px; height: 19px; }
   .nav-item-qr:active .nav-qr-icon { transform: scale(.92); }
@@ -2166,13 +2158,13 @@
       wrap.appendChild(bar);
     } else {
       var chip = document.createElement("div");
-      chip.className = "brand-chip";
+      chip.className = "point-chip";
       chip.style.background = b.chipBg;
       if (b.svg) {
         chip.innerHTML = b.svg;
       } else {
         var mark = document.createElement("span");
-        mark.className = "brand-chip-mark";
+        mark.className = "point-chip-mark";
         mark.textContent = b.mark;
         chip.appendChild(mark);
       }
