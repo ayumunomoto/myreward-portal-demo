@@ -189,6 +189,10 @@
   .badge-scheduled { background: #dbeafe; color: #1e40af; }
   .badge-active { background: #d1fae5; color: #065f46; }
   .badge-ended { background: #f1f2f5; color: #6b7080; }
+  .badge-expired { background: #f1f2f5; color: #6b7080; }
+  .badge-disabled { background: #fee2e2; color: #991b1b; }
+  .badge-type-bonus { background: #dcfce7; color: #166534; }
+  .badge-type-payment { background: #ede9fe; color: #5b21b6; }
   .badge-ad {
     background: linear-gradient(135deg, var(--gold), #8a6100); color: #fff;
   }
@@ -374,6 +378,30 @@
   .image-picker-item.none-item { background: #eef0f4 !important; color: var(--ink-faint); }
   .image-picker-item.none-item span { color: var(--ink-faint); text-shadow: none; }
 
+  /* ---------- QR management ---------- */
+  .qr-row-thumb {
+    flex: none; width: 40px; height: 40px; border-radius: 8px; background: #fff;
+    border: 1px solid var(--border); padding: 3px;
+  }
+  .qr-row-thumb canvas { width: 100%; height: 100%; display: block; }
+  .qr-id-cell { font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: 11.5px; color: var(--ink-soft); }
+  .qr-type-radio { display: flex; gap: 8px; }
+  .qr-type-radio label {
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 10px; border-radius: 10px; border: 1.5px solid var(--border); cursor: pointer;
+    font-size: 12.5px; font-weight: 800; color: var(--ink-soft);
+  }
+  .qr-type-radio label.checked-bonus { border-color: #16a34a; background: #f0fdf4; color: #166534; }
+  .qr-type-radio label.checked-payment { border-color: #7c3aed; background: #f5f3ff; color: #5b21b6; }
+  .qr-type-radio input { accent-color: var(--accent); }
+  .qr-preview-canvas-wrap {
+    display: flex; align-items: center; justify-content: center; padding: 16px;
+    background: #fff; border: 1px solid var(--border); border-radius: 14px;
+  }
+  .qr-preview-id { text-align: center; font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: 12px; color: var(--ink-soft); margin: 10px 0 2px; }
+  .qr-preview-name { text-align: center; font-size: 12.5px; font-weight: 800; margin: 0 0 14px; }
+  .qr-status-note { font-size: 11px; color: var(--ink-faint); text-align: center; margin-top: 8px; }
+
   /* ---------- results view ---------- */
   .stat-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
   .stat-box { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px; }
@@ -458,6 +486,13 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
         プッシュ通知管理
         <span class="nav-btn-badge" id="nav-badge-push">0</span>
+      </button>
+
+      <div class="sidebar-nav-label">現場運用</div>
+      <button type="button" class="nav-btn" data-nav="qr">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3z"/><path d="M21 14v.01"/><path d="M14 21v.01"/><path d="M21 21v.01"/><path d="M17.5 17.5v.01"/></svg>
+        QRコード管理
+        <span class="nav-btn-badge" id="nav-badge-qr">0</span>
       </button>
     </nav>
 
@@ -885,6 +920,127 @@
         </div>
       </section>
 
+      <!-- ============ QR LIST ============ -->
+      <section class="view" id="view-qr" hidden>
+        <div class="filter-tabs" id="qr-filter-tabs">
+          <button type="button" class="filter-tab" data-filter="all" aria-current="page">すべて</button>
+          <button type="button" class="filter-tab" data-filter="bonus">ポイント付与QR</button>
+          <button type="button" class="filter-tab" data-filter="payment">ポイント利用QR</button>
+          <button type="button" class="filter-tab" data-filter="active">有効</button>
+          <button type="button" class="filter-tab" data-filter="disabled">無効</button>
+          <button type="button" class="filter-tab" data-filter="expired">期限切れ</button>
+        </div>
+        <div class="card" style="padding:0;">
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>QRコード</th>
+                  <th>QRID</th>
+                  <th>種別</th>
+                  <th>ポイント数</th>
+                  <th>設置場所</th>
+                  <th>有効期間</th>
+                  <th>状態</th>
+                  <th>利用回数</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="qr-table-body"></tbody>
+            </table>
+          </div>
+          <div class="empty-state" id="qr-empty" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+            <p>該当するQRコードがありません</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ QR FORM ============ -->
+      <section class="view" id="view-qr-form" hidden>
+        <div class="form-grid">
+          <div class="field-group">
+            <div class="card">
+              <div class="section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                基本情報
+              </div>
+              <div class="field" style="margin-top:10px;">
+                <label>QR種別</label>
+                <div class="qr-type-radio" id="qf-type-radio">
+                  <label id="qf-type-bonus-label">
+                    <input type="radio" name="qf-type" value="bonus" id="qf-type-bonus">ポイント付与QR
+                  </label>
+                  <label id="qf-type-payment-label">
+                    <input type="radio" name="qf-type" value="payment" id="qf-type-payment">ポイント利用QR
+                  </label>
+                </div>
+              </div>
+              <div class="field" style="margin-top:14px;">
+                <label for="qf-name">QR名称</label>
+                <input type="text" id="qf-name" placeholder="例）紀陽銀行 提携カフェ・コトチカ店 チェックインQR">
+              </div>
+              <div class="field" style="margin-top:14px;">
+                <label for="qf-location">設置場所</label>
+                <input type="text" id="qf-location" placeholder="例）紀陽銀行 提携カフェ・コトチカ店(和歌山市小松原通)">
+              </div>
+              <div class="field-row" style="margin-top:14px;">
+                <div class="field">
+                  <label for="qf-issued">発行日</label>
+                  <input type="date" id="qf-issued">
+                </div>
+                <div class="field">
+                  <label for="qf-points" id="qf-points-label">付与ポイント数</label>
+                  <input type="number" id="qf-points" min="0" step="10" value="100">
+                </div>
+              </div>
+              <div class="field-hint" id="qf-points-hint" style="margin-top:-8px;">このQRをスキャンすると即時に付与されるポイント数です。</div>
+            </div>
+
+            <div class="card">
+              <div class="section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>
+                有効期間・状態
+              </div>
+              <div class="field-row" style="margin-top:10px;">
+                <div class="field">
+                  <label for="qf-valid-from">有効期間(開始)</label>
+                  <input type="date" id="qf-valid-from">
+                </div>
+                <div class="field">
+                  <label for="qf-valid-to">有効期間(終了)</label>
+                  <input type="date" id="qf-valid-to">
+                </div>
+              </div>
+              <div class="toggle-row" style="margin-top:16px;">
+                <div class="toggle-row-text">
+                  <strong>このQRコードを有効にする</strong>
+                  <span>無効にすると、有効期間内でもスキャンできなくなります</span>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" id="qf-enabled" checked>
+                  <span class="switch-track"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="preview-card">
+            <h3>QRコード画像</h3>
+            <div class="qr-preview-canvas-wrap">
+              <canvas id="qf-canvas" width="220" height="220"></canvas>
+            </div>
+            <p class="qr-preview-id" id="qf-preview-id">QR-000000</p>
+            <p class="qr-preview-name" id="qf-preview-name">QR名称</p>
+            <button type="button" class="btn" id="qf-download" style="width:100%;justify-content:center;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+              画像をダウンロード
+            </button>
+            <p class="qr-status-note">※ プロトタイプ用のダミー画像です。実際のQR規格には準拠していません。</p>
+          </div>
+        </div>
+      </section>
+
     </div>
   </div>
 </div>
@@ -1096,17 +1252,79 @@
     { month: "8月", survey: 3, push: 4 }
   ];
 
+  var qrCodes = [
+    {
+      id: "QR-B-000001", type: "bonus", name: "紀陽銀行 提携カフェ・コトチカ店 チェックインQR",
+      issuedAt: "2026-06-01", points: 100,
+      validFrom: "2026-06-01", validTo: "2027-05-31",
+      location: "紀陽銀行 提携カフェ・コトチカ店(和歌山市小松原通)",
+      enabled: true, scans: 842
+    },
+    {
+      id: "QR-P-000001", type: "payment", name: "紀陽銀行 提携カフェ・コトチカ店 お支払いQR",
+      issuedAt: "2026-06-01", points: 1000,
+      validFrom: "2026-06-01", validTo: "2027-05-31",
+      location: "紀陽銀行 提携カフェ・コトチカ店(和歌山市小松原通)",
+      enabled: true, scans: 1930
+    },
+    {
+      id: "QR-B-000002", type: "bonus", name: "スタジアム物販ブース チェックインQR",
+      issuedAt: "2026-04-10", points: 150,
+      validFrom: "2026-04-10", validTo: "2026-11-30",
+      location: "紀陽スタジアム 物販ブース(ホームゲーム開催日のみ設置)",
+      enabled: true, scans: 356
+    },
+    {
+      id: "QR-P-000002", type: "payment", name: "スタジアム物販ブース お支払いQR",
+      issuedAt: "2026-04-10", points: 3000,
+      validFrom: "2026-04-10", validTo: "2026-11-30",
+      location: "紀陽スタジアム 物販ブース(ホームゲーム開催日のみ設置)",
+      enabled: true, scans: 512
+    },
+    {
+      id: "QR-B-000003", type: "bonus", name: "わかやま市場（まちの駅） チェックインQR",
+      issuedAt: "2026-03-01", points: 80,
+      validFrom: "2026-03-01", validTo: "2026-09-30",
+      location: "わかやま市場（まちの駅）1F 総合案内",
+      enabled: true, scans: 208
+    },
+    {
+      id: "QR-P-000003", type: "payment", name: "わかやま市場（まちの駅） お支払いQR",
+      issuedAt: "2026-03-01", points: 2000,
+      validFrom: "2026-03-01", validTo: "2026-09-30",
+      location: "わかやま市場（まちの駅）1F 総合案内",
+      enabled: false, scans: 47
+    },
+    {
+      id: "QR-B-000004", type: "bonus", name: "南紀白浜 観光案内所 チェックインQR",
+      issuedAt: "2025-12-01", points: 120,
+      validFrom: "2025-12-01", validTo: "2026-03-31",
+      location: "南紀白浜 観光案内所 入口",
+      enabled: true, scans: 91
+    },
+    {
+      id: "QR-P-000004", type: "payment", name: "本店ロビー 端末設置 お支払いQR(旧)",
+      issuedAt: "2025-04-01", points: 500,
+      validFrom: "2025-04-01", validTo: "2026-03-31",
+      location: "紀陽銀行 本店 1Fロビー(端末更新のため撤去予定)",
+      enabled: true, scans: 2510
+    }
+  ];
+  var nextQrSeq = { bonus: 5, payment: 5 };
+
   var nextSurveyId = 7;
   var nextPushId = 7;
 
   var state = {
     view: "dashboard",
     surveyFilter: "all",
-    pushFilter: "all"
+    pushFilter: "all",
+    qrFilter: "all"
   };
 
   var formSurvey = null;
   var formPush = null;
+  var formQr = null;
   var pendingDelete = null; // { type, id }
 
   /* ---------- toast ---------- */
@@ -1166,7 +1384,8 @@
   var NAV_PARENT = {
     dashboard: "dashboard",
     surveys: "surveys", "survey-form": "surveys", "survey-results": "surveys",
-    push: "push", "push-form": "push", "push-stats": "push"
+    push: "push", "push-form": "push", "push-stats": "push",
+    qr: "qr", "qr-form": "qr"
   };
 
   function navigateTo(view, opts) {
@@ -1186,12 +1405,14 @@
       "survey-results": ["アンケート結果", opts.title || ""],
       push: ["プッシュ通知管理", "プッシュ通知の作成・配信・実績確認"],
       "push-form": [opts.editing ? "プッシュ通知を編集" : "新規プッシュ通知作成", "配信内容とタイミングを設定します"],
-      "push-stats": ["配信実績", opts.title || ""]
+      "push-stats": ["配信実績", opts.title || ""],
+      qr: ["QRコード管理", "ポイント付与QR・ポイント利用QRの発行と有効/無効の管理"],
+      "qr-form": [opts.editing ? "QRコードを編集" : "新規QRコード発行", "設置場所とポイント数、有効期間を設定します"]
     };
     var t = titleMap[view] || ["", ""];
     $("topbar-title").textContent = t[0];
     $("topbar-sub").textContent = t[1];
-    $("topbar-back").hidden = (view === "dashboard" || view === "surveys" || view === "push");
+    $("topbar-back").hidden = (view === "dashboard" || view === "surveys" || view === "push" || view === "qr");
 
     var actions = $("topbar-actions");
     actions.innerHTML = "";
@@ -1199,6 +1420,8 @@
       actions.appendChild(makeBtn("btn btn-primary", ICONS.plus, "新規アンケート作成", function () { openSurveyForm(null); }));
     } else if (view === "push") {
       actions.appendChild(makeBtn("btn btn-primary", ICONS.plus, "新規プッシュ通知作成", function () { openPushForm(null); }));
+    } else if (view === "qr") {
+      actions.appendChild(makeBtn("btn btn-primary", ICONS.plus, "新規QRコード発行", function () { openQrForm(null); }));
     }
 
     $("view-" + view).hidden = false;
@@ -1206,6 +1429,7 @@
     if (view === "dashboard") renderDashboard();
     if (view === "surveys") renderSurveyList();
     if (view === "push") renderPushList();
+    if (view === "qr") renderQrList();
   }
 
   function makeBtn(cls, iconSvg, label, onClick) {
@@ -1220,6 +1444,7 @@
   $("topbar-back").addEventListener("click", function () {
     if (state.view === "survey-form" || state.view === "survey-results") navigateTo("surveys");
     else if (state.view === "push-form" || state.view === "push-stats") navigateTo("push");
+    else if (state.view === "qr-form") navigateTo("qr");
     else navigateTo("dashboard");
   });
 
@@ -1230,8 +1455,10 @@
   function updateSidebarBadges() {
     var activeSurveys = surveys.filter(function (s) { return s.status === "active" || s.status === "pending_review"; }).length;
     var activePush = pushes.filter(function (p) { return p.status === "scheduled" || p.status === "pending_review"; }).length;
+    var activeQr = qrCodes.filter(function (q) { return computeQrStatus(q) === "active"; }).length;
     $("nav-badge-surveys").textContent = activeSurveys;
     $("nav-badge-push").textContent = activePush;
+    $("nav-badge-qr").textContent = activeQr;
   }
 
   /* ================= DASHBOARD ================= */
@@ -1347,7 +1574,8 @@
     document.querySelectorAll(".icon-action").forEach(function (btn) {
       btn.onclick = function () {
         var action = btn.dataset.action;
-        var id = parseInt(btn.dataset.id, 10);
+        var isQr = action.indexOf("-qr") !== -1;
+        var id = isQr ? btn.dataset.id : parseInt(btn.dataset.id, 10);
         if (action === "edit-survey") openSurveyForm(id);
         else if (action === "results-survey") openSurveyResults(id);
         else if (action === "approve-survey") approveItem("survey", id);
@@ -1356,6 +1584,9 @@
         else if (action === "stats-push") openPushStats(id);
         else if (action === "approve-push") approveItem("push", id);
         else if (action === "delete-push") confirmDeletePush(id);
+        else if (action === "edit-qr") openQrForm(id);
+        else if (action === "toggle-qr") toggleQrEnabled(id);
+        else if (action === "delete-qr") confirmDeleteQr(id);
       };
     });
   }
@@ -1914,6 +2145,252 @@
       '</div>';
     });
     $("ps-funnel").innerHTML = funnelHtml;
+  }
+
+  /* ================= QR CODE MANAGEMENT ================= */
+  var QR_STATUS_LABEL = { active: "有効", scheduled: "開始前", expired: "期限切れ", disabled: "無効" };
+  var QR_TYPE_LABEL = { bonus: "ポイント付与QR", payment: "ポイント利用QR" };
+
+  function computeQrStatus(qr) {
+    if (!qr.enabled) return "disabled";
+    var today = todayStr();
+    if (qr.validTo && qr.validTo < today) return "expired";
+    if (qr.validFrom && qr.validFrom > today) return "scheduled";
+    return "active";
+  }
+  function qrStatusBadge(status) {
+    return '<span class="badge badge-' + status + '">' + QR_STATUS_LABEL[status] + '</span>';
+  }
+  function qrTypeBadge(type) {
+    return '<span class="badge badge-type-' + type + '">' + QR_TYPE_LABEL[type] + '</span>';
+  }
+
+  /* deterministic pseudo-QR pattern, seeded from the QR's own ID so it stays stable */
+  function drawQrPattern(canvas, seedStr) {
+    var ctx = canvas.getContext("2d");
+    var size = canvas.width;
+    var modules = 25;
+    var cell = size / modules;
+    ctx.clearRect(0, 0, size, size);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, size, size);
+    ctx.fillStyle = "#14172b";
+
+    var seed = 0;
+    for (var i = 0; i < seedStr.length; i++) seed = (seed * 31 + seedStr.charCodeAt(i)) >>> 0;
+    if (seed === 0) seed = 42;
+    function rand() {
+      seed = (seed * 1103515245 + 12345) >>> 0;
+      return (seed >>> 8) / 0xffffff;
+    }
+    function isFinderZone(x, y) {
+      return (x < 8 && y < 8) || (x >= modules - 8 && y < 8) || (x < 8 && y >= modules - 8);
+    }
+    for (var y = 0; y < modules; y++) {
+      for (var x = 0; x < modules; x++) {
+        if (isFinderZone(x, y)) continue;
+        if (rand() > 0.56) ctx.fillRect(Math.round(x * cell), Math.round(y * cell), Math.ceil(cell), Math.ceil(cell));
+      }
+    }
+    function finder(ox, oy) {
+      ctx.fillStyle = "#14172b";
+      ctx.fillRect(ox, oy, 7 * cell, 7 * cell);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(ox + cell, oy + cell, 5 * cell, 5 * cell);
+      ctx.fillStyle = "#14172b";
+      ctx.fillRect(ox + 2 * cell, oy + 2 * cell, 3 * cell, 3 * cell);
+    }
+    finder(0, 0);
+    finder((modules - 7) * cell, 0);
+    finder(0, (modules - 7) * cell);
+  }
+
+  function renderQrThumb(qr) {
+    var wrap = document.createElement("div");
+    wrap.className = "qr-row-thumb";
+    var canvas = document.createElement("canvas");
+    canvas.width = 60; canvas.height = 60;
+    wrap.appendChild(canvas);
+    drawQrPattern(canvas, qr.id);
+    return wrap;
+  }
+
+  document.querySelectorAll("#qr-filter-tabs .filter-tab").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      document.querySelectorAll("#qr-filter-tabs .filter-tab").forEach(function (b) { b.removeAttribute("aria-current"); });
+      btn.setAttribute("aria-current", "page");
+      state.qrFilter = btn.dataset.filter;
+      renderQrList();
+    });
+  });
+
+  function renderQrList() {
+    var filter = state.qrFilter;
+    var list = qrCodes.filter(function (q) {
+      if (filter === "all") return true;
+      if (filter === "bonus" || filter === "payment") return q.type === filter;
+      return computeQrStatus(q) === filter;
+    });
+    list = list.slice().sort(function (a, b) { return b.issuedAt.localeCompare(a.issuedAt); });
+
+    var body = $("qr-table-body");
+    body.innerHTML = "";
+    list.forEach(function (qr) {
+      var status = computeQrStatus(qr);
+      var tr = document.createElement("tr");
+      tr.innerHTML =
+        '<td id="qr-thumb-' + qr.id + '"></td>' +
+        '<td class="qr-id-cell">' + qr.id + '</td>' +
+        '<td>' + qrTypeBadge(qr.type) + '</td>' +
+        '<td class="num-cell">' + fmtNum(qr.points) + 'pt</td>' +
+        '<td style="font-size:11.5px;color:var(--ink-soft);max-width:220px;">' + qr.location + '</td>' +
+        '<td style="white-space:nowrap;font-size:11.5px;color:var(--ink-soft);">' + (qr.validFrom || "未設定") + ' 〜 ' + (qr.validTo || "無期限") + '</td>' +
+        '<td>' + qrStatusBadge(status) + '</td>' +
+        '<td class="num-cell">' + fmtNum(qr.scans) + '</td>' +
+        '<td><div class="row-actions">' +
+          '<button type="button" class="icon-action" data-action="toggle-qr" data-id="' + qr.id + '" title="' + (qr.enabled ? "無効にする" : "有効にする") + '">' +
+            (qr.enabled
+              ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>'
+              : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>') +
+          '</button>' +
+          actionBtn("edit", "編集", "edit-qr", qr.id) +
+          actionBtn("trash", "削除", "delete-qr", qr.id) +
+        '</div></td>';
+      body.appendChild(tr);
+      var cell = tr.querySelector('[id="qr-thumb-' + qr.id + '"]');
+      cell.appendChild(renderQrThumb(qr));
+    });
+    $("qr-empty").hidden = list.length > 0;
+    bindRowActions();
+  }
+
+  function confirmDeleteQr(id) {
+    var qr = qrCodes.filter(function (x) { return x.id === id; })[0];
+    if (!qr) return;
+    openConfirmModal("QRコードを削除しますか？", "「" + qr.name + "」(" + qr.id + ")を削除します。この操作は取り消せません。", function () {
+      qrCodes = qrCodes.filter(function (x) { return x.id !== id; });
+      renderQrList();
+      updateSidebarBadges();
+      showToast("QRコードを削除しました");
+    });
+  }
+
+  function toggleQrEnabled(id) {
+    var qr = qrCodes.filter(function (x) { return x.id === id; })[0];
+    if (!qr) return;
+    qr.enabled = !qr.enabled;
+    renderQrList();
+    updateSidebarBadges();
+    showToast(qr.enabled ? "QRコードを有効にしました" : "QRコードを無効にしました");
+  }
+
+  /* ---------- QR form ---------- */
+  function blankQr() {
+    var type = "bonus";
+    var id = "QR-" + (type === "bonus" ? "B" : "P") + "-" + String(nextQrSeq[type]).padStart(6, "0");
+    return {
+      id: id, type: type, name: "", issuedAt: todayStr(), points: 100,
+      validFrom: todayStr(), validTo: "", location: "", enabled: true, scans: 0
+    };
+  }
+
+  function openQrForm(id) {
+    formQr = id ? JSON.parse(JSON.stringify(qrCodes.filter(function (q) { return q.id === id; })[0])) : blankQr();
+    navigateTo("qr-form", { editing: !!id });
+    renderQrForm();
+  }
+
+  function renderQrForm() {
+    var f = formQr;
+    $("qf-type-bonus").checked = f.type === "bonus";
+    $("qf-type-payment").checked = f.type === "payment";
+    $("qf-type-bonus-label").classList.toggle("checked-bonus", f.type === "bonus");
+    $("qf-type-payment-label").classList.toggle("checked-payment", f.type === "payment");
+    $("qf-name").value = f.name;
+    $("qf-location").value = f.location;
+    $("qf-issued").value = f.issuedAt;
+    $("qf-points").value = f.points;
+    $("qf-valid-from").value = f.validFrom;
+    $("qf-valid-to").value = f.validTo;
+    $("qf-enabled").checked = f.enabled;
+    updateQrPointsLabel();
+    setupTopbarActionsForQrForm();
+    updateQrPreview();
+  }
+
+  function updateQrPointsLabel() {
+    var isBonus = formQr.type === "bonus";
+    $("qf-points-label").textContent = isBonus ? "付与ポイント数" : "利用上限ポイント数";
+    $("qf-points-hint").textContent = isBonus
+      ? "このQRをスキャンすると即時に付与されるポイント数です。"
+      : "このQRで一度に利用できるポイント数の上限です(実際の利用額はお会計時に入力されます)。";
+  }
+
+  document.querySelectorAll('input[name="qf-type"]').forEach(function (r) {
+    r.addEventListener("change", function () {
+      formQr.type = r.value;
+      var isExisting = qrCodes.some(function (q) { return q.id === formQr.id; });
+      if (!isExisting) {
+        formQr.id = "QR-" + (formQr.type === "bonus" ? "B" : "P") + "-" + String(nextQrSeq[formQr.type]).padStart(6, "0");
+      }
+      $("qf-type-bonus-label").classList.toggle("checked-bonus", formQr.type === "bonus");
+      $("qf-type-payment-label").classList.toggle("checked-payment", formQr.type === "payment");
+      updateQrPointsLabel();
+      updateQrPreview();
+    });
+  });
+  $("qf-name").addEventListener("input", function () { formQr.name = $("qf-name").value; updateQrPreview(); });
+  $("qf-location").addEventListener("input", function () { formQr.location = $("qf-location").value; });
+  $("qf-issued").addEventListener("input", function () { formQr.issuedAt = $("qf-issued").value; });
+  $("qf-points").addEventListener("input", function () { formQr.points = parseInt($("qf-points").value, 10) || 0; });
+  $("qf-valid-from").addEventListener("input", function () { formQr.validFrom = $("qf-valid-from").value; });
+  $("qf-valid-to").addEventListener("input", function () { formQr.validTo = $("qf-valid-to").value; });
+  $("qf-enabled").addEventListener("change", function () { formQr.enabled = $("qf-enabled").checked; });
+
+  function updateQrPreview() {
+    $("qf-preview-id").textContent = formQr.id;
+    $("qf-preview-name").textContent = formQr.name || "(名称未設定)";
+    drawQrPattern($("qf-canvas"), formQr.id);
+  }
+
+  $("qf-download").addEventListener("click", function () {
+    var canvas = $("qf-canvas");
+    var link = document.createElement("a");
+    link.download = formQr.id + ".png";
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+    showToast("画像をダウンロードしました");
+  });
+
+  function setupTopbarActionsForQrForm() {
+    var actions = $("topbar-actions");
+    actions.innerHTML = "";
+    actions.appendChild(makeBtn("btn btn-primary", "", "保存する", function () { saveQr(); }));
+  }
+
+  function validateQr() {
+    if (!formQr.name.trim()) { showToast("QR名称を入力してください"); return false; }
+    if (!formQr.location.trim()) { showToast("設置場所を入力してください"); return false; }
+    if (formQr.points <= 0) { showToast("ポイント数を1以上で入力してください"); return false; }
+    if (formQr.validTo && formQr.validFrom && formQr.validTo < formQr.validFrom) {
+      showToast("有効期間の終了日は開始日より後にしてください");
+      return false;
+    }
+    return true;
+  }
+
+  function saveQr() {
+    if (!validateQr()) return;
+    var f = formQr;
+    var idx = qrCodes.findIndex(function (q) { return q.id === f.id; });
+    if (idx !== -1) {
+      qrCodes[idx] = f;
+    } else {
+      nextQrSeq[f.type] = nextQrSeq[f.type] + 1;
+      qrCodes.push(f);
+    }
+    showToast("QRコードを保存しました");
+    navigateTo("qr");
   }
 
   /* ================= INIT ================= */
