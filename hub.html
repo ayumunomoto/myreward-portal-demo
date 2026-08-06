@@ -1,7 +1,43 @@
-<title>マイリワードポータル(コア版)</title>
+<title>マイリワードポータル(ハブ版)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="theme-color" id="theme-color-meta" content="#142a63">
 <link rel="stylesheet" href="assets/core.css">
+<style>
+  /* ---------- hub navigation extras ---------- */
+.account-card-actions { display: flex; align-items: center; gap: 8px; }
+  .history-link-btn {
+    display: flex; align-items: center; gap: 4px; padding: 5px 12px; border-radius: 999px;
+    border: 1px solid var(--divider); background: #fff; color: var(--ink-soft);
+    font: inherit; font-size: 10.5px; font-weight: 700; cursor: pointer;
+  }
+  .history-link-btn svg { width: 12px; height: 12px; }
+  .history-link-btn:hover { background: #f7f7f8; }
+
+  .member-card { height: auto; min-height: 128px; gap: 14px; }
+  .member-card-foot { flex: none; }
+  .member-card-bottom-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    position: relative; z-index: 1;
+  }
+  .card-qr-btn {
+    flex: none;
+    display: flex; align-items: center; gap: 6px;
+    padding: 9px 15px; border-radius: 999px; border: none; cursor: pointer;
+    background: rgba(255,255,255,.95); color: var(--accent-strong);
+    font: inherit; font-size: 12.5px; font-weight: 800;
+    box-shadow: 0 10px 20px -8px rgba(0,0,0,.4);
+    transition: transform .12s ease, background .15s ease;
+  }
+  .card-qr-btn:hover { background: #fff; }
+  .card-qr-btn:active { transform: scale(.96); }
+  .card-qr-btn svg { width: 16px; height: 16px; }
+
+  .panel-head-row { display: flex; align-items: flex-start; gap: 12px; }
+  .panel-head-row.panel-head-row-compact { align-items: center; }
+  .panel-head-row h2 { margin: 0; }
+  .panel-back { flex: none; margin-top: 1px; }
+  .panel-head-row-compact .panel-back { margin-top: 0; }
+</style>
 
 <div class="stage">
   <main class="app" id="app">
@@ -33,10 +69,16 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
               <span id="card-kicker">保有メイン口座</span>
             </span>
-            <button type="button" class="refresh-btn" id="refresh-btn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3.5-7.11"/><path d="M21 3v5h-5"/></svg>
-              更新
-            </button>
+            <div class="account-card-actions">
+              <button type="button" class="history-link-btn" id="history-shortcut">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+                履歴を見る
+              </button>
+              <button type="button" class="refresh-btn" id="refresh-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3.5-7.11"/><path d="M21 3v5h-5"/></svg>
+                更新
+              </button>
+            </div>
           </div>
 
           <div class="points-row">
@@ -49,7 +91,13 @@
               <span id="card-name">普通預金 ****4820</span>
               <div id="card-icon"></div>
             </div>
-            <div class="member-card-foot">VALID THRU 12/28</div>
+            <div class="member-card-bottom-row">
+              <div class="member-card-foot">VALID THRU 12/28</div>
+              <button type="button" class="card-qr-btn" id="card-qr-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3z"/><path d="M21 14v.01"/><path d="M14 21v.01"/><path d="M21 21v.01"/><path d="M17.5 17.5v.01"/></svg>
+                QRを読む
+              </button>
+            </div>
           </div>
         </div>
 
@@ -84,18 +132,28 @@
 
       <!-- QUESTS -->
       <section class="panel" id="panel-quests" hidden>
-        <div>
-          <h2>アクティブクエスト</h2>
-          <p class="panel-lead" id="quests-lead">日常の移動や決済、スタジアム訪問でポイントが貯まります（追加原価ゼロ設計）</p>
+        <div class="panel-head-row">
+          <button type="button" class="icon-btn panel-back" data-back-to="home" aria-label="ホームに戻る">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <div>
+            <h2>アクティブクエスト</h2>
+            <p class="panel-lead" id="quests-lead">日常の移動や決済、スタジアム訪問でポイントが貯まります（追加原価ゼロ設計）</p>
+          </div>
         </div>
         <div class="quest-list" id="quest-list"></div>
       </section>
 
       <!-- REWARDS -->
       <section class="panel" id="panel-rewards" hidden>
-        <div>
-          <h2>リワード交換所</h2>
-          <p class="panel-lead" id="rewards-lead">手数料がかからない、自社グループおよび地元提携企業の限定特典</p>
+        <div class="panel-head-row">
+          <button type="button" class="icon-btn panel-back" data-back-to="home" aria-label="ホームに戻る">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <div>
+            <h2>リワード交換所</h2>
+            <p class="panel-lead" id="rewards-lead">手数料がかからない、自社グループおよび地元提携企業の限定特典</p>
+          </div>
         </div>
 
         <div class="reward-list" id="reward-list"></div>
@@ -103,6 +161,12 @@
 
       <!-- HISTORY -->
       <section class="panel" id="panel-history" hidden>
+        <div class="panel-head-row panel-head-row-compact">
+          <button type="button" class="icon-btn panel-back" data-back-to="home" aria-label="ホームに戻る">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <h2>ポイント履歴</h2>
+        </div>
         <div class="history-tabs">
           <button type="button" class="history-tab" data-htab="log" aria-current="page">ポイント履歴</button>
           <button type="button" class="history-tab" data-htab="expiry">有効期限一覧</button>
@@ -143,31 +207,6 @@
       </section>
 
     </div>
-
-    <nav class="bottom-nav">
-      <button type="button" class="nav-item" data-tab="home" aria-current="page">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v18Z"/><path d="M6 12H4a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h2"/><path d="M18 9h2a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>
-        <span>ホーム</span>
-      </button>
-      <button type="button" class="nav-item" data-tab="quests">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
-        <span>チャレンジ</span>
-      </button>
-      <button type="button" class="nav-item nav-item-qr" data-tab="qr" id="nav-qr">
-        <span class="nav-qr-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3z"/><path d="M21 14v.01"/><path d="M14 21v.01"/><path d="M21 21v.01"/><path d="M17.5 17.5v.01"/></svg>
-        </span>
-        <span>QRを読む</span>
-      </button>
-      <button type="button" class="nav-item" data-tab="rewards">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8"/><path d="M16.5 8a2.5 2.5 0 0 0 0-5C13 3 12 8 12 8"/></svg>
-        <span>リワード</span>
-      </button>
-      <button type="button" class="nav-item" data-tab="history">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
-        <span>履歴</span>
-      </button>
-    </nav>
 
     <div class="toast" id="toast" role="status" aria-live="polite">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
@@ -410,5 +449,12 @@
 
 <script src="assets/core.js"></script>
 <script>
+  $("history-shortcut").addEventListener("click", function () { setTab("history"); });
+  $("card-qr-btn").addEventListener("click", openQRFlow);
+
+  document.querySelectorAll(".panel-back").forEach(function (btn) {
+    btn.addEventListener("click", function () { setTab(btn.dataset.backTo); });
+  });
+
   initApp();
 </script>
