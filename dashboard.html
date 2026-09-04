@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ロイヤルティ顧客育成ダッシュボード</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
+<style>
+/* ============================================================
+   東京都版ダッシュボードカラーパレット準拠
+   （東京都デジタルサービス局「ダッシュボード作成ガイドブック」）
+   ============================================================ */
+:root{
+  --main:#018838; --main-hover:#016E2D;
+  --ink:#1A1A1C; --ink-mute:#767676; --on-fill:#FFFFFF;
+  --bg:#F8FBF9; --surface:#FFFFFF; --disabled:#D9D9D9;
+  /* グラフ メインパレット（系列1〜3） */
+  --g1:#018838; --g2:#115A36; --g3:#51B883; --gbg:#9BD4B5;
+  /* グラフ 相対パレット（YES-NO等、反対の意味） */
+  --r1:#3460FB; --r2:#00118F; --r3:#00A3BF; --rbg:#C5D7FB;
+  /* グラフ 中立パレット（その他・未回答） */
+  --n1:#767676; --n2:#4D4D4D; --n3:#959595; --nbg:#D9D9D9;
+  --line:#D9D9D9; --line-soft:rgba(26,26,28,.08);
+  --jp:"Noto Sans JP","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+  --din:"Barlow","Noto Sans JP",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:var(--jp); font-size:13px; line-height:1.7;
+  -webkit-font-smoothing:antialiased; font-feature-settings:"palt" 1;
+}
+button{font-family:inherit; color:inherit}
+:focus-visible{outline:2px solid var(--main); outline-offset:2px}
+.tnum{font-variant-numeric:tabular-nums}
+
+/* ---------- shell ---------- */
+.shell{display:grid; grid-template-columns:216px minmax(0,1fr); min-height:100vh}
+.side{background:var(--surface); border-right:1px solid var(--line); padding:20px 14px; position:sticky; top:0; height:100vh; overflow-y:auto}
+.brand{display:flex; gap:10px; align-items:center; padding:0 6px 18px; border-bottom:1px solid var(--line); margin-bottom:16px}
+.brand-mark{width:32px; height:32px; border-radius:6px; background:var(--main); display:grid; place-items:center; flex:none}
+.brand-mark svg{width:18px; height:18px; stroke:#fff; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round}
+.brand b{display:block; font-size:12.5px; font-weight:700; line-height:1.4}
+.brand span{display:block; font-family:var(--din); font-size:9px; letter-spacing:.12em; color:var(--ink-mute)}
+.nav-lab{font-family:var(--din); font-size:9.5px; letter-spacing:.14em; color:var(--ink-mute); padding:14px 8px 6px; font-weight:600}
+.nav-btn{display:flex; align-items:center; gap:9px; width:100%; padding:9px 10px; border:0; background:none;
+  border-radius:6px; font-size:12.5px; font-weight:500; text-align:left; cursor:pointer; line-height:1.4}
+.nav-btn svg{width:16px; height:16px; flex:none; stroke:currentColor; fill:none; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round}
+.nav-btn:hover{background:var(--bg)}
+.nav-btn[aria-current="page"]{background:var(--main); color:var(--on-fill); font-weight:700}
+.side-foot{margin-top:20px; padding:12px 10px; background:var(--bg); border-radius:6px; font-size:10.5px; color:var(--ink-mute); line-height:1.6}
+
+/* ---------- topbar ---------- */
+.main{min-width:0; display:flex; flex-direction:column}
+.top{background:var(--surface); border-bottom:1px solid var(--line); padding:16px 28px;
+  display:flex; align-items:flex-end; justify-content:space-between; gap:20px; flex-wrap:wrap; position:sticky; top:0; z-index:20}
+.top h1{margin:0; font-size:22px; font-weight:700; line-height:1.35}
+.top p{margin:2px 0 0; font-size:11.5px; color:var(--ink-mute)}
+.filters{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+.fset{display:flex; align-items:center; gap:6px; background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:4px 8px}
+.fset label{font-family:var(--din); font-size:9.5px; letter-spacing:.1em; color:var(--ink-mute); font-weight:600}
+.fset select{border:0; background:none; font-family:var(--jp); font-size:12px; font-weight:500; color:var(--ink); cursor:pointer; padding:1px 2px}
+.asof{font-family:var(--din); font-size:10.5px; color:var(--ink-mute); letter-spacing:.03em}
+
+.wrap{padding:22px 28px 56px; flex:1}
+.view[hidden]{display:none}
+.sec-h{display:flex; align-items:baseline; gap:12px; margin:30px 0 12px; flex-wrap:wrap}
+.sec-h:first-child{margin-top:0}
+.sec-h h2{margin:0; font-size:16px; font-weight:700}
+.sec-h p{margin:0; font-size:11.5px; color:var(--ink-mute)}
+
+/* ---------- cards / kpi ---------- */
+.card{background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:16px 18px}
+.card-h{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:12px; flex-wrap:wrap}
+.card-h h3{margin:0; font-size:14px; font-weight:700}
+.card-h span{font-size:11px; color:var(--ink-mute)}
+
+.kpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(178px,1fr)); gap:12px}
+.kpi{background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:14px 16px}
+.kpi.fill{background:var(--main); border-color:var(--main); color:var(--on-fill)}
+.kpi .lab{font-size:11px; font-weight:500; margin-bottom:2px; line-height:1.4}
+.kpi.fill .lab{color:rgba(255,255,255,.92)}
+.kpi .val{font-family:var(--din); font-size:34px; font-weight:600; line-height:1.15; font-variant-numeric:tabular-nums; letter-spacing:-.01em; white-space:nowrap}
+.kpi.fill .val{font-size:36px}
+.kpi .val small{font-size:14px; font-weight:500; margin-left:2px}
+.kpi .sub{font-size:10.5px; color:var(--ink-mute); margin-top:3px; line-height:1.5}
+.kpi.fill .sub{color:rgba(255,255,255,.85)}
+.delta{font-family:var(--din); font-size:11.5px; font-weight:600; font-variant-numeric:tabular-nums}
+.delta.up{color:var(--main)} .delta.down{color:var(--r1)}
+.kpi.fill .delta{color:#fff}
+
+/* ---------- roadmap ---------- */
+.road{display:grid; grid-template-columns:minmax(0,1fr) 336px; gap:16px; align-items:start}
+.road-plot{background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:14px 16px 10px}
+#rmSvg{display:block; width:100%; height:auto}
+#rmSvg text{font-family:var(--jp)}
+#rmSvg .num{font-family:var(--din); font-variant-numeric:tabular-nums}
+.bub{cursor:pointer}
+.bub circle{transition:none}
+@media (prefers-reduced-motion: no-preference){ .bub circle{transition:r .16s ease} }
+.rm-legend{display:flex; flex-wrap:wrap; gap:7px 20px; padding:12px 2px 2px; margin-top:8px; border-top:1px solid var(--line); font-size:11px; color:var(--ink-mute)}
+.rm-legend i{font-style:normal; display:inline-flex; align-items:center; gap:6px}
+.sw{width:11px; height:11px; border-radius:50%; display:inline-block; flex:none}
+.swline{width:22px; height:0; border-top:3px solid var(--g1); display:inline-block; flex:none}
+.swline.dash{border-top-style:dashed; border-color:var(--r1)}
+
+.routes{display:flex; flex-direction:column; gap:8px}
+.rt{width:100%; text-align:left; background:var(--surface); border:1px solid var(--line); border-radius:8px;
+  padding:11px 13px; cursor:pointer; display:grid; grid-template-columns:auto 1fr auto; gap:10px; align-items:center}
+.rt:hover{border-color:var(--main)}
+.rt[aria-pressed="true"]{border-color:var(--main); border-width:2px; padding:10px 12px; background:#F1F8F4}
+.rt-rank{font-family:var(--din); font-size:10px; font-weight:700; letter-spacing:.06em; color:var(--on-fill);
+  background:var(--n3); border-radius:3px; padding:2px 6px; line-height:1.5}
+.rt.pri .rt-rank{background:var(--main)}
+.rt-path{display:block; font-family:var(--din); font-size:13px; font-weight:600; letter-spacing:.02em}
+.rt-path em{font-style:normal; color:var(--main); padding:0 3px}
+.rt-name{display:block; font-size:11px; color:var(--ink-mute); line-height:1.4}
+.rt-roi{text-align:right}
+.rt-roi b{display:block; font-family:var(--din); font-size:17px; font-weight:600; line-height:1.2}
+.rt-roi span{font-family:var(--din); font-size:9px; letter-spacing:.1em; color:var(--ink-mute)}
+
+.rt-detail{background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:16px 18px; margin-top:16px}
+.rd-head{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:4px}
+.rd-head h3{margin:0; font-size:17px; font-weight:700}
+.rd-flow{font-family:var(--din); font-size:13px; font-weight:600; background:var(--bg); border:1px solid var(--line); border-radius:5px; padding:3px 10px}
+.rd-flow em{font-style:normal; color:var(--main); padding:0 4px}
+.rd-note{font-size:12px; color:var(--ink-mute); margin:0 0 16px; max-width:64em}
+.rd-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:16px 22px; padding-bottom:16px; border-bottom:1px solid var(--line); margin-bottom:16px}
+.rd-stat .l{font-size:10.5px; color:var(--ink-mute); margin-bottom:1px}
+.rd-stat .v{font-family:var(--din); font-size:24px; font-weight:600; line-height:1.2; font-variant-numeric:tabular-nums}
+.rd-stat .v small{font-size:12px; font-weight:500; margin-left:1px}
+.rd-cols{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:20px}
+.rd-cols h4{margin:0 0 8px; font-family:var(--din); font-size:10px; letter-spacing:.13em; color:var(--ink-mute); font-weight:700}
+.lever{display:flex; gap:9px; align-items:flex-start; padding:7px 0; border-bottom:1px solid var(--line-soft); font-size:12px}
+.lever:last-child{border-bottom:0}
+.lever .tag{font-family:var(--din); font-size:9px; font-weight:700; letter-spacing:.06em; padding:2px 6px; border-radius:3px;
+  background:var(--gbg); color:#0C3D22; flex:none; margin-top:2px}
+.barlist{display:flex; flex-direction:column; gap:9px}
+.brow{display:grid; grid-template-columns:106px minmax(0,1fr) 74px; gap:9px; align-items:center; font-size:11.5px}
+.brow .bt{height:9px; border-radius:2px; background:var(--nbg); overflow:hidden}
+.brow .bt i{display:block; height:100%; background:var(--g1)}
+.brow .bv{font-family:var(--din); font-size:12px; font-variant-numeric:tabular-nums; text-align:right; font-weight:600}
+
+/* ---------- tables ---------- */
+.tw{overflow-x:auto; background:var(--surface); border:1px solid var(--line); border-radius:8px}
+table{border-collapse:collapse; width:100%; min-width:640px; font-size:12px}
+th,td{padding:10px 14px; text-align:left; border-bottom:1px solid var(--line-soft); vertical-align:middle}
+thead th{font-family:var(--din); font-size:9.5px; letter-spacing:.11em; color:var(--ink-mute); font-weight:700;
+  background:var(--bg); border-bottom:1px solid var(--line); white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:var(--bg)}
+td.n,th.n{text-align:right; font-family:var(--din); font-variant-numeric:tabular-nums}
+.cid{font-family:var(--din); font-size:11px; font-weight:700; letter-spacing:.04em}
+.pill{display:inline-block; font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:11px; line-height:1.6; white-space:nowrap}
+.pill.keep{background:var(--gbg); color:#0C3D22}
+.pill.grow{background:var(--main); color:var(--on-fill)}
+.pill.risk{background:var(--rbg); color:var(--r2)}
+.pill.low{background:var(--nbg); color:var(--n2)}
+
+/* ---------- charts ---------- */
+.chart-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(290px,1fr)); gap:12px; align-items:start}
+.col2{display:grid; grid-template-columns:repeat(auto-fit,minmax(330px,1fr)); gap:12px; align-items:start; margin-top:12px}
+.col2 > div{display:flex; flex-direction:column; gap:12px}
+svg.c{display:block; width:100%; height:auto; font-family:var(--jp)}
+svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
+.legend{display:flex; flex-wrap:wrap; gap:6px 16px; font-size:11px; color:var(--ink-mute); margin-top:10px}
+.legend i{font-style:normal; display:inline-flex; align-items:center; gap:6px}
+.legend .sq{width:10px; height:10px; border-radius:2px; flex:none}
+
+.note{background:var(--surface); border:1px solid var(--line); border-left:4px solid var(--main); border-radius:6px;
+  padding:12px 16px; font-size:11.5px; line-height:1.75; margin-top:12px}
+.note b{color:var(--main)}
+.foot{margin-top:34px; padding-top:14px; border-top:1px solid var(--line); font-size:10.5px; color:var(--ink-mute); line-height:1.7}
+
+@media (max-width:1180px){ .road{grid-template-columns:1fr} }
+@media (max-width:860px){
+  .shell{grid-template-columns:1fr}
+  .side{position:static; height:auto; border-right:0; border-bottom:1px solid var(--line)}
+  .side nav{display:flex; flex-wrap:wrap; gap:6px}
+  .nav-lab{display:none}
+  .nav-btn{width:auto}
+  .wrap{padding:18px 16px 40px}
+  .top{padding:14px 16px}
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <aside class="side">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24"><path d="M3 20h18"/><path d="M6 20V10"/><path d="M11 20V5"/><path d="M16 20v-7"/><path d="M21 20V8"/></svg>
+      </div>
+      <div>
+        <b>ロイヤルティ<br>顧客育成</b>
+        <span>DASHBOARD</span>
+      </div>
+    </div>
+    <nav id="nav">
+      <div class="nav-lab">概要</div>
+      <button type="button" class="nav-btn" data-v="sum" aria-current="page">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+        サマリー
+      </button>
+      <div class="nav-lab">育成</div>
+      <button type="button" class="nav-btn" data-v="road">
+        <svg viewBox="0 0 24 24"><path d="M3 21 21 3"/><circle cx="6" cy="18" r="2.4"/><circle cx="12" cy="12" r="2.4"/><circle cx="18" cy="6" r="2.4"/></svg>
+        育成ロードマップ
+      </button>
+      <button type="button" class="nav-btn" data-v="cl">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/></svg>
+        クラスター詳細
+      </button>
+      <div class="nav-lab">効果</div>
+      <button type="button" class="nav-btn" data-v="camp">
+        <svg viewBox="0 0 24 24"><path d="M3 4h18l-7 8v7l-4 2v-9Z"/></svg>
+        施策効果
+      </button>
+    </nav>
+    <div class="side-foot">
+      <strong style="color:var(--ink)">ダミーデータ</strong><br>
+      実顧客データは含みません。収益換算レートは仮値です。
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="top">
+      <div>
+        <h1 id="tTitle">サマリー</h1>
+        <p id="tSub">ロイヤリティプログラムの事業効果と、会員／非会員の比較</p>
+      </div>
+      <div class="filters">
+        <div class="fset"><label for="fAge">年代</label>
+          <select id="fAge"><option>全年代</option><option>20代以下</option><option>30代</option><option>40代</option><option>50代</option><option>60代</option><option>70代以上</option></select></div>
+        <div class="fset"><label for="fSex">性別</label>
+          <select id="fSex"><option>全体</option><option>男性</option><option>女性</option></select></div>
+        <div class="fset"><label for="fArea">エリア</label>
+          <select id="fArea"><option>全エリア</option><option>仙台市</option><option>仙台市以外・宮城県内</option><option>県外</option></select></div>
+        <span class="asof">as of 2026-08 月末</span>
+      </div>
+    </header>
+
+    <div class="wrap">
+      <!-- ============ サマリー ============ -->
+      <section class="view" id="v-sum">
+        <div class="kpis" id="sumKpis"></div>
+
+        <div class="sec-h"><h2>会員 ／ 非会員の金融取引比較</h2><p>傾向スコアマッチングで年代・預金残高帯・取引年数を揃えた対照群との比較（Lv3）</p></div>
+        <div class="chart-grid">
+          <div class="card"><div class="card-h"><h3>主要な金融取引指標</h3><span>指数：非会員＝100</span></div>
+            <svg class="c" id="cCompare" viewBox="0 0 440 250" role="img" aria-label="会員と非会員の金融取引指標の比較"></svg>
+            <div class="legend"><i><span class="sq" style="background:var(--g1)"></span>ななポ会員</i><i><span class="sq" style="background:var(--r1)"></span>非会員（対照群）</i></div>
+          </div>
+          <div class="card"><div class="card-h"><h3>会員数とネット昇格率の推移</h3><span>直近12ヶ月</span></div>
+            <svg class="c" id="cTrend" viewBox="0 0 440 250" role="img" aria-label="会員数とネット昇格率の月次推移"></svg>
+            <div class="legend"><i><span class="sq" style="background:var(--gbg)"></span>会員数（万人）</i><i><span class="sq" style="background:var(--g2)"></span>ネット昇格率</i></div>
+          </div>
+        </div>
+        <div class="note" id="sumNote"></div>
+      </section>
+
+      <!-- ============ 育成ロードマップ ============ -->
+      <section class="view" id="v-road" hidden>
+        <div class="kpis" id="roadKpis"></div>
+
+        <div class="sec-h">
+          <h2>ロイヤルティ顧客育成ロードマップ</h2>
+          <p>縦軸＝デジタル接点スコア／横軸＝取引の広がりスコア。矢印は育成ルート、太さは想定転換人数。</p>
+        </div>
+
+        <div class="road">
+          <div class="road-plot">
+            <svg id="rmSvg" viewBox="0 0 790 664" role="img" aria-label="2軸クラスターマップと育成ルート"></svg>
+            <div class="rm-legend">
+              <i><span class="sw" style="background:var(--g2)"></span><span class="sw" style="background:var(--g1)"></span><span class="sw" style="background:var(--g3)"></span><span class="sw" style="background:var(--gbg)"></span>色＝ななポ実績（月間付与pt）</i>
+              <i><span class="sw" style="background:var(--nbg);width:15px;height:15px"></span>面積＝人数</i>
+              <i><span class="swline"></span>育成ルート</i>
+              <i><span class="swline dash"></span>離反リスク</i>
+              <i style="color:#959595">※ C10 は人数が突出するため面積上限でクリップ表示</i>
+            </div>
+          </div>
+
+          <div>
+            <div class="sec-h" style="margin:0 0 10px"><h2 style="font-size:14px">育成ルート（ROI順）</h2></div>
+            <div class="routes" id="routeList"></div>
+          </div>
+        </div>
+
+        <div class="rt-detail" id="rtDetail" aria-live="polite"></div>
+
+        <div class="sec-h"><h2>クラスター一覧</h2><p>行をクリックすると該当クラスターのルートを選択します</p></div>
+        <div class="tw"><table id="clTable">
+          <thead><tr>
+            <th>ID</th><th>クラスター</th><th>位置</th><th class="n">人数</th><th class="n">構成比</th>
+            <th class="n">取引の広がり</th><th class="n">デジタル接点</th><th class="n">ななポ実績</th><th class="n">通知許諾</th><th>方針</th>
+          </tr></thead><tbody></tbody>
+        </table></div>
+        <div class="note">
+          <b>読み方：</b>右上ほどロイヤル。<b>色が濃い＝ななポ実績（＝収益貢献）が大きい</b>ため、
+          「色は濃いのに左下にいる」クラスター（C3 サイレント優良）は、失ったときの損失が最も大きい。
+          育成とは、バブルを<b>右上へ動かすこと</b>であり、矢印はそのための経路と施策を表す。
+        </div>
+      </section>
+
+      <!-- ============ クラスター詳細 ============ -->
+      <section class="view" id="v-cl" hidden>
+        <div class="sec-h"><h2 id="clTitle">クラスター詳細</h2><p id="clSub"></p></div>
+        <div class="kpis" id="clKpis"></div>
+        <div class="col2">
+          <div>
+            <div class="card"><div class="card-h"><h3>年代構成</h3><span>クラスター内の構成比</span></div>
+              <svg class="c" id="cAge" viewBox="0 0 440 230" role="img" aria-label="年代構成"></svg></div>
+            <div class="card"><div class="card-h"><h3>ななポ付与の内訳</h3><span>月間平均 pt／人</span></div>
+              <svg class="c" id="cNana" viewBox="0 0 440 230" role="img" aria-label="ななポ付与の内訳"></svg>
+              <p style="font-size:10.5px;color:var(--ink-mute);margin:10px 0 0;line-height:1.6">
+                77ポイントサービスの実配点（預金残高 10〜2,000pt／ローン残高 10〜80pt／給与・年金受取 各20pt／
+                キャッシュレス決済 10〜80pt／公共料金 各5pt）にもとづく想定平均。</p></div>
+          </div>
+          <div>
+            <div class="card"><div class="card-h"><h3>スコア内訳</h3><span>各構成要素の充足率</span></div>
+              <div id="scoreBars"></div></div>
+            <div class="card"><div class="card-h"><h3>推奨アクション</h3><span>既存CMSのレバーに対応</span></div>
+              <div id="clActions"></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 施策効果 ============ -->
+      <section class="view" id="v-camp" hidden>
+        <div class="sec-h"><h2>施策効果</h2><p>配信 → 反応 → 金融アクション到達までのファネルと、施策別の費用対効果</p></div>
+        <div class="chart-grid">
+          <div class="card"><div class="card-h"><h3>施策ファネル</h3><span>2026年8月・全施策合計</span></div>
+            <svg class="c" id="cFunnel" viewBox="0 0 440 260" role="img" aria-label="施策ファネル"></svg></div>
+          <div class="card"><div class="card-h"><h3>配信群 ／ 非配信群のリフト</h3><span>金融アクション到達率</span></div>
+            <svg class="c" id="cLift" viewBox="0 0 440 260" role="img" aria-label="配信群と非配信群のリフト"></svg>
+            <div class="legend"><i><span class="sq" style="background:var(--g1)"></span>配信群</i><i><span class="sq" style="background:var(--r1)"></span>非配信群（ホールドアウト）</i></div>
+          </div>
+        </div>
+        <div class="sec-h"><h2>施策別の費用対効果</h2><p>CPA＝金融アクション1件あたりのポイント原資（1pt＝1円）</p></div>
+        <div class="tw"><table id="campTable">
+          <thead><tr><th>施策</th><th>種別</th><th class="n">配信</th><th class="n">反応率</th><th class="n">到達</th><th class="n">リフト</th><th class="n">原資</th><th class="n">CPA</th><th class="n">ROI</th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+      </section>
+
+      <div class="foot" id="foot"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ============================================================
+     ダミーデータ
+     人数・スコア・ポイントはすべて要件定義書の定義に沿った仮値。
+     ななポ実績は 77ポイントサービスの実配点から逆算した想定平均。
+     ============================================================ */
+
+  var TOTAL = 1204800;                 // 個人顧客総数
+  var AGES = ["20代以下", "30代", "40代", "50代", "60代", "70代以上"];
+
+  // b = 取引の広がりスコア(横) / l = デジタル接点スコア(縦)
+  var CL = [
+    { id:"C1", name:"ロイヤルコア",       b:88, l:84, n:31300,  nana:412, optin:91, policy:"keep", label:"維持",
+      note:"メインバンク化済み＋アプリ超活用。収益貢献が最大で、失いたくない中核層。",
+      age:[3,9,18,27,25,18],
+      f:[100,100,86,100,78,40], lsc:[95,92,88,74,80],
+      nb:[300,20,80,15,0] },
+    { id:"C2", name:"資産形成パートナー", b:82, l:55, n:54200,  nana:208, optin:74, policy:"grow", label:"育成",
+      note:"取引は厚いが接点は並。資産運用に関心があり、接点化の余地が残っている。",
+      age:[2,7,17,29,27,18],
+      f:[100,72,71,100,66,20], lsc:[58,54,52,60,50],
+      nb:[150,20,30,15,0] },
+    { id:"C3", name:"サイレント優良",     b:79, l:22, n:85500,  nana:336, optin:38, policy:"risk", label:"最優先・守り",
+      note:"取引は最上位だがアプリを使わない。他行アプリに移られたときの損失が最大。",
+      age:[1,3,8,17,31,40],
+      f:[100,44,86,100,52,10], lsc:[22,18,26,22,20],
+      nb:[300,20,10,15,0] },
+    { id:"C4", name:"アクティブ・ミドル", b:58, l:81, n:62700,  nana:118, optin:88, policy:"grow", label:"最優先・攻め",
+      note:"アプリ好きで取引は中位。ロイヤルコアへの最短距離にいて、施策の反応も見込める。",
+      age:[12,26,29,19,10,4],
+      f:[100,58,29,67,20,60], lsc:[92,86,84,58,72],
+      nb:[20,20,30,15,30] },
+    { id:"C5", name:"ボリュームゾーン",   b:54, l:52, n:139800, optin:69, nana:64, policy:"grow", label:"育成",
+      note:"最大母数。ここが動くと全体平均が動く主戦場。",
+      age:[9,21,27,22,14,7],
+      f:[100,40,29,67,12,20], lsc:[54,50,52,48,52],
+      nb:[20,20,10,10,0] },
+    { id:"C6", name:"取引先行層",         b:51, l:26, n:108400, nana:58, optin:44, policy:"grow", label:"再活性",
+      note:"アプリ登録済みだが起動しない。取引はあるのでデジタル接点だけが欠けている。",
+      age:[6,16,25,24,18,11],
+      f:[100,36,29,67,8,20], lsc:[24,22,30,26,28],
+      nb:[20,20,10,10,0] },
+    { id:"C7", name:"ポイントファン",     b:24, l:78, n:47000,  nana:32, optin:86, policy:"low",  label:"要検証",
+      note:"アプリは超活用するが金融取引は薄い。ななポがほぼ貯まらず、ポイント以外の便益で接点を保つ必要がある。",
+      age:[38,31,18,9,3,1],
+      f:[100,10,0,33,4,0], lsc:[90,82,80,28,74],
+      nb:[0,20,10,5,0] },
+    { id:"C8", name:"お試し接点層",       b:28, l:51, n:69900,  nana:27, optin:71, policy:"grow", label:"育成",
+      note:"両方薄いが、アプリは触っている。育成の入り口にいる。",
+      age:[29,28,20,13,7,3],
+      f:[100,14,0,33,2,0], lsc:[52,48,54,40,56],
+      nb:[0,20,0,5,0] },
+    { id:"C9", name:"休眠・離反予備軍",   b:19, l:18, n:101200, nana:12, optin:31, policy:"low",  label:"低優先",
+      note:"口座はあるが動かない。過度な原資投入は避けたい層。",
+      age:[14,17,19,20,17,13],
+      f:[40,0,0,0,0,0], lsc:[16,14,20,10,22],
+      nb:[10,0,0,0,0] },
+    { id:"C10", name:"未接続層",          b:41, l:0,  n:504800, nana:0,  optin:0,  policy:"risk", label:"獲得・対照群",
+      note:"アプリ未登録の銀行顧客。ななポは付与されない。施策対象であると同時に、効果測定の対照群になる。",
+      age:[8,13,18,20,20,21],
+      f:[100,40,29,67,10,20], lsc:[0,0,0,0,0],
+      nb:[0,0,0,0,0] }
+  ];
+  var byId = {}; CL.forEach(function (c) { byId[c.id] = c; });
+
+  var F_LAB = ["F1 定期入金", "F2 キャッシュレス決済", "F3 預金残高", "F4 公共料金", "F5 資産形成", "F6 ローン残高"];
+  var F_W   = [25, 20, 15, 15, 15, 10];
+  var L_LAB = ["L1 利用頻度", "L2 機能到達の幅", "L3 習慣化・定着", "L4 ポイント交換", "L5 通知の反応"];
+  var L_W   = [30, 25, 20, 15, 10];
+  var NB_LAB = ["預金残高", "定期入金", "カード決済", "公共料金", "ローン残高"];
+
+  // 育成ルート（ROI順）
+  var RT = [
+    { id:"R1", from:"C4", to:"C1", pri:true, rank:"優先 1", cvr:12,
+      title:"アクティブ・ミドルをロイヤルコアへ",
+      why:"アプリの反応が最も良い層に、取引を厚くする施策を当てる。1人あたりの増分収益が全ルート中最大。",
+      lev:[["チャレンジ","給与振込の設定を完了する（+400pt）"],["チャレンジ","口座振替を2件以上にまとめる"],["チャレンジ","カード決済 月10万円以上で+80pt"],["リワード","NISA積立開始で優待予約権"]] },
+    { id:"R2", from:"C2", to:"C1", pri:false, rank:"優先 4", cvr:9,
+      title:"資産形成パートナーの接点を厚くする",
+      why:"取引は十分。アプリ内の資産管理機能に触れてもらい、接点スコアを引き上げる。",
+      lev:[["プッシュ","運用レポートの月次配信"],["チャレンジ","NISA積立額の増額"],["プッシュ","オンラインセミナー招待"]] },
+    { id:"R3", from:"C3", to:"C2", pri:true, rank:"優先 2", cvr:8,
+      title:"サイレント優良をデジタルへ引き上げる",
+      why:"取引は最上位なのにアプリを使っていない。他行アプリに移られた時の損失が最大のため、守りの最優先。",
+      lev:[["QR","窓口・ATM・Web明細にアプリ誘導QRを設置"],["リワード","初回ログインで+1,000pt（大型）"],["紙DM","ななポ登録の案内を残高通知に同封"],["設定","電話サポートでの通知許諾ONの案内"]] },
+    { id:"R4", from:"C5", to:"C4", pri:true, rank:"優先 3", cvr:15,
+      title:"ボリュームゾーンを底上げする",
+      why:"最大母数。1人あたりの効果は小さいが、総額では最大級。全体平均を動かす主戦場。",
+      lev:[["チャレンジ","毎月のネクストアクション提示"],["プッシュ","ポイント2倍キャンペーン"],["アンケート","利用機能アンケート（+200pt）"]] },
+    { id:"R5", from:"C6", to:"C5", pri:false, rank:"優先 5", cvr:11,
+      title:"取引先行層を再エンゲージする",
+      why:"登録済みで起動しない層。まずアプリを開く習慣をつくる。通知許諾率44%がボトルネック。",
+      lev:[["プッシュ","入出金明細の即時通知（許諾促進）"],["設定","生体認証・クイック残高の設定案内"],["チャレンジ","明細確認の習慣化（週1回で+50pt）"]] },
+    { id:"R6", from:"C8", to:"C5", pri:false, rank:"優先 6", cvr:10,
+      title:"お試し接点層の定着を支援する",
+      why:"アプリは触っているが取引が薄い。まず小さな成功体験（交換）まで到達させる。",
+      lev:[["チャレンジ","オンボーディング3ステップ"],["リワード","100ptから交換できる少額リワード"],["チャレンジ","デビットカードの初回利用"]] },
+    { id:"R7", from:"C7", to:"C5", pri:false, rank:"優先 7", cvr:7,
+      title:"ポイントファンを収益化できるか検証する",
+      why:"接点は最高だが取引が薄く、ななポがほぼ貯まらない。ポイント以外の便益で接点を保ちつつ、少額から取引を作る。",
+      lev:[["チャレンジ","デビットカード 月1万円で+10pt"],["リワード","1,000円からのつみたて設定"],["プッシュ","家計簿・明細機能の訴求（非ポイント便益）"]] },
+    { id:"R8", from:"C10", to:"C6", pri:false, rank:"優先 8", cvr:6,
+      title:"未接続層をアプリへ獲得する",
+      why:"母数50万人と最大。1人あたりの効果は小さいが、対照群を維持しながら段階的に獲得する。",
+      lev:[["店頭","ATM・窓口・Web明細でのDL訴求"],["リワード","ななポ登録ボーナス"],["運用","一部をホールドアウトとして残す（効果測定用）"]] },
+    { id:"R9", from:"C9", to:"C8", pri:false, rank:"優先 9", cvr:5,
+      title:"休眠層を低コストで掘り起こす",
+      why:"原資効率が最も低い。単価上限を設けて運用し、反応がなければ投資を止める。",
+      lev:[["プッシュ","復活ボーナスの案内"],["運用","原資単価に上限を設定"]] }
+  ];
+  // 離反リスク（相対パレット・破線）
+  var RISK = { from:"C3", to:"C10", label:"離反リスク" };
+
+  var UNIT = 300;          // 1人あたり想定ポイント原資(pt = 円)
+  var GAIN = {             // 転換1人あたりの年間増分収益（仮値）
+    R1:18900, R2:14800, R3:14300, R4:4000, R5:3400, R6:3000, R7:4500, R8:3000, R9:1900
+  };
+  RT.forEach(function (r) {
+    var src = byId[r.from];
+    r.target = src.n;
+    r.conv = Math.round(src.n * r.cvr / 100);
+    r.cost = src.n * UNIT;                     // 円
+    r.gain = r.conv * GAIN[r.id];              // 円/年
+    r.roi = r.gain / r.cost;
+  });
+  RT.sort(function (a, b) { return b.roi - a.roi; });
+
+  /* ---------- helpers ---------- */
+  var SVGNS = "http://www.w3.org/2000/svg";
+  function el(t, a, txt) {
+    var n = document.createElementNS(SVGNS, t);
+    for (var k in a) if (a[k] !== null && a[k] !== undefined) n.setAttribute(k, a[k]);
+    if (txt !== undefined) n.textContent = txt;
+    return n;
+  }
+  function fmt(n) { return n.toLocaleString("ja-JP"); }
+  function man(n) { return (n / 10000).toFixed(1); }
+  function yen(n) {
+    if (n >= 100000000) return "¥" + (n / 100000000).toFixed(2) + "億";
+    if (n >= 10000) return "¥" + (n / 10000).toFixed(0) + "万";
+    return "¥" + fmt(n);
+  }
+
+  // ななポ実績 → メインパレットの4段階
+  function nanaColor(pt) {
+    if (pt >= 300) return "var(--g2)";
+    if (pt >= 150) return "var(--g1)";
+    if (pt >= 50)  return "var(--g3)";
+    if (pt > 0)    return "var(--gbg)";
+    return "var(--nbg)";
+  }
+  function nanaInk(pt) { return pt >= 150 ? "#FFFFFF" : "#1A1A1C"; }
+
+  /* ============================================================
+     育成ロードマップ（目玉）
+     ============================================================ */
+  var PX0 = 100, PX1 = 740, PY0 = 30, PY1 = 430;
+  function fx(b) { return PX0 + b / 100 * (PX1 - PX0); }
+  function fy(l) { return PY1 - l / 100 * (PY1 - PY0); }
+  var RMAX = 38, NMAX = 139800, RCAP = 40;
+  function rad(n) { return Math.min(RCAP, Math.sqrt(n) / Math.sqrt(NMAX) * RMAX); }
+
+  // ラベルは他のバブル・他のラベルと重ならない位置を選ぶ（下→上→右→左）
+  var placedLabels = [];
+  function labelSpot(c, p, r) {
+    if (c.id === "C10") return { x: p.x + r + 12, y: p.y - 2, anchor: "start", w: 92, h: 28 };
+    var W = Math.max(58, c.name.length * 11);
+    var cands = [
+      { x: p.x,           y: p.y + r + 15, anchor: "middle", w: W, h: 28 },
+      { x: p.x,           y: p.y - r - 17, anchor: "middle", w: W, h: 28 },
+      { x: p.x + r + 9,   y: p.y - 2,      anchor: "start",  w: W, h: 28 },
+      { x: p.x - r - 9,   y: p.y - 2,      anchor: "end",    w: W, h: 28 }
+    ];
+    function box(t) {
+      var cx = t.anchor === "middle" ? t.x : (t.anchor === "start" ? t.x + t.w / 2 : t.x - t.w / 2);
+      return { cx: cx, cy: t.y + 4, hw: t.w / 2, hh: t.h / 2 };
+    }
+    for (var i = 0; i < cands.length; i++) {
+      var t = cands[i], bx = box(t), ok = true;
+      if (t.y - 13 < PY0 - 6 || t.y + 20 > PY1 + 6) ok = false;
+      for (var k = 0; ok && k < CL.length; k++) {
+        var o = CL[k]; if (o.id === c.id || o.id === "C10") continue;
+        var op = pos(o), orr = rad(o.n);
+        var dx = Math.max(0, Math.abs(bx.cx - op.x) - bx.hw);
+        var dy = Math.max(0, Math.abs(bx.cy - op.y) - bx.hh);
+        if (Math.hypot(dx, dy) < orr + 4) ok = false;
+      }
+      for (var m = 0; ok && m < placedLabels.length; m++) {
+        var q = placedLabels[m];
+        if (Math.abs(bx.cx - q.cx) < bx.hw + q.hw + 6 &&
+            Math.abs(bx.cy - q.cy) < bx.hh + q.hh + 3) ok = false;
+      }
+      if (ok) { placedLabels.push(bx); return t; }
+    }
+    placedLabels.push(box(cands[0]));
+    return cands[0];
+  }
+
+  // 線の上に載る文字は、背景と同色の縁取りで可読性を確保する
+  function halo(parent, attrs, txt) {
+    var a = {}; for (var k in attrs) a[k] = attrs[k];
+    a.stroke = "#FFFFFF"; a["stroke-width"] = 3.5; a["stroke-linejoin"] = "round";
+    a["paint-order"] = "stroke";
+    parent.appendChild(el("text", a, txt));
+  }
+
+  var C10POS = { x: 196, y: 588 };
+  function pos(c) { return c.id === "C10" ? C10POS : { x: fx(c.b), y: fy(c.l) }; }
+
+  function arc(a, bb, ra, rb, curve, headroom) {
+    var dx = bb.x - a.x, dy = bb.y - a.y, L = Math.hypot(dx, dy) || 1;
+    curve = curve * Math.min(1, L / 230);
+    var ux = dx / L, uy = dy / L;
+    var sx = a.x + ux * (ra + 3), sy = a.y + uy * (ra + 3);
+    var ex = bb.x - ux * (rb + headroom), ey = bb.y - uy * (rb + headroom);
+    var mx = (sx + ex) / 2, my = (sy + ey) / 2;
+    return "M" + sx.toFixed(1) + "," + sy.toFixed(1) +
+           " Q" + (mx - uy * curve).toFixed(1) + "," + (my + ux * curve).toFixed(1) +
+           " " + ex.toFixed(1) + "," + ey.toFixed(1);
+  }
+
+  var selRoute = RT[0].id;
+
+  function drawRoadmap() {
+    var s = document.getElementById("rmSvg");
+    s.textContent = "";
+    placedLabels = [];
+
+    var defs = el("defs");
+    [["ahOn", "#018838"], ["ahSel", "#115A36"], ["ahOff", "#BFC5C2"], ["ahRisk", "#3460FB"]].forEach(function (m) {
+      var mk = el("marker", { id: m[0], viewBox: "0 0 10 10", refX: 8, refY: 5,
+        markerWidth: 6, markerHeight: 6, orient: "auto-start-reverse" });
+      mk.appendChild(el("path", { d: "M0,0 L10,5 L0,10 z", fill: m[1] }));
+      defs.appendChild(mk);
+    });
+    s.appendChild(defs);
+
+    /* --- 象限の下地：右上ほど濃く（育成の方向を地色で示す） --- */
+    var TX = [PX0, fx(40), fx(70), PX1], TY = [PY1, fy(40), fy(70), PY0];
+    for (var r = 0; r < 3; r++) for (var c = 0; c < 3; c++) {
+      var lvl = r + c; // 0..4
+      s.appendChild(el("rect", {
+        x: TX[c], y: TY[r + 1], width: TX[c + 1] - TX[c], height: TY[r] - TY[r + 1],
+        fill: "#018838", opacity: (0.018 + lvl * 0.017).toFixed(3)
+      }));
+    }
+    s.appendChild(el("rect", { x: PX0, y: PY0, width: PX1 - PX0, height: PY1 - PY0,
+      fill: "none", stroke: "#D9D9D9", "stroke-width": 1 }));
+    [40, 70].forEach(function (v) {
+      s.appendChild(el("line", { x1: fx(v), y1: PY0, x2: fx(v), y2: PY1, stroke: "#D9D9D9", "stroke-dasharray": "3 3" }));
+      s.appendChild(el("line", { x1: PX0, y1: fy(v), x2: PX1, y2: fy(v), stroke: "#D9D9D9", "stroke-dasharray": "3 3" }));
+    });
+
+    /* --- 軸ラベル --- */
+    var xt = [[20, "低"], [55, "中"], [85, "高"]];
+    xt.forEach(function (t) {
+      s.appendChild(el("text", { x: fx(t[0]), y: PY1 + 20, "text-anchor": "middle",
+        "font-size": 12, "font-weight": 700, fill: "#1A1A1C" }, t[1]));
+    });
+    [[PX0, "0"], [fx(40), "40"], [fx(70), "70"], [PX1, "100"]].forEach(function (t) {
+      s.appendChild(el("text", { x: t[0], y: PY1 + 35, "text-anchor": "middle", class: "num",
+        "font-size": 10, fill: "#767676" }, t[1]));
+    });
+    halo(s, { x: (PX0 + PX1) / 2, y: PY1 + 58, "text-anchor": "middle",
+      "font-size": 12.5, "font-weight": 700, fill: "#018838" }, "取引の広がりスコア（メインバンク化度）→");
+
+    var yt = [[20, "低"], [55, "中"], [85, "高"]];
+    yt.forEach(function (t) {
+      s.appendChild(el("text", { x: PX0 - 14, y: fy(t[0]) + 4, "text-anchor": "end",
+        "font-size": 12, "font-weight": 700, fill: "#1A1A1C" }, t[1]));
+    });
+    var yTitle = el("text", { x: 34, y: (PY0 + PY1) / 2, "text-anchor": "middle",
+      "font-size": 12.5, "font-weight": 700, fill: "#018838",
+      transform: "rotate(-90 34 " + ((PY0 + PY1) / 2) + ")" }, "デジタル接点スコア →");
+    s.appendChild(yTitle);
+
+    /* --- 未接続層バンド --- */
+    s.appendChild(el("line", { x1: PX0, y1: 516, x2: PX1, y2: 516, stroke: "#D9D9D9" }));
+    s.appendChild(el("text", { x: PX0, y: 534, "font-size": 11, "font-weight": 700, fill: "#767676" },
+      "グリッド外｜アプリ未登録（ななポ付与なし・効果測定の対照群）"));
+
+    var gRoutes = el("g"), gBubs = el("g");
+    s.appendChild(gRoutes); s.appendChild(gBubs);
+
+    /* --- 育成ルート --- */
+    var curves = { R1: -24, R2: -22, R3: 24, R4: -26, R5: 22, R6: -20, R7: 38, R8: -14, R9: 24 };
+    RT.forEach(function (rt) {
+      var a = byId[rt.from], b = byId[rt.to];
+      var pa = pos(a), pb = pos(b), ra = rad(a.n), rb = rad(b.n);
+      var on = rt.id === selRoute;
+      var d = arc(pa, pb, ra, rb, curves[rt.id] || 0, 11);
+      var stroke = on ? "#115A36" : (rt.pri ? "#018838" : "#BFC5C2");
+      var w = on ? 5.5 : Math.max(1.6, Math.sqrt(rt.conv) / 42);
+      if (rt.from === "C10" && !on) w = 1.6;
+      var g = el("g", { class: "rtpath", "data-r": rt.id, style: "cursor:pointer" });
+      g.appendChild(el("path", { d: d, fill: "none", stroke: "transparent", "stroke-width": 16 }));
+      g.appendChild(el("path", {
+        d: d, fill: "none", stroke: stroke, "stroke-width": w, "stroke-linecap": "round",
+        "marker-end": "url(#" + (on ? "ahSel" : (rt.pri ? "ahOn" : "ahOff")) + ")",
+        opacity: on ? 1 : (rt.pri ? .95 : .8)
+      }));
+      g.addEventListener("click", function () { selectRoute(rt.id); });
+      gRoutes.appendChild(g);
+    });
+
+    /* --- 離反リスク（相対パレット・破線） --- */
+    (function () {
+      var a = byId[RISK.from], b = byId[RISK.to];
+      var pa = pos(a), pb = pos(b);
+      gRoutes.appendChild(el("path", {
+        d: arc(pa, pb, rad(a.n), rad(b.n), 58, 11), fill: "none",
+        stroke: "#3460FB", "stroke-width": 2, "stroke-dasharray": "6 4",
+        "marker-end": "url(#ahRisk)", opacity: .85
+      }));
+      var rp = el("path", { d: arc(pa, pb, rad(a.n), rad(b.n), 58, 11), fill: "none", stroke: "none" });
+      gRoutes.appendChild(rp);
+      var mp = rp.getPointAtLength(rp.getTotalLength() * 0.5);
+      halo(gRoutes, { x: mp.x, y: mp.y - 8, "text-anchor": "middle",
+        "font-size": 10.5, "font-weight": 700, fill: "#3460FB" }, "離反リスク");
+    })();
+
+    /* --- バブル --- */
+    var rt0 = RT.filter(function (r) { return r.id === selRoute; })[0];
+    CL.forEach(function (c) {
+      var p = pos(c), r = rad(c.n);
+      var inRoute = rt0 && (c.id === rt0.from || c.id === rt0.to);
+      var g = el("g", { class: "bub", "data-c": c.id, tabindex: 0, role: "button",
+        "aria-label": c.name + " " + fmt(c.n) + "人" });
+      g.appendChild(el("circle", {
+        cx: p.x, cy: p.y, r: r, fill: nanaColor(c.nana),
+        stroke: inRoute ? "#115A36" : "#FFFFFF", "stroke-width": inRoute ? 3.5 : 1.5,
+        "stroke-dasharray": c.id === "C10" ? "5 3" : null
+      }));
+      g.appendChild(el("text", { x: p.x, y: p.y + 5, "text-anchor": "middle", class: "num",
+        "font-size": Math.min(15, Math.max(11, r * 0.42)), "font-weight": 700,
+        fill: nanaInk(c.nana), "pointer-events": "none" }, c.id));
+      var lp = labelSpot(c, p, r);
+      halo(g, { x: lp.x, y: lp.y, "text-anchor": lp.anchor, "font-size": 11,
+        "font-weight": inRoute ? 700 : 500, fill: inRoute ? "#115A36" : "#1A1A1C",
+        "pointer-events": "none" }, c.name);
+      halo(g, { x: lp.x, y: lp.y + 13, "text-anchor": lp.anchor, class: "num",
+        "font-size": 10, fill: "#767676", "pointer-events": "none" }, man(c.n) + "万人");
+      g.addEventListener("click", function () { pickCluster(c.id); });
+      g.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pickCluster(c.id); } });
+      gBubs.appendChild(g);
+    });
+  }
+
+  function pickCluster(id) {
+    var hit = RT.filter(function (r) { return r.from === id; })[0] ||
+              RT.filter(function (r) { return r.to === id; })[0];
+    if (hit) selectRoute(hit.id);
+  }
+
+  function selectRoute(id) {
+    selRoute = id;
+    drawRoadmap();
+    drawRouteList();
+    drawRouteDetail();
+  }
+
+  function drawRouteList() {
+    var box = document.getElementById("routeList");
+    box.textContent = "";
+    RT.forEach(function (r) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "rt" + (r.pri ? " pri" : "");
+      b.setAttribute("aria-pressed", String(r.id === selRoute));
+      b.innerHTML =
+        '<span class="rt-rank">' + r.rank + "</span>" +
+        '<span><span class="rt-path">' + r.from + ' <em>→</em> ' + r.to + "</span>" +
+        '<span class="rt-name">' + byId[r.from].name + " → " + byId[r.to].name + "</span></span>" +
+        '<span class="rt-roi"><b>' + r.roi.toFixed(1) + "x</b><span>ROI</span></span>";
+      b.addEventListener("click", function () { selectRoute(r.id); });
+      box.appendChild(b);
+    });
+  }
+
+  function drawRouteDetail() {
+    var r = RT.filter(function (x) { return x.id === selRoute; })[0];
+    var a = byId[r.from], b = byId[r.to];
+    var box = document.getElementById("rtDetail");
+    var stat = function (l, v, u) {
+      return '<div class="rd-stat"><div class="l">' + l + '</div><div class="v">' + v +
+             (u ? "<small>" + u + "</small>" : "") + "</div></div>";
+    };
+    box.innerHTML =
+      '<div class="rd-head"><h3>' + r.title + "</h3>" +
+        '<span class="rd-flow">' + a.id + " " + a.name + ' <em>→</em> ' + b.id + " " + b.name + "</span>" +
+        '<span class="pill ' + a.policy + '">' + r.rank + "</span></div>" +
+      '<p class="rd-note">' + r.why + "</p>" +
+      '<div class="rd-grid">' +
+        stat("対象人数", man(r.target), "万人") +
+        stat("想定転換率", r.cvr, "%") +
+        stat("想定転換人数", fmt(r.conv), "人") +
+        stat("必要ポイント原資", yen(r.cost), "") +
+        stat("想定増分収益 / 年", yen(r.gain), "") +
+        stat("ROI", r.roi.toFixed(1), "倍") +
+      "</div>" +
+      '<div class="rd-cols">' +
+        "<div><h4>打ち手（既存CMSのレバー）</h4>" +
+          r.lev.map(function (l) {
+            return '<div class="lever"><span class="tag">' + l[0] + "</span><span>" + l[1] + "</span></div>";
+          }).join("") + "</div>" +
+        "<div><h4>スコアの変化</h4>" + [
+          ["取引の広がり", a.b, b.b],
+          ["デジタル接点", a.l, b.l],
+          ["ななポ実績 (pt/月)", a.nana, b.nana]
+        ].map(function (m) {
+          return '<div class="brow"><span>' + m[0] + '</span>' +
+                 '<span class="bt"><i style="width:' + Math.min(100, m[1] / Math.max(m[2], 1) * 100) + '%"></i></span>' +
+                 '<span class="bv">' + m[1] + " → " + m[2] + "</span></div>";
+        }).join("") +
+        '<div class="brow" style="margin-top:6px"><span>通知許諾率</span>' +
+          '<span class="bt"><i style="width:' + a.optin + '%"></i></span>' +
+          '<span class="bv">' + a.optin + "%</span></div>" +
+        '<p style="font-size:10.5px;color:var(--ink-mute);margin:8px 0 0;line-height:1.6">' +
+          "許諾OFFの顧客にはプッシュが届かない。実行可能人数は <strong>" +
+          fmt(Math.round(r.target * a.optin / 100)) + "人</strong>。</p>" +
+        "</div>" +
+      "</div>";
+  }
+
+  /* ============================================================
+     汎用チャート（インラインSVG・ライブラリ不使用）
+     ============================================================ */
+  function clear(id) { var s = document.getElementById(id); s.textContent = ""; return s; }
+
+  // 横グループ棒
+  function hGroupBars(id, rows, series, max, unit) {
+    var s = clear(id), W = 440, LW = 122, X0 = LW + 8, X1 = W - 44;
+    var rowH = 40, top = 14;
+    rows.forEach(function (row, i) {
+      var y = top + i * rowH;
+      s.appendChild(el("text", { x: LW, y: y + 15, "text-anchor": "end", "font-size": 11.5, fill: "#1A1A1C" }, row.label));
+      series.forEach(function (sr, k) {
+        var v = row.v[k], w = Math.max(2, v / max * (X1 - X0)), by = y + k * 11;
+        s.appendChild(el("rect", { x: X0, y: by, width: w, height: 9, rx: 1.5, fill: sr.color }));
+        s.appendChild(el("text", { x: X0 + w + 5, y: by + 8, class: "num", "font-size": 10.5,
+          fill: k === 0 ? "#115A36" : "#767676", "font-weight": k === 0 ? 700 : 500 }, v + (unit || "")));
+      });
+    });
+    s.setAttribute("viewBox", "0 0 " + W + " " + (top + rows.length * rowH + 6));
+  }
+
+  // 棒＋折れ線（複合）
+  function comboChart(id, labels, bars, line, barMax, lineMax) {
+    var s = clear(id), W = 440, H = 250, X0 = 40, X1 = W - 40, Y0 = 20, Y1 = H - 34;
+    var n = labels.length, step = (X1 - X0) / n, bw = step * 0.52;
+    [0, .5, 1].forEach(function (t) {
+      var y = Y1 - t * (Y1 - Y0);
+      s.appendChild(el("line", { x1: X0, y1: y, x2: X1, y2: y, stroke: "#D9D9D9" }));
+      s.appendChild(el("text", { x: X0 - 6, y: y + 3.5, "text-anchor": "end", class: "num",
+        "font-size": 9.5, fill: "#767676" }, (barMax * t).toFixed(0)));
+      s.appendChild(el("text", { x: X1 + 6, y: y + 3.5, class: "num", "font-size": 9.5, fill: "#115A36" },
+        (lineMax * t).toFixed(1) + "%"));
+    });
+    bars.forEach(function (v, i) {
+      var h = v / barMax * (Y1 - Y0);
+      s.appendChild(el("rect", { x: X0 + i * step + (step - bw) / 2, y: Y1 - h, width: bw, height: h,
+        rx: 1.5, fill: "#9BD4B5" }));
+    });
+    var pts = line.map(function (v, i) {
+      return [X0 + i * step + step / 2, Y1 - v / lineMax * (Y1 - Y0)];
+    });
+    s.appendChild(el("path", { d: "M" + pts.map(function (p) { return p[0].toFixed(1) + "," + p[1].toFixed(1); }).join(" L"),
+      fill: "none", stroke: "#115A36", "stroke-width": 2.4, "stroke-linejoin": "round" }));
+    pts.forEach(function (p, i) {
+      s.appendChild(el("circle", { cx: p[0], cy: p[1], r: i === pts.length - 1 ? 4.5 : 2.6,
+        fill: "#115A36", stroke: "#FFFFFF", "stroke-width": 1.4 }));
+    });
+    s.appendChild(el("text", { x: pts[pts.length - 1][0], y: pts[pts.length - 1][1] - 10, "text-anchor": "end",
+      class: "num", "font-size": 11, "font-weight": 700, fill: "#115A36" }, "+" + line[line.length - 1].toFixed(1) + "%"));
+    labels.forEach(function (l, i) {
+      if (i % 2) return;
+      s.appendChild(el("text", { x: X0 + i * step + step / 2, y: Y1 + 15, "text-anchor": "middle",
+        class: "num", "font-size": 9, fill: "#767676" }, l));
+    });
+  }
+
+  // 積み上げ横棒（年代構成）
+  var AGE_COLORS = ["#115A36", "#018838", "#51B883", "#9BD4B5", "#959595", "#4D4D4D"];
+  function stackedAge(id, vals) {
+    var s = clear(id), W = 440, X0 = 12, X1 = W - 12, y = 26, h = 40, x = X0;
+    s.appendChild(el("text", { x: X0, y: 16, "font-size": 10.5, fill: "#767676" }, "構成比（%）"));
+    vals.forEach(function (v, i) {
+      var w = v / 100 * (X1 - X0);
+      s.appendChild(el("rect", { x: x, y: y, width: w, height: h, fill: AGE_COLORS[i] }));
+      if (v >= 7) {
+        s.appendChild(el("text", { x: x + w / 2, y: y + h / 2 + 4, "text-anchor": "middle", class: "num",
+          "font-size": 11, "font-weight": 700, fill: i === 3 ? "#1A1A1C" : "#FFFFFF" }, v + "%"));
+      }
+      x += w;
+    });
+    // 凡例
+    var lx = X0, ly = y + h + 26;
+    AGES.forEach(function (a, i) {
+      s.appendChild(el("rect", { x: lx, y: ly - 8, width: 10, height: 10, rx: 2, fill: AGE_COLORS[i] }));
+      s.appendChild(el("text", { x: lx + 14, y: ly + 1, "font-size": 10.5, fill: "#1A1A1C" }, a));
+      lx += 14 + a.length * 10.5 + 14;
+      if (lx > X1 - 60) { lx = X0; ly += 20; }
+    });
+    s.setAttribute("viewBox", "0 0 " + W + " " + (ly + 14));
+  }
+
+  // 単純横棒
+  function hBars(id, rows, max, unit, colorFn) {
+    var s = clear(id), W = 440, LW = 100, X0 = LW + 8, X1 = W - 52, top = 12, rowH = 30;
+    rows.forEach(function (row, i) {
+      var y = top + i * rowH;
+      s.appendChild(el("text", { x: LW, y: y + 13, "text-anchor": "end", "font-size": 11.5, fill: "#1A1A1C" }, row.label));
+      s.appendChild(el("rect", { x: X0, y: y + 4, width: X1 - X0, height: 11, rx: 2, fill: "#F1F4F2" }));
+      var w = max ? Math.max(row.v > 0 ? 3 : 0, row.v / max * (X1 - X0)) : 0;
+      s.appendChild(el("rect", { x: X0, y: y + 4, width: w, height: 11, rx: 2,
+        fill: colorFn ? colorFn(row, i) : "#018838" }));
+      s.appendChild(el("text", { x: X1 + 6, y: y + 13, class: "num", "font-size": 11, "font-weight": 600,
+        fill: "#1A1A1C" }, row.v + (unit || "")));
+    });
+    s.setAttribute("viewBox", "0 0 " + W + " " + (top + rows.length * rowH + 6));
+  }
+
+  /* ============================================================
+     サマリー
+     ============================================================ */
+  var MEMBERS = CL.reduce(function (a, c) { return a + (c.id === "C10" ? 0 : c.n); }, 0);
+  var NANA_TOTAL = CL.reduce(function (a, c) { return a + c.n * c.nana; }, 0);   // pt/月 = 円/月
+  // DiD（Lv3）で推定した会員1人あたりの年間増分収益（仮値）
+  //   増分預金50万 × 利鞘0.3% ＋ 増分カード決済 年20万 × 1.0% ＋ 増分NISA 18万 × 0.5% ≒ 4,400円
+  var DID_PP = 4400;
+  var GAIN_PROGRAM = MEMBERS * DID_PP;   // プログラム全体の年間増分収益
+  var COST_YEAR = NANA_TOTAL * 12;       // 年間ポイント原資
+
+  function kpi(o) {
+    return '<div class="kpi' + (o.fill ? " fill" : "") + '">' +
+      '<div class="lab">' + o.lab + "</div>" +
+      '<div class="val">' + o.val + (o.unit ? "<small>" + o.unit + "</small>" : "") + "</div>" +
+      '<div class="sub">' + (o.delta ? '<span class="delta ' + o.dir + '">' + o.delta + "</span> " : "") + o.sub + "</div></div>";
+  }
+
+  function drawSummary() {
+    document.getElementById("sumKpis").innerHTML = [
+      kpi({ fill: true, lab: "ネット昇格率（北極星指標）", val: "+4.2", unit: "%",
+            delta: "+1.1pt", dir: "up", sub: "上位遷移 − 下位遷移 ÷ 対象者数・前年同月比" }),
+      kpi({ lab: "ななポ会員数", val: man(MEMBERS), unit: "万人",
+            delta: "+3.8%", dir: "up", sub: "会員化率 " + (MEMBERS / TOTAL * 100).toFixed(1) + "%（個人顧客 " + man(TOTAL) + "万人）" }),
+      kpi({ lab: "アプリ MAU 率", val: "42.3", unit: "%",
+            delta: "+2.4pt", dir: "up", sub: "会員のうち直近30日に起動した割合" }),
+      kpi({ lab: "会員の預金残高合計", val: "4.82", unit: "兆円",
+            delta: "+2.1%", dir: "up", sub: "月末残高・全会員合計" }),
+      kpi({ lab: "月間ポイント原資", val: yen(NANA_TOTAL), unit: "",
+            delta: "+4.6%", dir: "down", sub: "1pt＝1円・平均 " + Math.round(NANA_TOTAL / MEMBERS) + "pt/人" }),
+      kpi({ lab: "ROI（推定・Lv3）", val: (GAIN_PROGRAM / COST_YEAR).toFixed(1), unit: "倍",
+            sub: "増分収益 " + yen(GAIN_PROGRAM) + "/年（1人あたり ¥" + fmt(DID_PP) +
+                 "）÷ 年間原資 " + yen(COST_YEAR) })
+    ].join("");
+
+    hGroupBars("cCompare", [
+      { label: "預金平残",        v: [168, 100] },
+      { label: "給与振込 設定率", v: [141, 100] },
+      { label: "カード決済額",    v: [213, 100] },
+      { label: "公共料金 振替件数", v: [152, 100] },
+      { label: "NISA 保有率",     v: [187, 100] }
+    ], [{ color: "#018838" }, { color: "#3460FB" }], 240, "");
+
+    comboChart("cTrend",
+      ["9月", "10月", "11月", "12月", "1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月"],
+      [62.1, 63.0, 63.8, 64.9, 65.6, 66.4, 67.0, 67.9, 68.5, 69.1, 69.6, 70.0],
+      [2.1, 2.4, 2.2, 2.8, 3.0, 2.7, 1.9, 3.4, 3.6, 3.9, 4.0, 4.2],
+      80, 5);
+
+    document.getElementById("sumNote").innerHTML =
+      "<b>比較は Lv3（DiD＋傾向スコアマッチング）。</b>" +
+      "年代・預金残高帯・取引年数を揃えた未接続層（C10・" + man(byId.C10.n) + "万人）を対照群として抽出している。" +
+      "単純比較（Lv1）ではもともと優良な顧客ほどアプリを使うという選択バイアスが乗るため、因果とは言えない。" +
+      "<b>3月にネット昇格率が 1.9% へ落ち込む</b>のは、ななポの有効期限（獲得から2年経過後の年度末）で失効が集中し、" +
+      "ポイント消化率が不連続に動くため。" +
+      "<br>収益換算レート（預金利鞘・カード収益率・信託報酬・給与振込LTV）は<b>行内想定値が未確定のため仮値</b>。確定後に差し替える。" +
+      "<br><b>サマリーの ROI とロードマップの ROI は母数が異なる。</b>" +
+      "サマリーは<b>プログラム全体</b>（会員 " + man(MEMBERS) + "万人 × 1人あたり増分 ¥" + fmt(DID_PP) +
+      "/年 ÷ 年間原資）、ロードマップは<b>個別の育成ルート</b>（そのルートの転換益 ÷ そのルートの原資）の投資対効果を示す。";
+  }
+
+  /* ============================================================
+     クラスター一覧テーブル
+     ============================================================ */
+  function drawClusterTable() {
+    var tb = document.querySelector("#clTable tbody");
+    tb.textContent = "";
+    CL.forEach(function (c) {
+      var tr = document.createElement("tr");
+      tr.style.cursor = "pointer";
+      var loc = c.id === "C10" ? "グリッド外" :
+        (c.l >= 70 ? "接点高" : c.l >= 40 ? "接点中" : "接点低") + " × " +
+        (c.b >= 70 ? "取引高" : c.b >= 40 ? "取引中" : "取引低");
+      tr.innerHTML =
+        '<td><span class="cid">' + c.id + "</span></td>" +
+        "<td><strong>" + c.name + "</strong></td>" +
+        '<td style="color:var(--ink-mute);font-size:11px">' + loc + "</td>" +
+        '<td class="n">' + fmt(c.n) + "</td>" +
+        '<td class="n">' + (c.n / TOTAL * 100).toFixed(1) + "%</td>" +
+        '<td class="n">' + c.b + "</td>" +
+        '<td class="n">' + c.l + "</td>" +
+        '<td class="n"><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:' +
+          nanaColor(c.nana) + ';margin-right:6px;vertical-align:middle"></span>' + c.nana + "pt</td>" +
+        '<td class="n">' + (c.optin ? c.optin + "%" : "—") + "</td>" +
+        '<td><span class="pill ' + c.policy + '">' + c.label + "</span></td>";
+      tr.addEventListener("click", function () { pickCluster(c.id); });
+      tb.appendChild(tr);
+    });
+  }
+
+  function drawRoadKpis() {
+    var pri = RT.filter(function (r) { return r.pri; });
+    var conv = pri.reduce(function (a, r) { return a + r.conv; }, 0);
+    var cost = pri.reduce(function (a, r) { return a + r.cost; }, 0);
+    var gain = pri.reduce(function (a, r) { return a + r.gain; }, 0);
+    document.getElementById("roadKpis").innerHTML = [
+      kpi({ fill: true, lab: "重点3ルートの想定転換人数", val: fmt(conv), unit: "人",
+            sub: "R1 C4→C1 ／ R3 C3→C2 ／ R4 C5→C4" }),
+      kpi({ lab: "必要ポイント原資", val: yen(cost), unit: "",
+            sub: "対象 " + man(pri.reduce(function (a, r) { return a + r.target; }, 0)) + "万人 × 300pt（1pt＝1円）" }),
+      kpi({ lab: "想定増分収益 / 年", val: yen(gain), unit: "",
+            sub: "転換1人あたりの年間増分収益 × 転換人数" }),
+      kpi({ lab: "重点3ルートの ROI", val: (gain / cost).toFixed(1), unit: "倍",
+            sub: "収益換算レートは仮値（行内想定値が未確定）" })
+    ].join("");
+  }
+
+  /* ============================================================
+     クラスター詳細
+     ============================================================ */
+  var selCluster = "C1";
+
+  function drawClusterDetail() {
+    var c = byId[selCluster];
+    document.getElementById("clTitle").textContent = c.id + "　" + c.name;
+    document.getElementById("clSub").textContent = c.note;
+
+    var top = c.age.indexOf(Math.max.apply(null, c.age));
+    document.getElementById("clKpis").innerHTML = [
+      kpi({ fill: true, lab: "人数", val: fmt(c.n), unit: "人",
+            sub: "個人顧客全体の " + (c.n / TOTAL * 100).toFixed(1) + "%" }),
+      kpi({ lab: "取引の広がりスコア", val: c.b, unit: "/100", sub: "横軸・メインバンク化度" }),
+      kpi({ lab: "デジタル接点スコア", val: c.l, unit: "/100", sub: "縦軸・ポイントに依存しない接点" }),
+      kpi({ lab: "ななポ実績", val: c.nana, unit: "pt/月", sub: "1人あたり月間付与ポイント（＝円）" }),
+      kpi({ lab: "通知許諾率", val: c.optin || "—", unit: c.optin ? "%" : "",
+            sub: c.optin ? "プッシュ到達可能 " + fmt(Math.round(c.n * c.optin / 100)) + "人" : "アプリ未登録のため対象外" }),
+      kpi({ lab: "最多年代", val: AGES[top], unit: "",
+            sub: "クラスター内の " + c.age[top] + "% を占める" })
+    ].join("");
+
+    stackedAge("cAge", c.age);
+
+    // スコア内訳（横軸F・縦軸L）
+    var sb = document.getElementById("scoreBars");
+    function bar(lab, pct, w, color) {
+      return '<div class="brow"><span style="font-size:11px">' + lab + "</span>" +
+             '<span class="bt"><i style="width:' + pct + "%;background:" + color + '"></i></span>' +
+             '<span class="bv">' + pct + "%</span></div>";
+    }
+    sb.innerHTML =
+      '<div style="font-family:var(--din);font-size:10px;letter-spacing:.12em;color:var(--ink-mute);font-weight:700;margin-bottom:8px">横軸｜取引の広がり</div>' +
+      '<div class="barlist">' + F_LAB.map(function (l, i) { return bar(l, c.f[i], F_W[i], "#018838"); }).join("") + "</div>" +
+      '<div style="font-family:var(--din);font-size:10px;letter-spacing:.12em;color:var(--ink-mute);font-weight:700;margin:16px 0 8px">縦軸｜デジタル接点</div>' +
+      '<div class="barlist">' + L_LAB.map(function (l, i) { return bar(l, c.lsc[i], L_W[i], "#51B883"); }).join("") + "</div>";
+
+    hBars("cNana", NB_LAB.map(function (l, i) { return { label: l, v: c.nb[i] }; }), 300, "pt", function (row) {
+      return row.v === 0 ? "#D9D9D9" : "#018838";
+    });
+
+    var rs = RT.filter(function (r) { return r.from === c.id; });
+    var act = document.getElementById("clActions");
+    if (!rs.length) {
+      act.innerHTML = '<p style="font-size:12px;color:var(--ink-mute);margin:0">' +
+        "このクラスターは育成の<strong>到達先</strong>です。維持・離反防止の施策を設計します。</p>" +
+        '<div class="lever"><span class="tag">リワード</span><span>資産運用オンライン相談 優待予約権</span></div>' +
+        '<div class="lever"><span class="tag">ランク</span><span>上位ランク優遇・限定特典</span></div>' +
+        '<div class="lever"><span class="tag">紹介</span><span>紹介プログラムでアンバサダー化</span></div>';
+    } else {
+      act.innerHTML = rs.map(function (r) {
+        return '<p style="font-size:11.5px;margin:0 0 6px"><strong>' + r.rank + "｜" + r.title + "</strong></p>" +
+          r.lev.map(function (l) {
+            return '<div class="lever"><span class="tag">' + l[0] + "</span><span>" + l[1] + "</span></div>";
+          }).join("");
+      }).join("");
+    }
+  }
+
+  /* ============================================================
+     施策効果
+     ============================================================ */
+  var CAMPS = [
+    { name: "給与振込の設定を完了する", type: "チャレンジ", send: 62700, react: 24.1, reach: 7524, lift: 9.8, cost: 18810000, gain: 142200000 },
+    { name: "初回ログインボーナス（+1,000pt）", type: "リワード", send: 85500, react: 14.6, reach: 6840, lift: 7.2, cost: 25650000, gain: 97810000 },
+    { name: "口座振替を2件以上にまとめる", type: "チャレンジ", send: 62700, react: 19.3, reach: 5016, lift: 6.4, cost: 12540000, gain: 47100000 },
+    { name: "月次ネクストアクション提示", type: "プッシュ", send: 139800, react: 11.2, reach: 20970, lift: 4.1, cost: 41940000, gain: 83880000 },
+    { name: "利用機能アンケート（+200pt）", type: "アンケート", send: 139800, react: 27.8, reach: 4194, lift: 1.6, cost: 6990000, gain: 8390000 },
+    { name: "窓口・ATM のアプリ誘導QR", type: "QR", send: 504800, react: 8.4, reach: 30288, lift: 5.9, cost: 50480000, gain: 90860000 }
+  ];
+
+  function drawCampaign() {
+    var s = clear("cFunnel"), W = 440, X0 = 16, X1 = W - 16;
+    var steps = [
+      { l: "配信", v: 995300, c: "#9BD4B5" },
+      { l: "開封・表示", v: 419400, c: "#51B883" },
+      { l: "反応（チャレンジ着手）", v: 137300, c: "#018838" },
+      { l: "金融アクション到達", v: 74832, c: "#115A36" }
+    ];
+    var maxV = steps[0].v, y = 16, h = 42, gap = 18;
+    steps.forEach(function (st, i) {
+      var w = st.v / maxV * (X1 - X0);
+      s.appendChild(el("rect", { x: X0, y: y, width: w, height: h, rx: 3, fill: st.c }));
+      s.appendChild(el("text", { x: X0 + 12, y: y + 18, "font-size": 11.5, "font-weight": 700,
+        fill: i >= 2 ? "#FFFFFF" : "#1A1A1C" }, st.l));
+      s.appendChild(el("text", { x: X0 + 12, y: y + 34, class: "num", "font-size": 13, "font-weight": 600,
+        fill: i >= 2 ? "#FFFFFF" : "#1A1A1C" }, fmt(st.v) + " 人"));
+      if (i) {
+        s.appendChild(el("text", { x: X1, y: y - 5, "text-anchor": "end", class: "num", "font-size": 10.5,
+          fill: "#767676" }, "→ " + (st.v / steps[i - 1].v * 100).toFixed(1) + "%"));
+      }
+      y += h + gap;
+    });
+    s.setAttribute("viewBox", "0 0 " + W + " " + (y + 4));
+
+    hGroupBars("cLift", [
+      { label: "給与振込 設定",   v: [12.0, 2.2] },
+      { label: "口座振替 追加",   v: [8.0, 1.6] },
+      { label: "カード 月10万超", v: [6.4, 2.1] },
+      { label: "NISA 申込",       v: [3.1, 0.9] },
+      { label: "アプリ 初回起動", v: [6.0, 0.1] }
+    ], [{ color: "#018838" }, { color: "#3460FB" }], 14, "%");
+
+    var tb = document.querySelector("#campTable tbody");
+    tb.textContent = "";
+    CAMPS.slice().sort(function (a, b) { return b.gain / b.cost - a.gain / a.cost; }).forEach(function (c) {
+      var roi = c.gain / c.cost, tr = document.createElement("tr");
+      tr.innerHTML =
+        "<td><strong>" + c.name + "</strong></td>" +
+        '<td><span class="pill low">' + c.type + "</span></td>" +
+        '<td class="n">' + fmt(c.send) + "</td>" +
+        '<td class="n">' + c.react.toFixed(1) + "%</td>" +
+        '<td class="n">' + fmt(c.reach) + "</td>" +
+        '<td class="n" style="color:var(--main);font-weight:700">+' + c.lift.toFixed(1) + "pt</td>" +
+        '<td class="n">' + yen(c.cost) + "</td>" +
+        '<td class="n">' + yen(Math.round(c.cost / c.reach)) + "</td>" +
+        '<td class="n"><strong style="color:' + (roi >= 2 ? "var(--main)" : "var(--ink-mute)") + '">' +
+          roi.toFixed(1) + "x</strong></td>";
+      tb.appendChild(tr);
+    });
+  }
+
+  /* ============================================================
+     ナビゲーション
+     ============================================================ */
+  var VIEWS = {
+    sum:  ["サマリー", "ロイヤリティプログラムの事業効果と、会員／非会員の比較"],
+    road: ["ロイヤルティ顧客育成ロードマップ", "どのクラスターに誰がいて、次にどこへ、どの施策で動かすか"],
+    cl:   ["クラスター詳細", "選択したクラスターのプロフィールと打ち手"],
+    camp: ["施策効果", "配信 → 反応 → 金融アクション到達のファネルと費用対効果"]
+  };
+  function show(v) {
+    Object.keys(VIEWS).forEach(function (k) {
+      document.getElementById("v-" + k).hidden = (k !== v);
+    });
+    Array.prototype.forEach.call(document.querySelectorAll(".nav-btn"), function (b) {
+      if (b.dataset.v === v) b.setAttribute("aria-current", "page");
+      else b.removeAttribute("aria-current");
+    });
+    document.getElementById("tTitle").textContent = VIEWS[v][0];
+    document.getElementById("tSub").textContent = VIEWS[v][1];
+    if (v === "cl") drawClusterDetail();
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }
+  Array.prototype.forEach.call(document.querySelectorAll(".nav-btn"), function (b) {
+    b.addEventListener("click", function () { show(b.dataset.v); });
+  });
+
+  // ロードマップ側の選択をクラスター詳細に連動させる
+  var _selectRoute = selectRoute;
+  selectRoute = function (id) {
+    _selectRoute(id);
+    selCluster = RT.filter(function (r) { return r.id === id; })[0].from;
+    if (!document.getElementById("v-cl").hidden) drawClusterDetail();
+  };
+
+  /* ============================================================
+     初期化
+     ============================================================ */
+  drawSummary();
+  drawRoadKpis();
+  drawRoadmap();
+  drawRouteList();
+  drawRouteDetail();
+  drawClusterTable();
+  drawCampaign();
+  selCluster = RT[0].from;
+  drawClusterDetail();
+
+  document.getElementById("foot").innerHTML =
+    "マイリワードポータル プロトタイプ ／ ロイヤルティ顧客育成ダッシュボード<br>" +
+    "デザインは東京都デジタルサービス局「ダッシュボード作成ガイドブック」のカラーパレット・フォントサイズ・配置ルールに準拠。<br>" +
+    "本ページの数値はすべて検討用のダミー値であり、実顧客データは含まれていません。" +
+    "ななポの付与ポイント数のみ、77ポイントサービスの公開情報にもとづく実配点を使用しています。";
+})();
+</script>
+</body>
+</html>
