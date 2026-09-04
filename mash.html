@@ -1,0 +1,3607 @@
+<title>MASH リワード体験マネジメント コンソール</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #f2efe9;
+    --surface: #ffffff;
+    --surface-2: #faf8f4;
+    --ink: #1b1917;
+    --ink-soft: rgba(27, 25, 23, .62);
+    --ink-faint: rgba(27, 25, 23, .40);
+    --line: rgba(27, 25, 23, .11);
+    --line-strong: rgba(27, 25, 23, .22);
+    --side: #17150f;
+    --side-2: #0c0b07;
+    --accent: #5a6b4d;
+    --accent-deep: #414f37;
+    --accent-soft: #edf0e8;
+    --accent-ink: #ffffff;
+    --gold: #a1854c;
+    --gold-soft: #f6f0e3;
+    --danger: #b03e2d;
+    --danger-soft: #fbeeeb;
+    --warn: #b4791b;
+    --warn-soft: #fbf3e2;
+    --ok: #3d7a53;
+    --ok-soft: #ecf3ee;
+    --sidebar-w: 264px;
+    --serif: "Hiragino Mincho ProN", "Yu Mincho", YuMincho, "Noto Serif JP", "Times New Roman", serif;
+    color-scheme: light;
+  }
+  [data-mode="alliance"] {
+    --accent: #2f4a63;
+    --accent-deep: #22374a;
+    --accent-soft: #e9eef3;
+    --side: #101821;
+    --side-2: #070c12;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN",
+      "Hiragino Sans", "Yu Gothic UI", "Noto Sans JP", "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    color: var(--ink);
+    font-size: 14px;
+  }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  h1, h2, h3, h4 { margin: 0; }
+  p { margin: 0; }
+
+  .serif { font-family: var(--serif); font-weight: 600; }
+  .eyebrow {
+    font-size: 10px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* ---------- shell ---------- */
+  .shell { display: flex; min-height: 100vh; }
+
+  .sidebar {
+    flex: none; width: var(--sidebar-w); min-height: 100vh; height: 100vh;
+    position: sticky; top: 0; align-self: flex-start;
+    background: linear-gradient(180deg, var(--side), var(--side-2));
+    color: rgba(255, 255, 255, .82);
+    display: flex; flex-direction: column;
+    transition: background .35s ease;
+  }
+  .sidebar-brand { padding: 22px 20px 18px; border-bottom: 1px solid rgba(255, 255, 255, .09); }
+  .sidebar-brand strong {
+    display: block; font-family: var(--serif); font-size: 19px; font-weight: 600;
+    letter-spacing: .12em; color: #fff;
+  }
+  .sidebar-brand span {
+    display: block; margin-top: 5px; font-size: 9.5px; letter-spacing: .17em;
+    color: rgba(255, 255, 255, .42); text-transform: uppercase;
+  }
+
+  .mode-switch { padding: 16px 14px 6px; }
+  .mode-switch-label {
+    font-size: 9px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase;
+    color: rgba(255, 255, 255, .34); padding: 0 6px 8px;
+  }
+  .mode-tabs {
+    display: grid; grid-template-columns: 1fr; gap: 4px; padding: 4px;
+    background: rgba(255, 255, 255, .07); border-radius: 10px;
+  }
+  .mode-tab {
+    border: none; background: none; cursor: pointer; border-radius: 7px; padding: 9px 11px;
+    color: rgba(255, 255, 255, .6); line-height: 1.3; text-align: left;
+    display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+    transition: background .2s ease, color .2s ease;
+  }
+  .mode-tab b { font-size: 11.5px; font-weight: 800; white-space: nowrap; }
+  .mode-tab i { font-style: normal; font-size: 8.5px; letter-spacing: .1em; opacity: .65; white-space: nowrap; }
+  .mode-tab:hover { color: #fff; }
+  .mode-tab[aria-pressed="true"] { background: #fff; color: #1b1917; }
+
+  .sidebar-nav { flex: 1 1 auto; padding: 12px 12px 8px; overflow-y: auto; }
+  .nav-group-label {
+    padding: 14px 10px 6px; font-size: 9px; font-weight: 800; letter-spacing: .15em;
+    color: rgba(255, 255, 255, .32); text-transform: uppercase;
+  }
+  .nav-btn {
+    display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+    padding: 10px 12px; border-radius: 10px; border: none; background: none; cursor: pointer;
+    color: rgba(255, 255, 255, .74); font-size: 12.5px; font-weight: 700; line-height: 1.35;
+    transition: background .15s ease, color .15s ease;
+  }
+  .nav-btn svg { flex: none; width: 16px; height: 16px; }
+  .nav-btn:hover { background: rgba(255, 255, 255, .07); color: #fff; }
+  .nav-btn[aria-current="page"] { background: rgba(255, 255, 255, .96); color: #1b1917; }
+  .nav-ext {
+    margin-left: auto; flex: none; font-size: 8.5px; font-weight: 800; letter-spacing: .08em;
+    padding: 2px 6px; border-radius: 5px; background: var(--accent); color: #fff;
+  }
+  .nav-btn[aria-current="page"] .nav-ext { background: var(--accent); color: #fff; }
+  .nav-new { animation: navIn .4s ease both; }
+  @keyframes navIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
+
+  .sidebar-foot {
+    flex: none; padding: 14px 18px; border-top: 1px solid rgba(255, 255, 255, .09);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .sidebar-avatar {
+    flex: none; width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 255, 255, .14);
+    display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #fff;
+  }
+  .sidebar-foot-text { line-height: 1.35; min-width: 0; }
+  .sidebar-foot-text strong { display: block; font-size: 11.5px; color: #fff; }
+  .sidebar-foot-text span { display: block; font-size: 10px; color: rgba(255, 255, 255, .42); }
+
+  .main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+
+  .topbar {
+    flex: none; position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: flex-end; justify-content: space-between; gap: 18px;
+    padding: 20px 34px 16px;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(12px); border-bottom: 1px solid var(--line);
+  }
+  .topbar-crumb { font-size: 10.5px; letter-spacing: .1em; color: var(--ink-faint); margin-bottom: 6px; }
+  .topbar-crumb b { color: var(--accent); font-weight: 800; }
+  .topbar h1 { font-family: var(--serif); font-size: 22px; font-weight: 600; letter-spacing: .02em; }
+  .topbar-sub { margin-top: 5px; font-size: 12px; color: var(--ink-soft); }
+  .topbar-actions { flex: none; display: flex; align-items: center; gap: 9px; padding-bottom: 3px; }
+
+  .content { flex: 1 1 auto; padding: 26px 34px 72px; max-width: 1280px; width: 100%; margin: 0 auto; }
+  .view[hidden] { display: none; }
+  .view { animation: viewIn .28s ease both; }
+  @keyframes viewIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  /* ---------- buttons ---------- */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+    padding: 9px 16px; border-radius: 999px; border: 1px solid var(--line-strong);
+    background: var(--surface); color: var(--ink);
+    font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap;
+    transition: background .15s ease, transform .1s ease, opacity .15s ease, border-color .15s ease;
+  }
+  .btn svg { width: 14px; height: 14px; flex: none; }
+  .btn:hover { background: var(--surface-2); }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .btn-primary:hover { background: var(--accent-deep); border-color: var(--accent-deep); }
+  .btn-dark { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .btn-dark:hover { background: #000; }
+  .btn-ghost { border-color: transparent; background: none; }
+  .btn-ghost:hover { background: rgba(27, 25, 23, .06); }
+  .btn-danger { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 30%, transparent); }
+  .btn-sm { padding: 6px 12px; font-size: 11px; }
+  .btn-sm svg { width: 12px; height: 12px; }
+  .btn-block { width: 100%; }
+  .btn-lg { padding: 13px 24px; font-size: 13.5px; }
+  .btn:disabled { opacity: .42; cursor: not-allowed; }
+  .btn:disabled:active { transform: none; }
+
+  /* ---------- surfaces ---------- */
+  .card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 4px;
+    padding: 22px 24px;
+  }
+  .card + .card { margin-top: 16px; }
+  .card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin-bottom: 16px; }
+  .card-head h2 { font-family: var(--serif); font-size: 15.5px; font-weight: 600; letter-spacing: .04em; }
+  .card-head p { margin-top: 4px; font-size: 11.5px; color: var(--ink-soft); line-height: 1.6; }
+  .card-head-actions { flex: none; display: flex; gap: 8px; align-items: center; }
+  .card-flat { padding: 0; overflow: hidden; }
+  .section-rule {
+    display: flex; align-items: center; gap: 12px; margin: 28px 0 14px;
+  }
+  .section-rule h2 { font-family: var(--serif); font-size: 14px; font-weight: 600; letter-spacing: .08em; white-space: nowrap; }
+  .section-rule::after { content: ""; flex: 1 1 auto; height: 1px; background: var(--line); }
+  .section-rule .rule-note { flex: none; font-size: 11px; color: var(--ink-faint); }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .stack { display: flex; flex-direction: column; gap: 16px; }
+
+  /* ---------- KPI ---------- */
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .kpi {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 18px 18px 16px;
+    position: relative; overflow: hidden;
+  }
+  .kpi::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent);
+  }
+  .kpi.kpi-gold::before { background: var(--gold); }
+  .kpi.kpi-muted::before { background: var(--line-strong); }
+  .kpi-label { font-size: 11px; font-weight: 700; color: var(--ink-soft); letter-spacing: .02em; }
+  .kpi-value {
+    margin-top: 9px; font-family: var(--serif); font-size: 30px; font-weight: 600; line-height: 1.05;
+    letter-spacing: -.01em; font-variant-numeric: tabular-nums;
+  }
+  .kpi-value small { font-family: inherit; font-size: 15px; margin-left: 2px; }
+  .kpi-value .unit { font-family: -apple-system, sans-serif; font-size: 12px; font-weight: 700; margin-left: 3px; color: var(--ink-soft); }
+  .kpi-sub { margin-top: 8px; font-size: 11px; color: var(--ink-faint); line-height: 1.5; }
+  .kpi-delta { font-weight: 800; }
+  .kpi-delta.up { color: var(--ok); }
+  .kpi-delta.down { color: var(--danger); }
+
+  /* ---------- badges ---------- */
+  .badge {
+    display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px;
+    font-size: 10.5px; font-weight: 800; letter-spacing: .02em; white-space: nowrap;
+    background: rgba(27, 25, 23, .06); color: var(--ink-soft);
+  }
+  .badge i { width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex: none; }
+  .badge-ok { background: var(--ok-soft); color: var(--ok); }
+  .badge-warn { background: var(--warn-soft); color: var(--warn); }
+  .badge-danger { background: var(--danger-soft); color: var(--danger); }
+  .badge-accent { background: var(--accent-soft); color: var(--accent-deep); }
+  .badge-gold { background: var(--gold-soft); color: var(--gold); }
+  .badge-dark { background: var(--ink); color: #fff; }
+  .badge-outline { background: none; border: 1px solid var(--line-strong); color: var(--ink-soft); }
+
+  /* ---------- alerts ---------- */
+  .alert {
+    display: flex; gap: 11px; padding: 13px 16px; border-radius: 4px; font-size: 12px; line-height: 1.65;
+    border: 1px solid var(--line); background: var(--surface-2); color: var(--ink-soft);
+  }
+  .alert svg { width: 16px; height: 16px; flex: none; margin-top: 1px; }
+  .alert strong { display: block; color: var(--ink); font-size: 12.5px; margin-bottom: 2px; }
+  .alert-warn { background: var(--warn-soft); border-color: color-mix(in srgb, var(--warn) 28%, transparent); color: color-mix(in srgb, var(--warn) 88%, #000); }
+  .alert-warn strong { color: color-mix(in srgb, var(--warn) 96%, #000); }
+  .alert-danger { background: var(--danger-soft); border-color: color-mix(in srgb, var(--danger) 28%, transparent); color: color-mix(in srgb, var(--danger) 90%, #000); }
+  .alert-danger strong { color: var(--danger); }
+  .alert-ok { background: var(--ok-soft); border-color: color-mix(in srgb, var(--ok) 28%, transparent); color: color-mix(in srgb, var(--ok) 92%, #000); }
+  .alert-ok strong { color: var(--ok); }
+  .alert-accent { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 26%, transparent); color: var(--accent-deep); }
+  .alert-accent strong { color: var(--accent-deep); }
+
+  /* ---------- expansion callout (CORE -> ALLIANCE diff) ---------- */
+  .diff {
+    display: flex; gap: 14px; align-items: flex-start; padding: 14px 18px; margin-bottom: 18px;
+    border: 1px dashed color-mix(in srgb, var(--accent) 42%, transparent);
+    background: linear-gradient(100deg, var(--accent-soft), color-mix(in srgb, var(--accent-soft) 30%, var(--surface)));
+    border-radius: 4px;
+  }
+  .diff-tag {
+    flex: none; font-size: 9px; font-weight: 800; letter-spacing: .12em; padding: 4px 8px;
+    border-radius: 3px; background: var(--accent); color: #fff; margin-top: 1px;
+  }
+  .diff-body { font-size: 11.5px; line-height: 1.7; color: var(--accent-deep); }
+  .diff-body b { font-weight: 800; }
+  .diff-body ul { margin: 6px 0 0; padding-left: 17px; }
+  .diff-body li { margin-top: 2px; }
+
+  /* ---------- forms ---------- */
+  .fieldset { border: none; margin: 0 0 4px; padding: 0; }
+  .fieldset + .fieldset { margin-top: 26px; padding-top: 24px; border-top: 1px solid var(--line); }
+  .fieldset > legend {
+    padding: 0; margin-bottom: 4px; font-size: 12.5px; font-weight: 800; letter-spacing: .04em;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .fieldset > legend .legend-num {
+    width: 19px; height: 19px; border-radius: 50%; background: var(--accent); color: #fff;
+    font-size: 10px; display: inline-flex; align-items: center; justify-content: center; font-weight: 800;
+  }
+  .fieldset-note { font-size: 11px; color: var(--ink-faint); line-height: 1.6; margin-bottom: 14px; }
+
+  .field { margin-bottom: 14px; }
+  .field:last-child { margin-bottom: 0; }
+  .field > label, .field-label {
+    display: block; font-size: 11.5px; font-weight: 700; margin-bottom: 6px; color: var(--ink);
+  }
+  .field-label .opt, .field > label .opt { font-weight: 600; color: var(--ink-faint); margin-left: 7px; font-size: 10.5px; }
+  .req { color: var(--danger); font-size: 10px; margin-left: 4px; font-weight: 800; }
+  .hint { margin-top: 6px; font-size: 10.5px; color: var(--ink-faint); line-height: 1.6; }
+  .form-row { display: grid; gap: 14px; }
+  .form-row.c2 { grid-template-columns: 1fr 1fr; }
+  .form-row.c3 { grid-template-columns: repeat(3, 1fr); }
+  .form-row.c2-1 { grid-template-columns: 2fr 1fr; }
+
+  .input, .select, .textarea {
+    width: 100%; padding: 9px 12px; border-radius: 3px; border: 1px solid var(--line-strong);
+    background: var(--surface); font-size: 12.5px; outline: none;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .textarea { min-height: 78px; resize: vertical; line-height: 1.65; }
+  .select { appearance: none; padding-right: 32px; cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231b1917' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 10px center; background-size: 14px; }
+  .input:focus, .select:focus, .textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .input.is-error, .select.is-error { border-color: var(--danger); background: var(--danger-soft); }
+  .input:disabled, .select:disabled, .textarea:disabled { background: var(--surface-2); color: var(--ink-faint); cursor: not-allowed; }
+  .input-group { display: flex; align-items: center; gap: 8px; }
+  .input-suffix { font-size: 11.5px; font-weight: 700; color: var(--ink-soft); flex: none; }
+  .field-error {
+    display: none; margin-top: 6px; font-size: 11px; font-weight: 700; color: var(--danger);
+    align-items: center; gap: 5px;
+  }
+  .field-error svg { width: 13px; height: 13px; flex: none; }
+  .field.is-invalid .field-error { display: flex; }
+  .field.is-invalid .input, .field.is-invalid .select { border-color: var(--danger); background: var(--danger-soft); }
+
+  /* segmented radio */
+  .seg { display: inline-flex; padding: 3px; background: rgba(27, 25, 23, .05); border-radius: 999px; gap: 3px; }
+  .seg button {
+    border: none; background: none; cursor: pointer; padding: 7px 15px; border-radius: 999px;
+    font-size: 11.5px; font-weight: 700; color: var(--ink-soft); white-space: nowrap;
+    transition: background .15s ease, color .15s ease;
+  }
+  .seg button:hover { color: var(--ink); }
+  .seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(27, 25, 23, .1); }
+
+  /* radio list */
+  .radio-list { display: flex; flex-direction: column; gap: 8px; }
+  .radio-list.inline { flex-direction: row; flex-wrap: wrap; }
+  .radio-opt {
+    display: flex; align-items: flex-start; gap: 10px; padding: 11px 14px; cursor: pointer; text-align: left;
+    border: 1px solid var(--line-strong); border-radius: 3px; background: var(--surface);
+    font-size: 12px; line-height: 1.55; transition: border-color .15s ease, background .15s ease;
+  }
+  .radio-opt:hover { border-color: var(--accent); }
+  .radio-opt .dot {
+    flex: none; width: 15px; height: 15px; border-radius: 50%; border: 1.5px solid var(--line-strong);
+    margin-top: 1px; display: flex; align-items: center; justify-content: center;
+    transition: border-color .15s ease;
+  }
+  .radio-opt .dot::after { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); transform: scale(0); transition: transform .15s ease; }
+  .radio-opt[aria-checked="true"] { border-color: var(--accent); background: var(--accent-soft); }
+  .radio-opt[aria-checked="true"] .dot { border-color: var(--accent); }
+  .radio-opt[aria-checked="true"] .dot::after { transform: scale(1); }
+  .radio-opt[aria-disabled="true"] { opacity: .5; cursor: not-allowed; background: var(--surface-2); border-color: var(--line); }
+  .radio-opt[aria-disabled="true"]:hover { border-color: var(--line); }
+  .radio-opt-body strong { display: block; font-weight: 700; font-size: 12.5px; }
+  .radio-opt-body span { display: block; margin-top: 3px; font-size: 11px; color: var(--ink-soft); }
+
+  /* checkbox pills */
+  .pill-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 7px; padding: 8px 14px; cursor: pointer;
+    border: 1px solid var(--line-strong); border-radius: 999px; background: var(--surface);
+    font-size: 11.5px; font-weight: 700; transition: all .15s ease;
+  }
+  .pill .box {
+    flex: none; width: 14px; height: 14px; border-radius: 3px; border: 1.5px solid var(--line-strong);
+    display: flex; align-items: center; justify-content: center; color: #fff;
+  }
+  .pill .box svg { width: 10px; height: 10px; opacity: 0; transition: opacity .12s ease; }
+  .pill[aria-checked="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-deep); }
+  .pill[aria-checked="true"] .box { background: var(--accent); border-color: var(--accent); }
+  .pill[aria-checked="true"] .box svg { opacity: 1; }
+  .pill[aria-disabled="true"] { opacity: .42; cursor: not-allowed; }
+  .pill-rank i { font-style: normal; font-size: 9px; letter-spacing: .08em; color: var(--ink-faint); margin-left: 2px; }
+
+  /* toggle switch */
+  .switch-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 14px;
+    padding: 12px 14px; border: 1px solid var(--line-strong); border-radius: 3px; background: var(--surface);
+  }
+  .switch-row + .switch-row { margin-top: 8px; }
+  .switch-text strong { display: block; font-size: 12.5px; font-weight: 700; }
+  .switch-text span { display: block; margin-top: 3px; font-size: 11px; color: var(--ink-soft); line-height: 1.55; }
+  .switch {
+    flex: none; width: 42px; height: 24px; border-radius: 999px; border: none; cursor: pointer;
+    background: rgba(27, 25, 23, .18); position: relative; transition: background .2s ease;
+  }
+  .switch::after {
+    content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%;
+    background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, .2); transition: transform .2s ease;
+  }
+  .switch[aria-checked="true"] { background: var(--accent); }
+  .switch[aria-checked="true"]::after { transform: translateX(18px); }
+
+  .conditional { display: none; margin-top: 12px; padding: 14px 16px; border-radius: 3px; background: var(--surface-2); border: 1px solid var(--line); }
+  .conditional.is-open { display: block; animation: viewIn .22s ease both; }
+
+  /* ---------- table ---------- */
+  .table-wrap { overflow-x: auto; }
+  table.tbl { width: 100%; border-collapse: collapse; font-size: 12px; }
+  table.tbl th {
+    text-align: left; padding: 11px 16px; font-size: 10px; font-weight: 800; letter-spacing: .1em;
+    color: var(--ink-faint); text-transform: uppercase; border-bottom: 1px solid var(--line);
+    background: var(--surface-2); white-space: nowrap;
+  }
+  table.tbl td { padding: 13px 16px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  table.tbl tbody tr:last-child td { border-bottom: none; }
+  table.tbl tbody tr.is-alert { background: var(--warn-soft); }
+  table.tbl tbody tr.is-dead { background: var(--danger-soft); }
+  table.tbl .cell-main { font-weight: 700; }
+  table.tbl .cell-sub { display: block; margin-top: 3px; font-size: 10.5px; color: var(--ink-faint); }
+  .ta-r { text-align: right; }
+  .ta-c { text-align: center; }
+
+  /* ---------- meters / charts ---------- */
+  .meter { height: 6px; border-radius: 999px; background: rgba(27, 25, 23, .09); overflow: hidden; }
+  .meter > i { display: block; height: 100%; border-radius: 999px; background: var(--accent); transition: width .5s ease; }
+  .meter.thick { height: 10px; }
+  .meter > i.warn { background: var(--warn); }
+  .meter > i.danger { background: var(--danger); }
+  .meter > i.gold { background: var(--gold); }
+  .meter-row { display: flex; align-items: center; gap: 12px; }
+  .meter-row .meter { flex: 1 1 auto; }
+  .meter-row .meter-val { flex: none; font-size: 11.5px; font-weight: 800; font-variant-numeric: tabular-nums; min-width: 46px; text-align: right; }
+
+  .bar-list { display: flex; flex-direction: column; gap: 13px; }
+  .bar-item-head { display: flex; justify-content: space-between; align-items: baseline; font-size: 11.5px; margin-bottom: 6px; }
+  .bar-item-head strong { font-weight: 700; }
+  .bar-item-head span { font-weight: 800; font-variant-numeric: tabular-nums; }
+
+  /* comparison bars */
+  .cmp { display: flex; align-items: flex-end; gap: 26px; height: 172px; padding: 12px 6px 0; }
+  .cmp-col { flex: 1 1 0; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; }
+  .cmp-bar {
+    width: 100%; max-width: 92px; border-radius: 3px 3px 0 0; background: var(--accent);
+    position: relative; transition: height .6s ease;
+  }
+  .cmp-bar.muted { background: rgba(27, 25, 23, .16); }
+  .cmp-bar .cmp-num {
+    position: absolute; top: -24px; left: 0; right: 0; text-align: center;
+    font-family: var(--serif); font-size: 17px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums;
+  }
+  .cmp-label { margin-top: 10px; font-size: 11px; text-align: center; color: var(--ink-soft); line-height: 1.5; }
+  .cmp-lift {
+    align-self: center; flex: none; text-align: center; padding: 0 4px;
+  }
+  .cmp-lift b { display: block; font-family: var(--serif); font-size: 20px; color: var(--ok); }
+  .cmp-lift span { display: block; font-size: 10px; color: var(--ink-faint); margin-top: 2px; }
+
+  /* funnel */
+  .funnel { display: flex; flex-direction: column; gap: 3px; }
+  .funnel-step { display: flex; align-items: center; gap: 14px; }
+  .funnel-bar {
+    height: 42px; border-radius: 2px; background: var(--accent); color: #fff;
+    display: flex; align-items: center; padding: 0 14px; font-size: 12px; font-weight: 700;
+    transition: width .6s ease; min-width: 120px;
+  }
+  .funnel-step:nth-child(1) .funnel-bar { background: var(--accent); }
+  .funnel-step:nth-child(2) .funnel-bar { background: color-mix(in srgb, var(--accent) 82%, #fff); }
+  .funnel-step:nth-child(3) .funnel-bar { background: color-mix(in srgb, var(--accent) 64%, #fff); }
+  .funnel-step:nth-child(4) .funnel-bar { background: color-mix(in srgb, var(--accent) 46%, #fff); color: var(--ink); }
+  .funnel-meta { font-size: 11px; color: var(--ink-soft); line-height: 1.5; }
+  .funnel-meta b { display: block; color: var(--ink); font-size: 12px; font-weight: 800; }
+  .funnel-drop { font-size: 10.5px; color: var(--ink-faint); padding-left: 6px; }
+
+  /* share bar (stacked) */
+  .share-bar { display: flex; height: 40px; border-radius: 3px; overflow: hidden; }
+  .share-seg { display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11.5px; font-weight: 800; transition: width .5s ease; }
+  .share-legend { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 14px; }
+  .share-legend span { display: flex; align-items: center; gap: 7px; font-size: 11.5px; color: var(--ink-soft); }
+  .share-legend i { width: 9px; height: 9px; border-radius: 2px; flex: none; }
+  .share-legend b { color: var(--ink); font-weight: 800; }
+
+  /* stat rows */
+  .stat-list { display: flex; flex-direction: column; }
+  .stat-row {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
+    padding: 13px 0; border-bottom: 1px solid var(--line);
+  }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-row .stat-label { font-size: 12px; color: var(--ink-soft); line-height: 1.55; }
+  .stat-row .stat-label b { display: block; color: var(--ink); font-weight: 700; font-size: 12.5px; margin-bottom: 2px; }
+  .stat-row .stat-val { flex: none; font-family: var(--serif); font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .stat-row .stat-val small { font-size: 12px; font-family: -apple-system, sans-serif; font-weight: 700; color: var(--ink-soft); margin-left: 3px; }
+
+  /* ---------- builder layout (form + preview) ---------- */
+  .builder { display: grid; grid-template-columns: minmax(0, 1fr) 344px; gap: 20px; align-items: start; }
+  .preview-col { position: sticky; top: 108px; display: flex; flex-direction: column; gap: 14px; }
+  .preview-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .preview-head .eyebrow { color: var(--ink-faint); }
+
+  .phone {
+    width: 100%; border-radius: 26px; background: #12110e; padding: 9px;
+    box-shadow: 0 18px 44px rgba(27, 25, 23, .16);
+  }
+  .phone-screen { background: #fbfaf7; border-radius: 19px; overflow: hidden; min-height: 430px; }
+  .phone-status {
+    display: flex; align-items: center; justify-content: space-between; padding: 9px 16px 5px;
+    font-size: 9.5px; font-weight: 800; color: var(--ink-soft);
+  }
+  .phone-hero { height: 122px; position: relative; display: flex; align-items: flex-end; padding: 12px 14px; color: #fff; }
+  .phone-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0) 34%, rgba(0,0,0,.55)); }
+  .phone-hero > * { position: relative; z-index: 1; }
+  .phone-hero-brand { font-size: 9px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; opacity: .9; }
+  .phone-hero-title { font-family: var(--serif); font-size: 15px; font-weight: 600; line-height: 1.4; margin-top: 4px; }
+  .phone-body { padding: 14px; }
+  .phone-price {
+    display: flex; align-items: baseline; gap: 7px; padding-bottom: 12px; border-bottom: 1px solid var(--line);
+  }
+  .phone-price strong { font-family: var(--serif); font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .phone-price span { font-size: 11px; color: var(--ink-soft); }
+  .phone-meta { margin-top: 12px; display: flex; flex-direction: column; gap: 9px; }
+  .phone-meta-row { display: flex; gap: 9px; font-size: 11px; line-height: 1.55; color: var(--ink-soft); }
+  .phone-meta-row svg { width: 13px; height: 13px; flex: none; margin-top: 1px; color: var(--accent); }
+  .phone-meta-row b { color: var(--ink); font-weight: 700; }
+  .phone-gate {
+    margin-top: 12px; padding: 9px 11px; border-radius: 3px; background: var(--accent-soft);
+    font-size: 10.5px; font-weight: 700; color: var(--accent-deep); line-height: 1.5;
+  }
+  .phone-cta {
+    margin-top: 14px; width: 100%; padding: 12px; border-radius: 999px; border: none;
+    background: var(--ink); color: #fff; font-size: 12.5px; font-weight: 800; cursor: default;
+  }
+  .phone-cta.is-disabled { background: rgba(27, 25, 23, .16); color: rgba(27, 25, 23, .48); }
+  .phone-cta.is-soldout { background: var(--surface); border: 1.5px solid var(--line-strong); color: var(--ink-faint); }
+  .phone-note { margin-top: 8px; font-size: 10px; color: var(--ink-faint); text-align: center; line-height: 1.5; }
+
+  .push-card {
+    margin: 14px; padding: 12px 13px; border-radius: 12px; background: var(--surface);
+    box-shadow: 0 4px 16px rgba(27, 25, 23, .1); border: 1px solid var(--line);
+  }
+  .push-card-head { display: flex; align-items: center; gap: 8px; font-size: 9.5px; color: var(--ink-faint); font-weight: 700; }
+  .push-card-head .app-dot { width: 15px; height: 15px; border-radius: 4px; background: var(--accent); flex: none; }
+  .push-card-title { margin-top: 7px; font-size: 12px; font-weight: 800; }
+  .push-card-body { margin-top: 4px; font-size: 11px; line-height: 1.6; color: var(--ink-soft); word-break: break-word; }
+
+  .preview-states { border: 1px solid var(--line); border-radius: 4px; background: var(--surface); padding: 14px 16px; }
+  .preview-states h4 { font-size: 11px; font-weight: 800; letter-spacing: .06em; margin-bottom: 10px; }
+  .state-line { display: flex; align-items: flex-start; gap: 8px; font-size: 11px; line-height: 1.6; padding: 5px 0; color: var(--ink-soft); }
+  .state-line svg { width: 13px; height: 13px; flex: none; margin-top: 2px; }
+  .state-line.ok { color: var(--ok); }
+  .state-line.warn { color: var(--warn); }
+  .state-line.danger { color: var(--danger); }
+
+  /* ---------- stepper (governance) ---------- */
+  .stepper { display: flex; gap: 0; }
+  .step { flex: 1 1 0; position: relative; padding-top: 26px; font-size: 11px; color: var(--ink-faint); line-height: 1.5; }
+  .step::before {
+    content: ""; position: absolute; top: 7px; left: 0; right: 0; height: 2px; background: var(--line);
+  }
+  .step::after {
+    content: ""; position: absolute; top: 2px; left: 0; width: 12px; height: 12px; border-radius: 50%;
+    background: var(--surface); border: 2px solid var(--line-strong);
+  }
+  .step:last-child::before { display: none; }
+  .step.done::before { background: var(--ok); }
+  .step.done::after { background: var(--ok); border-color: var(--ok); }
+  .step.done { color: var(--ink); }
+  .step.current::after { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+  .step.current { color: var(--accent-deep); font-weight: 700; }
+  .step strong { display: block; font-size: 11.5px; font-weight: 800; }
+  .step span { display: block; margin-top: 2px; font-size: 10px; }
+
+  /* ---------- slot grid ---------- */
+  .slot-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+  .slot {
+    border-radius: 3px; padding: 8px 6px; text-align: center; font-size: 10.5px; font-weight: 700;
+    border: 1px solid var(--line); background: var(--surface); line-height: 1.4; cursor: default;
+  }
+  .slot small { display: block; font-size: 9px; font-weight: 700; margin-top: 3px; opacity: .8; }
+  .slot.booked { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .slot.open { background: var(--surface); border-style: dashed; color: var(--ink-faint); }
+  .slot.blocked { background: var(--surface-2); color: var(--ink-faint); text-decoration: line-through; }
+  .slot.hold { background: var(--warn-soft); border-color: color-mix(in srgb, var(--warn) 34%, transparent); color: var(--warn); }
+  .slot-legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 14px; font-size: 10.5px; color: var(--ink-soft); }
+  .slot-legend span { display: flex; align-items: center; gap: 6px; }
+  .slot-legend i { width: 10px; height: 10px; border-radius: 2px; border: 1px solid var(--line-strong); flex: none; }
+
+  /* ---------- staff console ---------- */
+  .console { display: grid; grid-template-columns: 292px minmax(0, 1fr); gap: 18px; align-items: start; }
+  .booking-list { display: flex; flex-direction: column; }
+  .booking {
+    display: flex; gap: 12px; align-items: flex-start; padding: 13px 15px; cursor: pointer;
+    border-bottom: 1px solid var(--line); background: var(--surface); text-align: left;
+    border-left: 3px solid transparent; width: 100%; border-top: none; border-right: none;
+    transition: background .15s ease;
+  }
+  .booking:hover { background: var(--surface-2); }
+  .booking[aria-current="true"] { background: var(--accent-soft); border-left-color: var(--accent); }
+  .booking-time { flex: none; font-size: 12px; font-weight: 800; font-variant-numeric: tabular-nums; width: 42px; }
+  .booking-body { min-width: 0; flex: 1 1 auto; }
+  .booking-body strong { display: block; font-size: 12.5px; font-weight: 700; }
+  .booking-body span { display: block; margin-top: 3px; font-size: 10.5px; color: var(--ink-soft); }
+  .booking-badge { flex: none; margin-top: 1px; }
+
+  .tablet {
+    border: 1px solid var(--line); border-radius: 4px; background: var(--surface); overflow: hidden;
+  }
+  .tablet-bar {
+    display: flex; align-items: center; justify-content: space-between; gap: 14px;
+    padding: 14px 20px; border-bottom: 1px solid var(--line); background: var(--surface-2);
+  }
+  .tablet-bar-title { font-family: var(--serif); font-size: 15px; font-weight: 600; }
+  .tablet-bar-sub { margin-top: 3px; font-size: 11px; color: var(--ink-soft); }
+  .tablet-body { padding: 20px; }
+
+  .cust {
+    display: flex; align-items: center; gap: 14px; padding: 15px 17px; border-radius: 4px;
+    background: linear-gradient(100deg, var(--accent-soft), var(--surface-2)); border: 1px solid var(--line);
+  }
+  .cust-avatar {
+    flex: none; width: 46px; height: 46px; border-radius: 50%; background: var(--accent); color: #fff;
+    display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 17px;
+  }
+  .cust-main { flex: 1 1 auto; min-width: 0; }
+  .cust-main strong { font-family: var(--serif); font-size: 17px; font-weight: 600; }
+  .cust-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .cust-facts { flex: none; display: flex; gap: 22px; }
+  .cust-fact { text-align: right; }
+  .cust-fact b { display: block; font-family: var(--serif); font-size: 18px; font-variant-numeric: tabular-nums; }
+  .cust-fact span { display: block; font-size: 10px; color: var(--ink-faint); margin-top: 1px; }
+
+  .scan-box {
+    display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 4px;
+    border: 1px dashed var(--line-strong); background: var(--surface-2);
+  }
+  .scan-icon {
+    flex: none; width: 40px; height: 40px; border-radius: 4px; background: var(--surface);
+    border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; color: var(--ink-soft);
+  }
+  .scan-icon svg { width: 20px; height: 20px; }
+  .scan-fields { flex: 1 1 auto; min-width: 0; }
+  .scan-result { margin-top: 12px; }
+
+  .chip-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 999px;
+    border: 1px solid var(--line-strong); background: var(--surface); font-size: 11.5px; font-weight: 700;
+    cursor: pointer; transition: all .15s ease;
+  }
+  .chip:hover { border-color: var(--accent); }
+  .chip[aria-checked="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .chip[aria-disabled="true"] { opacity: .38; cursor: not-allowed; }
+  .chip[aria-disabled="true"]:hover { border-color: var(--line-strong); }
+  .chip-counter { font-size: 10.5px; color: var(--ink-faint); font-weight: 700; }
+
+  .karte-foot {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--line);
+  }
+  .karte-foot-note { font-size: 11px; color: var(--ink-soft); line-height: 1.6; }
+
+  /* demo state switcher */
+  .demo-bar {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    padding: 10px 14px; border-radius: 4px; border: 1px dashed var(--line-strong);
+    background: repeating-linear-gradient(135deg, var(--surface-2), var(--surface-2) 8px, var(--surface) 8px, var(--surface) 16px);
+    font-size: 11px; color: var(--ink-soft);
+  }
+  .demo-bar strong { font-size: 10px; font-weight: 800; letter-spacing: .1em; color: var(--ink-faint); text-transform: uppercase; }
+
+  /* ---------- masking ---------- */
+  .masked { position: relative; }
+  .masked-value { filter: blur(5px); user-select: none; opacity: .55; }
+  .locked-panel { position: relative; }
+  .locked-overlay {
+    position: absolute; inset: 0; z-index: 3; border-radius: 4px;
+    background: color-mix(in srgb, var(--surface) 78%, transparent); backdrop-filter: blur(4px);
+    display: none; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+    text-align: center; padding: 24px;
+  }
+  .locked-panel.is-locked .locked-overlay { display: flex; }
+  .locked-overlay svg { width: 22px; height: 22px; color: var(--ink-faint); }
+  .locked-overlay strong { font-size: 12.5px; font-weight: 800; }
+  .locked-overlay span { font-size: 11px; color: var(--ink-soft); line-height: 1.6; max-width: 320px; }
+
+  /* ---------- state reference view ---------- */
+  .state-table td { vertical-align: top; }
+  .state-swatch { display: flex; flex-direction: column; gap: 8px; }
+  .spec { font-size: 11px; line-height: 1.7; color: var(--ink-soft); }
+  .spec code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 10.5px;
+    background: rgba(27, 25, 23, .06); padding: 1px 5px; border-radius: 3px; color: var(--ink);
+  }
+
+  /* ---------- toast / modal ---------- */
+  .toast {
+    position: fixed; left: 50%; bottom: 34px; transform: translate(-50%, 20px);
+    background: var(--ink); color: #fff; padding: 12px 22px; border-radius: 999px;
+    font-size: 12.5px; font-weight: 700; z-index: 200; opacity: 0; pointer-events: none;
+    transition: opacity .25s ease, transform .25s ease; box-shadow: 0 10px 30px rgba(0, 0, 0, .22);
+    max-width: 88vw; text-align: center;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(20, 18, 15, .5); backdrop-filter: blur(3px);
+    display: none; align-items: center; justify-content: center; padding: 28px; z-index: 150;
+  }
+  .modal-backdrop.show { display: flex; }
+  .modal {
+    background: var(--surface); border-radius: 4px; width: 100%; max-width: 520px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .26); max-height: 86vh; overflow-y: auto;
+  }
+  .modal-head { padding: 22px 24px 0; }
+  .modal-head h3 { font-family: var(--serif); font-size: 17px; font-weight: 600; }
+  .modal-head p { margin-top: 6px; font-size: 12px; color: var(--ink-soft); line-height: 1.65; }
+  .modal-body { padding: 18px 24px 4px; }
+  .modal-foot { display: flex; justify-content: flex-end; gap: 9px; padding: 18px 24px 22px; }
+
+  .report-sheet {
+    border: 1px solid var(--line); border-radius: 3px; background: var(--surface-2); padding: 18px 20px;
+    font-size: 11.5px; line-height: 1.75; color: var(--ink-soft);
+  }
+  .report-sheet h4 { font-family: var(--serif); font-size: 14px; margin-bottom: 3px; color: var(--ink); }
+  .report-sheet .rs-rule { height: 1px; background: var(--line); margin: 12px 0; }
+  .report-sheet dl { display: grid; grid-template-columns: auto 1fr; gap: 5px 14px; margin: 0; }
+  .report-sheet dt { color: var(--ink-faint); font-size: 11px; }
+  .report-sheet dd { margin: 0; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 1180px) {
+    .builder { grid-template-columns: 1fr; }
+    .preview-col { position: static; max-width: 380px; }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 900px) {
+    .shell { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; min-height: 0; position: static; }
+    .sidebar-nav { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; }
+    .nav-group-label { grid-column: 1 / -1; }
+    .content, .topbar { padding-left: 18px; padding-right: 18px; }
+    .grid-2, .form-row.c2, .form-row.c3, .form-row.c2-1 { grid-template-columns: 1fr; }
+    .console { grid-template-columns: 1fr; }
+    .slot-grid { grid-template-columns: repeat(3, 1fr); }
+    .cust { flex-wrap: wrap; }
+  }
+  @media (max-width: 640px) {
+    .kpi-grid { grid-template-columns: 1fr; }
+    .topbar { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+
+<div class="shell" data-mode="core" id="shell">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <strong id="brand-name">MASH CORE</strong>
+      <span id="brand-sub">Reward Experience Cloud</span>
+    </div>
+
+    <div class="mode-switch">
+      <div class="mode-switch-label">プロトタイプ切替</div>
+      <div class="mode-tabs">
+        <button type="button" class="mode-tab" data-mode="core" aria-pressed="true">
+          <b>自社完結型</b><i>BASELINE</i>
+        </button>
+        <button type="button" class="mode-tab" data-mode="alliance" aria-pressed="false">
+          <b>パートナー共創型</b><i>ALLIANCE</i>
+        </button>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav" id="sidebar-nav"></nav>
+
+    <div class="sidebar-foot">
+      <div class="sidebar-avatar" id="side-avatar">本</div>
+      <div class="sidebar-foot-text">
+        <strong id="side-user">本部マーケティング部</strong>
+        <span id="side-role">MASH ID 事業推進室</span>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div>
+        <div class="topbar-crumb" id="topbar-crumb"></div>
+        <h1 id="topbar-title">—</h1>
+        <p class="topbar-sub" id="topbar-sub"></p>
+      </div>
+      <div class="topbar-actions" id="topbar-actions"></div>
+    </header>
+
+    <div class="content">
+
+      <!-- ==================================================================
+           1-C 【本部・統括用】店舗送客＆リテンションダッシュボード
+      =================================================================== -->
+      <section class="view" id="view-core-dash">
+        <div class="kpi-grid">
+          <div class="kpi">
+            <div class="kpi-label">総交換完了数</div>
+            <div class="kpi-value num">2,450<span class="unit">件</span></div>
+            <div class="kpi-sub">提供期間 2026/10/01〜12/31 ／ 上位ランク限定公開</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">店舗来店消化率</div>
+            <div class="kpi-value num">92.4<span class="unit">%</span></div>
+            <div class="kpi-sub">2,264件が来店消込済 ／ 未来店 186件</div>
+          </div>
+          <div class="kpi kpi-gold">
+            <div class="kpi-label">当日アップセル購買率</div>
+            <div class="kpi-value num">58.2<span class="unit">%</span></div>
+            <div class="kpi-sub">来店者2,264名のうち1,318名が当日購買</div>
+          </div>
+          <div class="kpi kpi-gold">
+            <div class="kpi-label">来店当日平均購買単価</div>
+            <div class="kpi-value num">¥6,820</div>
+            <div class="kpi-sub"><span class="kpi-delta up">客単価リフト +¥2,100</span> ／ 通常来店 ¥4,720</div>
+          </div>
+        </div>
+
+        <div class="section-rule"><h2>交換 → 来店 → 購買 ファネル</h2><span class="rule-note">2026/10/01 – 10/31 実績</span></div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h2>店舗送客ファネル</h2>
+                <p>ECで貯めたポイントが「店頭での接客」に変換されるまでの歩留まり。</p>
+              </div>
+            </div>
+            <div class="funnel" id="core-funnel"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h2>ポイント負債の消化インパクト</h2>
+                <p>体験交換によって引き当てポイントを取り崩した額。割引消化ではなく接客体験へ転換。</p>
+              </div>
+            </div>
+            <div class="stat-list">
+              <div class="stat-row">
+                <div class="stat-label"><b>本企画による引当ポイント消化</b>2,450件 × 1,500pt</div>
+                <div class="stat-val num">3,675,000<small>pt</small></div>
+              </div>
+              <div class="stat-row">
+                <div class="stat-label"><b>失効見込ポイントの救済分</b>90日以内に失効予定だったポイント</div>
+                <div class="stat-val num">1,412,000<small>pt</small></div>
+              </div>
+              <div class="stat-row">
+                <div class="stat-label"><b>体験交換に伴う実店舗売上</b>来店当日購買の合計</div>
+                <div class="stat-val num">¥8,988,760</div>
+              </div>
+              <div class="stat-row">
+                <div class="stat-label"><b>消化ポイントあたり創出売上</b>負債1ptあたりの店頭売上</div>
+                <div class="stat-val num">¥2.45<small>/pt</small></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-rule"><h2>再来店・LTV波及インパクト</h2><span class="rule-note">体験者 vs 非体験者（同ランク）</span></div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h2>30日以内 再来店率</h2>
+                <p>体験者は非体験者の同ランク会員に対して +15.7pt のリフト。</p>
+              </div>
+            </div>
+            <div class="cmp">
+              <div class="cmp-col">
+                <div class="cmp-bar" style="height:0" data-h="88"><span class="cmp-num">34.2%</span></div>
+                <div class="cmp-label">体験者<br>(n=2,264)</div>
+              </div>
+              <div class="cmp-lift">
+                <b>+15.7pt</b>
+                <span>リフト</span>
+              </div>
+              <div class="cmp-col">
+                <div class="cmp-bar muted" style="height:0" data-h="48"><span class="cmp-num">18.5%</span></div>
+                <div class="cmp-label">非体験者<br>(同ランク)</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h2>フォローアップ自動配信の効き</h2>
+                <p>来店消込の14日後に自動送信されるアプリプッシュの反応。</p>
+              </div>
+            </div>
+            <div class="bar-list" id="core-follow-bars"></div>
+            <div class="alert alert-accent" style="margin-top:16px">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+              <div>
+                <strong>接客カルテが効いている</strong>
+                店頭で「診断結果に基づく推奨アイテム」を記録した会員の再来店率は 41.6%、記録なしは 22.8%。カルテ入力率の向上が再来店率に直結している。
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-rule"><h2>店舗別 消化状況</h2><span class="rule-note">未消化アラートは本部から店舗へ自動通知</span></div>
+        <div class="card card-flat">
+          <div class="table-wrap">
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th>店舗</th>
+                  <th class="ta-r">交換</th>
+                  <th class="ta-r">来店消込</th>
+                  <th style="width:200px">消化率</th>
+                  <th class="ta-r">当日購買率</th>
+                  <th class="ta-r">当日客単価</th>
+                  <th>ステータス</th>
+                </tr>
+              </thead>
+              <tbody id="core-store-rows"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================================================================
+           1-A 【本部マーケ用】自社リワード体験ビルダー
+      =================================================================== -->
+      <section class="view" id="view-core-builder" hidden>
+        <div class="builder">
+          <div>
+            <div class="card">
+              <fieldset class="fieldset">
+                <legend><span class="legend-num">1</span>基本設定</legend>
+                <p class="fieldset-note">MASH ID のどのブランド会員に、いつからいつまで提供する体験かを定義します。</p>
+                <div class="form-row c2">
+                  <div class="field">
+                    <label for="cb-brand">対象ブランド<span class="req">必須</span></label>
+                    <select class="select" id="cb-brand">
+                      <option>Cosme Kitchen</option>
+                      <option>Biople by CosmeKitchen</option>
+                      <option>gelato pique</option>
+                      <option>SNIDEL</option>
+                      <option>FRAY I.D</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="cb-status">ステータス</label>
+                    <select class="select" id="cb-status">
+                      <option value="active">公開中 (Active)</option>
+                      <option value="draft">下書き (Draft)</option>
+                      <option value="paused">一時停止 (Paused)</option>
+                      <option value="ended">終了 (Ended)</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="cb-title">企画名<span class="req">必須</span></label>
+                  <input class="input" id="cb-title" value="パーソナル肌診断＆カスタムハーブティー処方体験">
+                </div>
+                <div class="form-row c2">
+                  <div class="field" id="cb-field-from">
+                    <label for="cb-from">提供開始日</label>
+                    <input class="input" type="date" id="cb-from" value="2026-10-01">
+                  </div>
+                  <div class="field" id="cb-field-to">
+                    <label for="cb-to">提供終了日</label>
+                    <input class="input" type="date" id="cb-to" value="2026-12-31">
+                    <div class="field-error">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+                      終了日は開始日より後の日付を指定してください
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
+
+              <fieldset class="fieldset">
+                <legend><span class="legend-num">2</span>交換レート・会員ゲート</legend>
+                <p class="fieldset-note">ポイント消化の条件と、体験を公開する会員ランクを設定します。</p>
+                <div class="form-row c2">
+                  <div class="field" id="cb-field-points">
+                    <label for="cb-points">必要ポイント<span class="req">必須</span></label>
+                    <div class="input-group">
+                      <input class="input" type="number" id="cb-points" value="1500" min="0" step="100">
+                      <span class="input-suffix">pt</span>
+                    </div>
+                    <div class="field-error">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+                      必要ポイントは1以上で設定してください
+                    </div>
+                    <p class="hint">相当額 <b id="cb-points-yen">¥1,500</b>（1pt = ¥1換算）／ 引当ポイントの取り崩しとして計上されます</p>
+                  </div>
+                  <div class="field">
+                    <span class="field-label">Points + Cash 併用</span>
+                    <div class="seg" id="cb-paymode">
+                      <button type="button" data-val="point" aria-pressed="true">許可しない（全額pt）</button>
+                      <button type="button" data-val="mix" aria-pressed="false">許可する</button>
+                    </div>
+                    <div class="conditional" id="cb-mix-panel">
+                      <div class="form-row c2">
+                        <div class="field">
+                          <label for="cb-mix-pt">併用時の必要ポイント</label>
+                          <div class="input-group">
+                            <input class="input" type="number" id="cb-mix-pt" value="500" step="100">
+                            <span class="input-suffix">pt</span>
+                          </div>
+                        </div>
+                        <div class="field">
+                          <label for="cb-mix-cash">併用時の現金決済額</label>
+                          <div class="input-group">
+                            <span class="input-suffix">¥</span>
+                            <input class="input" type="number" id="cb-mix-cash" value="1100" step="100">
+                          </div>
+                        </div>
+                      </div>
+                      <p class="hint">自社完結型（ベースライン）では全額ポイント固定を推奨。併用は共創型で本格運用します。</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <span class="field-label">公開対象ランク<span class="req">必須</span><span class="opt">上位ランク限定公開で希少性を担保</span></span>
+                  <div class="pill-grid" id="cb-ranks">
+                    <button type="button" class="pill pill-rank" data-rank="diamond" data-members="18200" aria-checked="true">
+                      <span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg></span>
+                      Diamond <i>18,200名</i>
+                    </button>
+                    <button type="button" class="pill pill-rank" data-rank="platinum" data-members="46400" aria-checked="true">
+                      <span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg></span>
+                      Platinum <i>46,400名</i>
+                    </button>
+                    <button type="button" class="pill pill-rank" data-rank="gold" data-members="128700" aria-checked="false">
+                      <span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg></span>
+                      Gold <i>128,700名</i>
+                    </button>
+                    <button type="button" class="pill pill-rank" data-rank="regular" data-members="512300" aria-checked="false">
+                      <span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg></span>
+                      Regular <i>512,300名</i>
+                    </button>
+                  </div>
+                  <p class="hint">推定公開対象会員数 <b id="cb-reach">64,600名</b> ／ うち必要ポイント保有者 <b id="cb-eligible">21,318名</b>（保有率33%で試算）</p>
+                </div>
+              </fieldset>
+
+              <fieldset class="fieldset">
+                <legend><span class="legend-num">3</span>店舗フルフィルメント設定</legend>
+                <p class="fieldset-note">「どの店舗で・何分の接客枠として・どの部材を手渡すか」まで本部から設計します。</p>
+                <div class="form-row c2">
+                  <div class="field">
+                    <label for="cb-stores">展開店舗</label>
+                    <select class="select" id="cb-stores">
+                      <option data-count="42">全国のCosme Kitchen直営店（42店舗）</option>
+                      <option data-count="18">関東エリア直営店（18店舗）</option>
+                      <option data-count="6">旗艦店のみ（6店舗）</option>
+                      <option data-count="3">個別指定（3店舗）</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="cb-slot">1枠の接客時間</label>
+                    <select class="select" id="cb-slot">
+                      <option>15分</option>
+                      <option selected>20分</option>
+                      <option>30分</option>
+                      <option>45分</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-row c2">
+                  <div class="field">
+                    <label for="cb-deadline">予約受付締め切り</label>
+                    <select class="select" id="cb-deadline">
+                      <option>来店当日の 3時間前 まで</option>
+                      <option selected>来店前日の 23:59 まで</option>
+                      <option>来店3日前の 23:59 まで</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="cb-capacity">1店舗あたり1日の上限枠</label>
+                    <div class="input-group">
+                      <input class="input" type="number" id="cb-capacity" value="12" min="1">
+                      <span class="input-suffix">枠 / 日</span>
+                    </div>
+                    <p class="hint">全店合計の1日最大受入 <b id="cb-total-cap">504枠</b></p>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label for="cb-material">店頭手渡し部材</label>
+                  <div class="form-row c2-1">
+                    <input class="input" id="cb-material" value="オリジナル調合ハーブミニ缶">
+                    <input class="input" id="cb-material-code" value="CK-HB-001">
+                  </div>
+                  <p class="hint">商品マスタと連携。部材コードは在庫システム（WMS）のSKUに紐づきます。</p>
+                </div>
+
+                <div class="switch-row">
+                  <div class="switch-text">
+                    <strong>在庫連動</strong>
+                    <span>店舗別の部材在庫を予約受付にリアルタイム反映します。</span>
+                  </div>
+                  <button type="button" class="switch" id="cb-stock-switch" role="switch" aria-checked="true" aria-label="在庫連動"></button>
+                </div>
+                <div class="conditional is-open" id="cb-stock-panel">
+                  <div class="form-row c2">
+                    <div class="field">
+                      <label for="cb-stock-threshold">残少アラートのしきい値</label>
+                      <div class="input-group">
+                        <input class="input" type="number" id="cb-stock-threshold" value="20" min="0">
+                        <span class="input-suffix">個</span>
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label for="cb-stock-zero">在庫ゼロ時の挙動<span class="req">必須</span></label>
+                      <select class="select" id="cb-stock-zero">
+                        <option value="stop">該当店舗の予約受付を自動停止</option>
+                        <option value="waitlist">キャンセル待ちとして受付を継続</option>
+                        <option value="substitute">代替部材（CK-HB-002）へ自動切替</option>
+                      </select>
+                    </div>
+                  </div>
+                  <p class="hint">在庫ゼロ／期限切れ時の画面挙動は「ステータス定義」で一覧化しています。</p>
+                </div>
+              </fieldset>
+
+              <fieldset class="fieldset">
+                <legend><span class="legend-num">4</span>リテンション・フォローアップ自動配信</legend>
+                <p class="fieldset-note">来店消込をトリガーに、接客の続きをアプリで自動的に届けます。</p>
+                <div class="switch-row">
+                  <div class="switch-text">
+                    <strong>来店消込の一定日数後にアプリプッシュ通知を自動送信</strong>
+                    <span>店頭カルテの内容に応じて差し込み文言を出し分けます。</span>
+                  </div>
+                  <button type="button" class="switch" id="cb-follow-switch" role="switch" aria-checked="true" aria-label="フォローアップ自動配信"></button>
+                </div>
+                <div class="conditional is-open" id="cb-follow-panel">
+                  <div class="form-row c2">
+                    <div class="field">
+                      <label for="cb-follow-days">送信タイミング</label>
+                      <div class="input-group">
+                        <span class="input-suffix">来店消込の</span>
+                        <input class="input" type="number" id="cb-follow-days" value="14" min="1" max="180">
+                        <span class="input-suffix">日後</span>
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label for="cb-follow-bonus">再購入時の加算ポイント</label>
+                      <div class="input-group">
+                        <input class="input" type="number" id="cb-follow-bonus" value="300" step="50">
+                        <span class="input-suffix">pt</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label for="cb-follow-msg">メッセージ本文</label>
+                    <textarea class="textarea" id="cb-follow-msg">お肌の調子はいかがですか？診断でおすすめしたセラムの本品購入で+300pt</textarea>
+                    <p class="hint"><span id="cb-msg-count">0</span> / 120文字（推奨40文字以内。超過分は端末で省略表示されます）</p>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+
+            <div class="karte-foot" style="margin-top:0;border-top:none">
+              <div class="karte-foot-note">最終更新 2026/09/28 14:22 ／ 本部マーケティング部 田口</div>
+              <div style="display:flex;gap:9px">
+                <button type="button" class="btn" id="cb-save-draft">下書き保存</button>
+                <button type="button" class="btn btn-primary" id="cb-publish">公開する</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- preview column -->
+          <div class="preview-col">
+            <div class="preview-head">
+              <span class="eyebrow">会員アプリ プレビュー</span>
+              <div class="seg" id="cb-preview-tabs" style="transform:scale(.92);transform-origin:right center">
+                <button type="button" data-val="detail" aria-pressed="true">交換画面</button>
+                <button type="button" data-val="push" aria-pressed="false">14日後通知</button>
+              </div>
+            </div>
+
+            <div class="phone">
+              <div class="phone-screen">
+                <div class="phone-status"><span>9:41</span><span>MASH ID</span></div>
+
+                <div id="cb-pv-detail">
+                  <div class="phone-hero" style="background:linear-gradient(135deg,#8a9c72,#4d5c3c)">
+                    <div>
+                      <div class="phone-hero-brand" id="pv-brand">Cosme Kitchen</div>
+                      <div class="phone-hero-title" id="pv-title">パーソナル肌診断＆カスタムハーブティー処方体験</div>
+                    </div>
+                  </div>
+                  <div class="phone-body">
+                    <div class="phone-price">
+                      <strong id="pv-points">1,500</strong><span>pt で交換</span>
+                    </div>
+                    <div class="phone-meta">
+                      <div class="phone-meta-row">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                        <span id="pv-period">2026/10/01 〜 2026/12/31</span>
+                      </div>
+                      <div class="phone-meta-row">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                        <span id="pv-stores">全国のCosme Kitchen直営店（42店舗）</span>
+                      </div>
+                      <div class="phone-meta-row">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                        <span>接客時間 <b id="pv-slot">20分</b> ／ <span id="pv-deadline">来店前日の 23:59 まで</span>予約可</span>
+                      </div>
+                      <div class="phone-meta-row">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v7a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8M16.5 8a2.5 2.5 0 0 0 0-5C13 3 12 8 12 8"/></svg>
+                        <span>店頭で <b id="pv-material">オリジナル調合ハーブミニ缶</b> をお渡し</span>
+                      </div>
+                    </div>
+                    <div class="phone-gate" id="pv-gate">Diamond・Platinum会員限定の体験です</div>
+                    <button type="button" class="phone-cta" id="pv-cta">来店枠を予約する</button>
+                    <p class="phone-note" id="pv-note">お手持ちのポイントで全額交換できます</p>
+                  </div>
+                </div>
+
+                <div id="cb-pv-push" hidden>
+                  <div style="padding:22px 14px 6px;text-align:center">
+                    <span class="eyebrow">来店消込 <b id="pv-push-days">14</b>日後 / 自動配信</span>
+                  </div>
+                  <div class="push-card">
+                    <div class="push-card-head"><span class="app-dot"></span>MASH ID・今</div>
+                    <div class="push-card-title" id="pv-push-title">Cosme Kitchen からのご提案</div>
+                    <div class="push-card-body" id="pv-push-body">お肌の調子はいかがですか？診断でおすすめしたセラムの本品購入で+300pt</div>
+                  </div>
+                  <div style="padding:4px 20px 24px">
+                    <p class="hint">※ 店頭カルテに記録された「推奨アイテム」が本文に差し込まれます。カルテ未記録の会員には汎用文面が送信されます。</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="preview-states">
+              <h4>公開前チェック</h4>
+              <div id="cb-checks"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================================================================
+           1-B 【店頭スタッフ用】タブレット消込＆カルテ入力画面
+      =================================================================== -->
+      <section class="view" id="view-core-pos" hidden>
+        <div class="demo-bar" style="margin-bottom:16px">
+          <strong>デモ操作</strong>
+          <span>バーコード認証の結果を切り替えて、正常系／エラー系の表示を確認できます。</span>
+          <div class="seg" id="pos-scan-mode" style="margin-left:auto">
+            <button type="button" data-val="ok" aria-pressed="true">認証成功</button>
+            <button type="button" data-val="expired" aria-pressed="false">有効期限切れ</button>
+            <button type="button" data-val="other" aria-pressed="false">別店舗の予約</button>
+            <button type="button" data-val="used" aria-pressed="false">消込済み</button>
+          </div>
+        </div>
+
+        <div class="console">
+          <div class="card card-flat">
+            <div style="padding:16px 16px 12px;border-bottom:1px solid var(--line)">
+              <div class="eyebrow">2026/10/12（月）</div>
+              <h2 class="serif" style="font-size:15px;margin-top:5px">本日のリワード予約一覧</h2>
+              <p style="margin-top:5px;font-size:11px;color:var(--ink-soft)">全8枠 ／ 消込済 <b id="pos-done-count">2</b>件・未来店 1件</p>
+            </div>
+            <div class="booking-list" id="pos-bookings"></div>
+          </div>
+
+          <div class="tablet">
+            <div class="tablet-bar">
+              <div>
+                <div class="tablet-bar-title" id="pos-slot-time">14:00 - 14:20</div>
+                <div class="tablet-bar-sub">Cosme Kitchen ルミネ新宿店 ／ 担当: 美容部員 早瀬</div>
+              </div>
+              <div id="pos-slot-badge"><span class="badge badge-accent"><i></i>接客中</span></div>
+            </div>
+            <div class="tablet-body">
+              <div class="cust">
+                <div class="cust-avatar" id="pos-cust-initial">佐</div>
+                <div class="cust-main">
+                  <strong id="pos-cust-name">佐藤 遥香 様</strong>
+                  <div class="cust-tags" id="pos-cust-tags">
+                    <span class="badge badge-gold">Diamond会員</span>
+                    <span class="badge badge-outline">MASH ID: *****8921</span>
+                    <span class="badge badge-outline">前回来店 2026/08/24</span>
+                  </div>
+                </div>
+                <div class="cust-facts">
+                  <div class="cust-fact"><b id="pos-cust-visits">14</b><span>来店回数</span></div>
+                  <div class="cust-fact"><b id="pos-cust-karte">3</b><span>カルテ件数</span></div>
+                </div>
+              </div>
+
+              <div class="section-rule" style="margin-top:22px"><h2>チケット消込</h2></div>
+              <div class="scan-box">
+                <div class="scan-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 5v14M6 5v14M9.5 5v14M13 5v14M16.5 5v14M20 5v14"/></svg>
+                </div>
+                <div class="scan-fields">
+                  <span class="field-label" style="margin-bottom:5px">会員バーコード読取</span>
+                  <div style="display:flex;gap:8px;align-items:center">
+                    <input class="input" id="pos-scan-input" value="*******8921" style="max-width:220px">
+                    <button type="button" class="btn btn-dark btn-sm" id="pos-scan-btn">読み取る</button>
+                    <button type="button" class="btn btn-ghost btn-sm" id="pos-scan-reset">リセット</button>
+                  </div>
+                </div>
+              </div>
+              <div class="scan-result" id="pos-scan-result"></div>
+
+              <div id="pos-karte" style="opacity:.42;pointer-events:none">
+                <div class="section-rule"><h2>店頭カウンセリング記録</h2><span class="rule-note">MASH IDへ保存され、次回来店時に引き継がれます</span></div>
+
+                <div class="field">
+                  <span class="field-label">現在の肌悩み<span class="req">必須</span></span>
+                  <div class="radio-list inline" id="pos-skin">
+                    <button type="button" class="radio-opt" data-val="dry" aria-checked="true" style="flex:1 1 180px">
+                      <span class="dot"></span>
+                      <span class="radio-opt-body"><strong>乾燥・ゆらぎ</strong><span>バリア機能低下・季節性</span></span>
+                    </button>
+                    <button type="button" class="radio-opt" data-val="pore" aria-checked="false" style="flex:1 1 180px">
+                      <span class="dot"></span>
+                      <span class="radio-opt-body"><strong>毛穴・テカリ</strong><span>皮脂過多・混合肌</span></span>
+                    </button>
+                    <button type="button" class="radio-opt" data-val="dull" aria-checked="false" style="flex:1 1 180px">
+                      <span class="dot"></span>
+                      <span class="radio-opt-body"><strong>くすみ</strong><span>血行不良・角質肥厚</span></span>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <span class="field-label">処方ハーブブレンド<span class="opt">最大3種まで</span></span>
+                  <div class="chip-grid" id="pos-herbs"></div>
+                  <p class="hint"><span class="chip-counter" id="pos-herb-count">3 / 3 種選択中</span>　選択上限に達すると未選択のハーブは選べなくなります（在庫連動）。</p>
+                </div>
+
+                <div class="form-row c2">
+                  <div class="field">
+                    <label for="pos-item">当日ご案内した推奨アイテム</label>
+                    <select class="select" id="pos-item">
+                      <option>エッフェオーガニック モイスチャーローション</option>
+                      <option>Celvoke インディケイト スキンセラム</option>
+                      <option>F organics ドリーミーフェイスオイル</option>
+                      <option>ご案内なし</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <span class="field-label">当日の対応</span>
+                    <div class="pill-grid" id="pos-actions">
+                      <button type="button" class="pill" data-val="sample" aria-checked="true">
+                        <span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg></span>サンプル手渡し
+                      </button>
+                      <button type="button" class="pill" data-val="buy" aria-checked="false">
+                        <span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg></span>本品ご購入
+                      </button>
+                      <button type="button" class="pill" data-val="next" aria-checked="false">
+                        <span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg></span>次回予約取得
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label for="pos-memo">接客メモ<span class="opt">任意・社内共有されます</span></label>
+                  <textarea class="textarea" id="pos-memo" placeholder="例）秋口から頬の乾燥を強く感じるとのこと。夜のケアを重視されたい意向。"></textarea>
+                </div>
+
+                <div class="karte-foot">
+                  <div class="karte-foot-note">
+                    保存すると <b id="pos-follow-date">2026/10/26</b>（14日後）にフォローアップ通知が自動予約されます。
+                  </div>
+                  <button type="button" class="btn btn-primary btn-lg" id="pos-save">カルテをMASH IDへ保存して接客完了</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================================================================
+           2-A 【アライアンス統括用】共創アトリエ・スタジオ
+      =================================================================== -->
+      <section class="view" id="view-al-studio" hidden>
+        <div class="diff">
+          <span class="diff-tag">拡張</span>
+          <div class="diff-body">
+            <b>自社エクスペリエンス作成（画面1-A）からの差分</b>
+            <ul>
+              <li>「提携パートナー」「共同主催ブランド」＝<b>複数法人・複数ブランドをまたぐ主体管理</b>を追加</li>
+              <li>「IPライセンス＆ガバナンス管理」＝<b>契約許諾期間・監修承認・ロイヤリティMG消化</b>をSaaS側で自動ガード</li>
+              <li>決済が Points + Cash 併用前提に。<b>先行予約枠（ランク別の公開日ずらし）</b>を標準搭載</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="builder">
+          <div>
+            <div class="card">
+              <fieldset class="fieldset">
+                <legend><span class="legend-num">1</span>プロジェクト基本情報</legend>
+                <p class="fieldset-note">外部IPホルダーと自社ブランドの共催体制を定義します。</p>
+                <div class="field">
+                  <label for="al-partner">提携パートナー（ライセンサー）<span class="req">必須</span></label>
+                  <select class="select" id="al-partner">
+                    <option>Moomin Characters / 株式会社ライツ・アンド・ブランズ</option>
+                    <option>株式会社サンリオ</option>
+                    <option>NPO法人 日本ボタニカル協会</option>
+                  </select>
+                  <p class="hint">契約書・許諾範囲は「パートナー台帳」に登録済みの内容が自動で引き当てられます。</p>
+                </div>
+                <div class="field">
+                  <span class="field-label">共同主催ブランド<span class="req">必須</span></span>
+                  <div class="pill-grid" id="al-brands">
+                    <button type="button" class="pill" data-val="ck" aria-checked="true">
+                      <span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg></span>Cosme Kitchen
+                    </button>
+                    <button type="button" class="pill" data-val="gp" aria-checked="true">
+                      <span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg></span>gelato pique
+                    </button>
+                    <button type="button" class="pill" data-val="sn" aria-checked="false">
+                      <span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg></span>SNIDEL
+                    </button>
+                    <button type="button" class="pill" data-val="bp" aria-checked="false">
+                      <span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg></span>Biople
+                    </button>
+                  </div>
+                  <p class="hint">共催ブランドを2つ以上選ぶと、<b>ブランド横断クロスユース計測</b>が自動で有効になります（現在: <span id="al-cross-state">有効</span>）。</p>
+                </div>
+                <div class="field">
+                  <label for="al-title">企画名<span class="req">必須</span></label>
+                  <input class="input" id="al-title" value="ムーミン谷のボタニカル・アトリエ（Botanical Hygge Atelier）">
+                </div>
+              </fieldset>
+
+              <fieldset class="fieldset">
+                <legend><span class="legend-num">2</span>IPライセンス＆ガバナンス管理</legend>
+                <p class="fieldset-note">許諾期間・監修状況・ロイヤリティを一元管理し、逸脱を自動的にブロックします。</p>
+
+                <div class="form-row c2">
+                  <div class="field">
+                    <label for="al-from">契約許諾開始</label>
+                    <input class="input" type="datetime-local" id="al-from" value="2026-10-01T10:00">
+                  </div>
+                  <div class="field">
+                    <label for="al-to">契約許諾終了</label>
+                    <input class="input" type="datetime-local" id="al-to" value="2026-11-30T23:59">
+                  </div>
+                </div>
+
+                <div class="field">
+                  <span class="field-label">契約終了時オートメーション<span class="req">必須</span></span>
+                  <div class="radio-list" id="al-expiry">
+                    <button type="button" class="radio-opt" data-val="soldout" aria-checked="true">
+                      <span class="dot"></span>
+                      <span class="radio-opt-body"><strong>予約受付を自動停止し、特設ページを完売表示へ遷移</strong><span>会員には「受付を終了しました」を表示。IP素材は表示継続（許諾範囲内）。</span></span>
+                    </button>
+                    <button type="button" class="radio-opt" data-val="hide" aria-checked="false">
+                      <span class="dot"></span>
+                      <span class="radio-opt-body"><strong>特設ページごと非公開（404へ）</strong><span>許諾終了と同時にIPクリエイティブを全面撤去する契約の場合。</span></span>
+                    </button>
+                    <button type="button" class="radio-opt" data-val="manual" aria-checked="false">
+                      <span class="dot"></span>
+                      <span class="radio-opt-body"><strong>アラート通知のみ（手動対応）</strong><span>非推奨。契約逸脱リスクがあるため承認者の追加承認が必要になります。</span></span>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <span class="field-label">監修ステータス</span>
+                  <div class="stepper" id="al-stepper">
+                    <div class="step done"><strong>企画書提出</strong><span>2026/08/12</span></div>
+                    <div class="step done"><strong>初稿監修</strong><span>2026/08/29 差戻し1回</span></div>
+                    <div class="step done"><strong>再提出</strong><span>2026/09/05</span></div>
+                    <div class="step done current" id="al-step-final"><strong>全クリエイティブ承認済</strong><span>版権元サイン完了 2026/09/15</span></div>
+                  </div>
+                  <div class="demo-bar" style="margin-top:14px">
+                    <strong>デモ操作</strong>
+                    <span>監修が1件でも未承認になると、公開ボタンと特設ページが自動的にロックされます。</span>
+                    <button type="button" class="btn btn-sm" id="al-asset-demo" style="margin-left:auto">SNS投稿クリエイティブを「差戻し」にする</button>
+                  </div>
+                  <div class="card" style="margin-top:14px;padding:0" id="al-assets-card">
+                    <div class="table-wrap">
+                      <table class="tbl">
+                        <thead>
+                          <tr><th>監修対象アセット</th><th>用途</th><th>提出</th><th>監修結果</th></tr>
+                        </thead>
+                        <tbody id="al-asset-rows"></tbody>
+                      </table>
+                    </div>
+                  </div>
+                  <p class="hint">1件でも「未承認」があると公開ボタンはロックされます（現在: <b id="al-approval-state">全4件 承認済</b>）。</p>
+                </div>
+
+                <div class="field">
+                  <span class="field-label">ロイヤリティ設計</span>
+                  <div class="form-row c3">
+                    <div class="field" style="margin-bottom:0">
+                      <label for="al-royalty">1交換あたりロイヤリティ</label>
+                      <div class="input-group">
+                        <span class="input-suffix">¥</span>
+                        <input class="input" type="number" id="al-royalty" value="500" step="50">
+                      </div>
+                    </div>
+                    <div class="field" style="margin-bottom:0">
+                      <label for="al-mg">ミニマムギャランティ (MG)</label>
+                      <div class="input-group">
+                        <span class="input-suffix">¥</span>
+                        <input class="input" type="number" id="al-mg" value="3000000" step="100000">
+                      </div>
+                    </div>
+                    <div class="field" style="margin-bottom:0">
+                      <label for="al-sold">現在の交換実績</label>
+                      <div class="input-group">
+                        <input class="input" type="number" id="al-sold" value="4104" step="1">
+                        <span class="input-suffix">件</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div style="margin-top:14px;padding:14px 16px;border:1px solid var(--line);border-radius:3px;background:var(--surface-2)">
+                    <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:11.5px;margin-bottom:8px">
+                      <strong>MG消化率</strong>
+                      <span class="num" style="font-weight:800" id="al-mg-pct">68.4%</span>
+                    </div>
+                    <div class="meter thick"><i id="al-mg-bar" style="width:68.4%"></i></div>
+                    <div style="display:flex;justify-content:space-between;margin-top:9px;font-size:11px;color:var(--ink-soft)">
+                      <span>消化額 <b class="num" id="al-mg-used">¥2,052,000</b></span>
+                      <span>残 <b class="num" id="al-mg-left">¥948,000</b>（あと <b class="num" id="al-mg-need">1,896</b>件で到達）</span>
+                    </div>
+                  </div>
+                  <div id="al-mg-alert" style="margin-top:12px"></div>
+                </div>
+              </fieldset>
+
+              <fieldset class="fieldset">
+                <legend><span class="legend-num">3</span>リワード決済＆会員ゲート</legend>
+                <p class="fieldset-note">ポイント負債の消化と現金売上のバランスを取る Points + Cash 設計。</p>
+                <div class="field">
+                  <span class="field-label">提供形式</span>
+                  <div class="seg" id="al-paymode">
+                    <button type="button" data-val="mix" aria-pressed="true">Points + Cash を適用</button>
+                    <button type="button" data-val="point" aria-pressed="false">全額ポイントのみ</button>
+                  </div>
+                </div>
+                <div class="form-row c3" id="al-price-row">
+                  <div class="field">
+                    <label for="al-full-pt">全額交換</label>
+                    <div class="input-group">
+                      <input class="input" type="number" id="al-full-pt" value="3000" step="100">
+                      <span class="input-suffix">pt</span>
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label for="al-mix-pt">併用時ポイント</label>
+                    <div class="input-group">
+                      <input class="input" type="number" id="al-mix-pt" value="1000" step="100">
+                      <span class="input-suffix">pt</span>
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label for="al-mix-cash">併用時 現金（税込）</label>
+                    <div class="input-group">
+                      <span class="input-suffix">¥</span>
+                      <input class="input" type="number" id="al-mix-cash" value="2200" step="100">
+                    </div>
+                  </div>
+                </div>
+                <div class="form-row c2">
+                  <div class="field">
+                    <label for="al-vip-open">先行予約枠 開始（Diamond / Platinum限定）</label>
+                    <input class="input" type="date" id="al-vip-open" value="2026-10-01">
+                  </div>
+                  <div class="field">
+                    <label for="al-public-open">一般公開 開始</label>
+                    <input class="input" type="date" id="al-public-open" value="2026-10-08">
+                  </div>
+                </div>
+                <div class="alert alert-accent">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 6v6c0 5 3.4 9.4 8 10 4.6-.6 8-5 8-10V6Z"/><path d="m9 12 2 2 4-4"/></svg>
+                  <div>
+                    <strong>先行枠の在庫按分</strong>
+                    先行期間には全体枠の <b>40%（1,928枠）</b> を上限として引き当て、一般公開時の枯渇を防ぎます。上限到達時は先行枠のみ「満席」表示に切り替わります。
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+
+            <div class="karte-foot" style="margin-top:0;border-top:none">
+              <div class="karte-foot-note">最終更新 2026/09/26 11:08 ／ アライアンス統括室 松本</div>
+              <div style="display:flex;gap:9px">
+                <button type="button" class="btn" id="al-save-draft">下書き保存</button>
+                <button type="button" class="btn btn-primary" id="al-publish">公開する</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- preview column -->
+          <div class="preview-col">
+            <div class="preview-head">
+              <span class="eyebrow">特設ページ プレビュー</span>
+              <span class="badge badge-outline" id="al-clock-badge">契約期間内</span>
+            </div>
+
+            <div class="phone">
+              <div class="phone-screen">
+                <div class="phone-status"><span id="al-clock-time">2026/10/12 09:41</span><span>MASH ID</span></div>
+                <div class="phone-hero" style="background:linear-gradient(135deg,#6f88a6,#2f4a63)">
+                  <div>
+                    <div class="phone-hero-brand">Cosme Kitchen × gelato pique × MOOMIN</div>
+                    <div class="phone-hero-title" id="al-pv-title">ムーミン谷のボタニカル・アトリエ</div>
+                  </div>
+                </div>
+                <div class="phone-body">
+                  <div class="phone-price">
+                    <strong id="al-pv-pt">3,000</strong><span>pt 全額交換</span>
+                  </div>
+                  <p style="margin-top:8px;font-size:11px;color:var(--ink-soft)">または <b id="al-pv-mix">1,000pt ＋ ¥2,200（税込）</b></p>
+                  <div class="phone-meta" style="margin-top:14px">
+                    <div class="phone-meta-row">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                      <span id="al-pv-period">2026/10/01 10:00 〜 2026/11/30 23:59</span>
+                    </div>
+                    <div class="phone-meta-row">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                      <span>接客枠 30分 ／ 2ブース同時進行</span>
+                    </div>
+                    <div class="phone-meta-row">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 6v6c0 5 3.4 9.4 8 10 4.6-.6 8-5 8-10V6Z"/></svg>
+                      <span>© Moomin Characters™ 監修済クリエイティブ</span>
+                    </div>
+                  </div>
+                  <div class="phone-gate" id="al-pv-gate">10/07まで Diamond・Platinum会員の先行予約期間です</div>
+                  <button type="button" class="phone-cta" id="al-pv-cta">アトリエを予約する</button>
+                  <p class="phone-note" id="al-pv-note">キャラクター（アロマ）は店頭でお選びいただけます</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="demo-bar" style="justify-content:space-between">
+              <strong>時計デモ</strong>
+              <div class="seg" id="al-clock" style="transform:scale(.9);transform-origin:right center">
+                <button type="button" data-val="pre" aria-pressed="false">公開前</button>
+                <button type="button" data-val="vip" aria-pressed="false">先行期間</button>
+                <button type="button" data-val="open" aria-pressed="true">一般公開中</button>
+                <button type="button" data-val="after" aria-pressed="false">契約終了後</button>
+              </div>
+            </div>
+
+            <div class="preview-states">
+              <h4>ガバナンス自動ガード</h4>
+              <div id="al-checks"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================================================================
+           2-B 【店舗・資材マネージャー用】店舗スロット＆IP限定資材コントロール
+      =================================================================== -->
+      <section class="view" id="view-al-stock" hidden>
+        <div class="diff">
+          <span class="diff-tag">新設</span>
+          <div class="diff-body">
+            <b>自社完結型には存在しなかった画面</b>
+            <ul>
+              <li>IP限定資材は<b>パートナーからの「寄託在庫」</b>。自社在庫と区別し、消化・残数・返却義務まで追跡します。</li>
+              <li>キャラクター単位で残数を持ち、<b>しきい値を割るとWEB予約の選択肢から自動的に非表示</b>（＝店頭での欠品クレームを構造的に防止）。</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+          <div style="flex:1 1 260px">
+            <span class="eyebrow">アトリエ拠点</span>
+            <div style="margin-top:6px">
+              <select class="select" id="stk-store" style="max-width:420px">
+                <option>ルミネ新宿店（Cosme Kitchen / gelato pique 複合店舗）</option>
+                <option>渋谷スクランブルスクエア店（複合店舗）</option>
+                <option>グランフロント大阪店（複合店舗）</option>
+                <option>名古屋PARCO店（Cosme Kitchen単独）</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:flex;gap:26px;flex-wrap:wrap">
+            <div class="cust-fact" style="text-align:left"><b class="num" id="stk-today">24 / 24</b><span>本日の予約状況</span></div>
+            <div class="cust-fact" style="text-align:left"><b class="num">96.8%</b><span>週間稼働率</span></div>
+            <div class="cust-fact" style="text-align:left"><b class="num" id="stk-alerts">1</b><span>資材アラート</span></div>
+          </div>
+        </div>
+
+        <div class="section-rule"><h2>接客予約キャパシティ</h2><span class="rule-note">2026/10/12（月）</span></div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head">
+              <div><h2>枠設計</h2><p>スロット長・ブース数から1日の受入可能数が自動算出されます。</p></div>
+            </div>
+            <div class="form-row c3">
+              <div class="field">
+                <label for="stk-slot">1スロット</label>
+                <select class="select" id="stk-slot">
+                  <option>20分</option>
+                  <option selected>30分</option>
+                  <option>45分</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="stk-booth">同時接客台数</label>
+                <div class="input-group">
+                  <input class="input" type="number" id="stk-booth" value="2" min="1" max="6">
+                  <span class="input-suffix">ブース</span>
+                </div>
+              </div>
+              <div class="field">
+                <label for="stk-max">1日最大枠数</label>
+                <div class="input-group">
+                  <input class="input" type="number" id="stk-max" value="24" readonly>
+                  <span class="input-suffix">枠</span>
+                </div>
+                <p class="hint">営業6時間 ÷ スロット長 × ブース数</p>
+              </div>
+            </div>
+            <div class="alert" id="stk-capacity-note">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+              <div><strong>本日 24/24 満席</strong>キャンセル待ち 6名が登録済み。空きが出ると先着順に自動繰上げ通知が送信されます。</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div><h2>本日のスロット</h2><p>ブース × 時間帯の予約状況。</p></div>
+              <div class="card-head-actions"><span class="badge badge-danger"><i></i>満席</span></div>
+            </div>
+            <div class="slot-grid" id="stk-slots"></div>
+            <div class="slot-legend">
+              <span><i style="background:var(--accent);border-color:var(--accent)"></i>予約済</span>
+              <span><i style="background:#fff;border-style:dashed"></i>空き</span>
+              <span><i style="background:var(--warn-soft);border-color:var(--warn)"></i>仮押さえ</span>
+              <span><i style="background:var(--surface-2)"></i>ブロック（休憩・棚卸）</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-rule">
+          <h2>キャラクター別限定資材（寄託在庫トラッキング）</h2>
+          <span class="rule-note">所有区分: パートナー寄託 ／ 会期終了後は未消化分を返却</span>
+        </div>
+
+        <div class="demo-bar" style="margin-bottom:14px">
+          <strong>デモ操作</strong>
+          <span>資材を消費して、残少アラート → 予約選択肢の自動非表示 → 完売までの状態遷移を確認できます。</span>
+          <div style="display:flex;gap:8px;margin-left:auto;flex-wrap:wrap">
+            <button type="button" class="btn btn-sm" data-stk-consume="snufkin" data-n="1">スナフキン −1</button>
+            <button type="button" class="btn btn-sm" data-stk-consume="snufkin" data-n="2">スナフキン −2</button>
+            <button type="button" class="btn btn-sm" data-stk-consume="snufkin" data-n="12">スナフキン 完売まで</button>
+            <button type="button" class="btn btn-sm btn-ghost" id="stk-reset">リセット</button>
+          </div>
+        </div>
+
+        <div id="stk-banner"></div>
+
+        <div class="card card-flat" style="margin-top:14px">
+          <div class="table-wrap">
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th style="min-width:230px">資材</th>
+                  <th>所有区分</th>
+                  <th class="ta-r">総割当</th>
+                  <th class="ta-r">実消化</th>
+                  <th class="ta-r">店舗残</th>
+                  <th style="width:190px">消化進捗</th>
+                  <th>WEB予約の選択肢</th>
+                </tr>
+              </thead>
+              <tbody id="stk-rows"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="grid-2" style="margin-top:16px">
+          <div class="card">
+            <div class="card-head">
+              <div><h2>ベース資材の残量</h2><p>キャラクター共通で使用する調合ベース。</p></div>
+            </div>
+            <div class="stat-list">
+              <div class="stat-row">
+                <div class="stat-label"><b>コスキチ特製オーガニック精油（ベース）</b>1回の調合で約12g使用</div>
+                <div class="stat-val num">4.8<small>kg</small></div>
+              </div>
+              <div class="stat-row">
+                <div class="stat-label"><b>残量から算出できる提供可能回数</b>安全在庫20%を控除</div>
+                <div class="stat-val num">320<small>回</small></div>
+              </div>
+              <div class="stat-row">
+                <div class="stat-label"><b>補充手配ステータス</b>発注 2026/10/08 ／ 8.0kg</div>
+                <div class="stat-val" style="font-size:13px"><span class="badge badge-accent"><i></i>配送中（10/14着予定）</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div><h2>寄託在庫の精算・返却</h2><p>会期終了後にパートナーへ報告する数量です。</p></div>
+            </div>
+            <div class="stat-list" id="stk-settlement"></div>
+            <div class="alert alert-accent" style="margin-top:14px">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.2-8.6"/><path d="m9 11 3 3 8-8"/></svg>
+              <div><strong>返却・廃棄の証跡が自動で残ります</strong>店舗ごとのシリアル読取ログから消化実績を作成するため、寄託在庫の紛失・横流しリスクを構造的に排除できます。</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================================================================
+           2-C 【店頭スタッフ用】共創アトリエ消込＆アロマ診断カルテ
+      =================================================================== -->
+      <section class="view" id="view-al-pos" hidden>
+        <div class="diff">
+          <span class="diff-tag">拡張</span>
+          <div class="diff-body">
+            <b>店頭消込＆カルテ（画面1-B）からの差分</b>
+            <ul>
+              <li>チケット認証が <b>Points + Cash の決済確認</b>まで含む（現金受領の消込）</li>
+              <li>診断選択肢が <b>資材在庫と連動</b>し、欠品キャラクターは店頭でも選択不可になる</li>
+              <li><b>資材シリアル（QR）読取</b>でIP限定資材の消化を1点ずつトレース</li>
+              <li>接客の締めで <b>他ブランド（gelato pique）連動提案</b>と <b>30日後リフィルの自動予約権</b>を付与</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="demo-bar" style="margin-bottom:16px">
+          <strong>デモ操作</strong>
+          <span>チケット認証の結果を切り替えられます。</span>
+          <div class="seg" id="alpos-scan-mode" style="margin-left:auto">
+            <button type="button" data-val="ok" aria-pressed="true">認証成功（決済確認済）</button>
+            <button type="button" data-val="unpaid" aria-pressed="false">現金未受領</button>
+            <button type="button" data-val="expired" aria-pressed="false">枠時間超過</button>
+          </div>
+        </div>
+
+        <div class="console">
+          <div class="card card-flat">
+            <div style="padding:16px 16px 12px;border-bottom:1px solid var(--line)">
+              <div class="eyebrow">2026/10/12（月）／ ブースA・B</div>
+              <h2 class="serif" style="font-size:15px;margin-top:5px">アトリエ予約一覧</h2>
+              <p style="margin-top:5px;font-size:11px;color:var(--ink-soft)">24枠満席 ／ キャンセル待ち 6名</p>
+            </div>
+            <div class="booking-list" id="alpos-bookings"></div>
+          </div>
+
+          <div class="tablet">
+            <div class="tablet-bar">
+              <div>
+                <div class="tablet-bar-title" id="alpos-slot-time">15:00 - 15:30</div>
+                <div class="tablet-bar-sub">ムーミン・ボタニカルアトリエ 接客コンソール ／ ブースA・担当: 森</div>
+              </div>
+              <div id="alpos-slot-badge"><span class="badge badge-accent"><i></i>接客中</span></div>
+            </div>
+            <div class="tablet-body">
+              <div class="cust">
+                <div class="cust-avatar" id="alpos-cust-initial">高</div>
+                <div class="cust-main">
+                  <strong id="alpos-cust-name">高橋 綾 様</strong>
+                  <div class="cust-tags">
+                    <span class="badge badge-outline">Platinum会員</span>
+                    <span class="badge badge-outline">MASH ID: *****4412</span>
+                    <span class="badge badge-outline">gelato pique 購入歴 6回</span>
+                  </div>
+                </div>
+                <div class="cust-facts">
+                  <div class="cust-fact"><b class="num">3,000</b><span>保有pt</span></div>
+                  <div class="cust-fact"><b class="num">9</b><span>来店回数</span></div>
+                </div>
+              </div>
+
+              <div class="section-rule" style="margin-top:22px"><h2>チケット認証・決済確認</h2></div>
+              <div class="scan-box">
+                <div class="scan-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 5v14M6 5v14M9.5 5v14M13 5v14M16.5 5v14M20 5v14"/></svg>
+                </div>
+                <div class="scan-fields">
+                  <span class="field-label" style="margin-bottom:5px">チケット認証</span>
+                  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                    <input class="input" id="alpos-scan-input" value="*******4412" style="max-width:200px">
+                    <button type="button" class="btn btn-dark btn-sm" id="alpos-scan-btn">読み取る</button>
+                    <button type="button" class="btn btn-ghost btn-sm" id="alpos-scan-reset">リセット</button>
+                  </div>
+                </div>
+              </div>
+              <div class="scan-result" id="alpos-scan-result"></div>
+
+              <div id="alpos-karte" style="opacity:.42;pointer-events:none">
+                <div class="section-rule"><h2>ムーミン谷のマインド＆アロマ診断</h2><span class="rule-note">選択結果はパートナー還元レポートに集計されます</span></div>
+
+                <div class="field">
+                  <span class="field-label">会員の現在のマインド<span class="req">必須</span></span>
+                  <div class="radio-list" id="alpos-mind"></div>
+                  <p class="hint">在庫が尽きたキャラクターは自動的に選択不可になります（画面2-Bの寄託在庫と連動）。</p>
+                </div>
+
+                <div class="field">
+                  <span class="field-label">使用資材シリアル読取<span class="req">必須</span></span>
+                  <div class="form-row c2">
+                    <div class="field" id="alpos-field-pouch" style="margin-bottom:0">
+                      <label for="alpos-pouch">巾着タグQR</label>
+                      <input class="input" id="alpos-pouch" value="PK-MM-99201" placeholder="PK-MM-#####">
+                      <div class="field-error">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                        シリアル形式が不正、または当店に割り当てられていない資材です
+                      </div>
+                    </div>
+                    <div class="field" id="alpos-field-charm" style="margin-bottom:0">
+                      <label for="alpos-charm">ウッドチャームQR</label>
+                      <input class="input" id="alpos-charm" value="CH-SN-00431" placeholder="CH-XX-#####">
+                      <div class="field-error">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                        選択したキャラクターとチャーム種別が一致しません
+                      </div>
+                    </div>
+                  </div>
+                  <p class="hint">読み取ったシリアルは寄託在庫から即時消込され、パートナーへの消化報告に反映されます。</p>
+                </div>
+
+                <div class="field">
+                  <label for="alpos-cross">gelato pique ルームウェア連動提案</label>
+                  <select class="select" id="alpos-cross">
+                    <option>'スムーズィー'リブカーディガン（同施設2Fでご案内・試着）</option>
+                    <option>'ジェラート'プルオーバー（同施設2Fでご案内・試着）</option>
+                    <option>ムーミン刺繍ルームソックス（アトリエ内でご案内）</option>
+                    <option>ご案内なし</option>
+                  </select>
+                  <p class="hint">共催ブランドの推奨アイテムが、診断タイプに応じて自動でサジェストされます（当日クロスユース計測の起点）。</p>
+                </div>
+
+                <div class="field">
+                  <label for="alpos-memo">接客メモ<span class="opt">任意</span></label>
+                  <textarea class="textarea" id="alpos-memo" placeholder="例）お仕事の切り替えに香りを使いたいとのこと。ウッディ系がお好み。"></textarea>
+                </div>
+
+                <div class="karte-foot">
+                  <div class="karte-foot-note">
+                    保存すると <b>2026/11/11</b>（30日後）の「ムーミン谷のしずく（精油リフィル）」自動予約権が付与されます。
+                  </div>
+                  <button type="button" class="btn btn-primary btn-lg" id="alpos-save">サシェ完成・カルテ登録完了</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================================================================
+           2-D 【共創パートナー還元用】アライアンスROI＆相互インサイト
+      =================================================================== -->
+      <section class="view" id="view-al-dash" hidden>
+        <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:14px;min-width:0">
+            <div style="width:44px;height:44px;border-radius:4px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;flex:none">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div>
+              <div class="eyebrow">Alliance Insight Report</div>
+              <h2 class="serif" style="font-size:17px;margin-top:4px">MASH × MOOMIN ／ ムーミン谷のボタニカル・アトリエ</h2>
+              <p style="margin-top:4px;font-size:11.5px;color:var(--ink-soft)">集計期間 2026/10/01 – 11/30 ／ 最終更新 2026/12/01 09:00</p>
+            </div>
+          </div>
+          <div class="switch-row" style="flex:none;min-width:300px">
+            <div class="switch-text">
+              <strong>パートナー提出モード</strong>
+              <span id="mask-state-text">個人情報マスキング済 ／ 社内限定指標を非表示</span>
+            </div>
+            <button type="button" class="switch" id="mask-switch" role="switch" aria-checked="true" aria-label="パートナー提出モード"></button>
+          </div>
+        </div>
+
+        <div class="section-rule">
+          <h2>1. パートナー（ライセンサー）還元データ</h2>
+          <span class="rule-note" id="mask-note">※個人情報マスキング済</span>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi">
+            <div class="kpi-label">総アトリエ体験者数</div>
+            <div class="kpi-value num">4,820<span class="unit">名</span></div>
+            <div class="kpi-sub">予約5,000枠に対する消化率 96.4%</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">体験後NPS（推奨度）</div>
+            <div class="kpi-value num">+74<span class="unit">pt</span></div>
+            <div class="kpi-sub">推奨者 79% ／ 中立 16% ／ 批判者 5%</div>
+          </div>
+          <div class="kpi kpi-gold">
+            <div class="kpi-label">ロイヤリティ発生額</div>
+            <div class="kpi-value num">¥2,410,000</div>
+            <div class="kpi-sub">4,820件 × ¥500 ／ MG ¥3,000,000 に対し 80.3%</div>
+          </div>
+          <div class="kpi kpi-muted">
+            <div class="kpi-label">IP起点の新規MASH ID登録</div>
+            <div class="kpi-value num">1,164<span class="unit">名</span></div>
+            <div class="kpi-sub">体験者の24.1%が本企画きっかけの新規会員</div>
+          </div>
+        </div>
+
+        <div class="grid-2" style="margin-top:16px">
+          <div class="card">
+            <div class="card-head">
+              <div><h2>キャラクター選択シェア</h2><p>店頭のマインド診断で会員が選んだキャラクター。</p></div>
+            </div>
+            <div class="share-bar" id="al-share-bar"></div>
+            <div class="share-legend" id="al-share-legend"></div>
+            <div class="alert alert-accent" style="margin-top:16px">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg>
+              <div><strong>ライセンサーへの示唆</strong>「スナフキン＝静寂・リセット」の支持が想定を上回り48%。次期は<b>大人向け・自律的なキャラクター軸</b>の商品化余地が大きい。</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div><h2>参加者属性</h2><p id="attr-note">年代 × 性別（個人が特定されない粒度に丸め込み）</p></div>
+            </div>
+            <div class="bar-list" id="al-attr-bars"></div>
+            <div class="stat-list" style="margin-top:6px">
+              <div class="stat-row">
+                <div class="stat-label"><b>コア層シェア</b>20代後半〜30代女性</div>
+                <div class="stat-val num">72<small>%</small></div>
+              </div>
+              <div class="stat-row masked-row">
+                <div class="stat-label"><b>平均世帯可処分所得（推計）</b>外部パネルとの突合による推計値</div>
+                <div class="stat-val"><span class="maskable num">¥612万</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:16px">
+          <div class="card-head">
+            <div><h2>体験後の声（自由記述の要約）</h2><p>NPS設問に付随する自由記述をカテゴリ分類。</p></div>
+          </div>
+          <div class="bar-list" id="al-voice-bars"></div>
+        </div>
+
+        <div class="section-rule">
+          <h2>2. MASHグループ内 事業インパクト</h2>
+          <span class="rule-note" id="internal-note">社内限定指標</span>
+        </div>
+
+        <div class="locked-panel" id="internal-panel">
+          <div class="locked-overlay">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <strong>パートナー提出モードでは非表示</strong>
+            <span>グループ内の売上・買い回り指標は社外提出用レポートから自動的に除外されます。社内で確認する場合はトグルをオフにしてください。</span>
+          </div>
+
+          <div class="kpi-grid">
+            <div class="kpi">
+              <div class="kpi-label">ブランド横断クロスユース率</div>
+              <div class="kpi-value num">46.2<span class="unit">%</span></div>
+              <div class="kpi-sub">アトリエ体験後、当日中に同施設のgelato piqueで購入</div>
+            </div>
+            <div class="kpi kpi-gold">
+              <div class="kpi-label">体験当日 平均客単価リフト</div>
+              <div class="kpi-value num">+¥7,400</div>
+              <div class="kpi-sub">ピケのウェア併売が牽引 ／ 通常来店比 2.6倍</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">30日後リフィル再来店率</div>
+              <div class="kpi-value num">41.0<span class="unit">%</span></div>
+              <div class="kpi-sub">自動付与した予約権からの実来店（実績）</div>
+            </div>
+            <div class="kpi kpi-muted">
+              <div class="kpi-label">引当ポイント消化額</div>
+              <div class="kpi-value num">11,286,000<span class="unit">pt</span></div>
+              <div class="kpi-sub">Points+Cash併用により現金売上 ¥6,120,400 を同時獲得</div>
+            </div>
+          </div>
+
+          <div class="grid-2" style="margin-top:16px">
+            <div class="card">
+              <div class="card-head">
+                <div><h2>自社完結型との比較</h2><p>同一ブランド・同一施策期間での KPI 比較。</p></div>
+              </div>
+              <div class="stack" id="al-vs-core"></div>
+            </div>
+
+            <div class="card">
+              <div class="card-head">
+                <div><h2>クロスユースの流れ</h2><p>体験当日に発生したブランド間の買い回り。</p></div>
+              </div>
+              <div class="funnel" id="al-cross-funnel"></div>
+              <div class="alert alert-ok" style="margin-top:16px">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.2-8.6"/><path d="m9 11 3 3 8-8"/></svg>
+                <div><strong>アライアンスの独自価値</strong>IPは「集客」だけでなく<b>グループ内の回遊導線</b>として機能。単独ブランドでは接点のなかった会員がgelato piqueへ流入している。</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-rule"><h2>3. 精算・次期提案</h2></div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head">
+              <div><h2>ロイヤリティ精算サマリー</h2><p>契約に基づく確定額。</p></div>
+            </div>
+            <div class="stat-list">
+              <div class="stat-row">
+                <div class="stat-label"><b>実績ロイヤリティ</b>4,820件 × ¥500</div>
+                <div class="stat-val num">¥2,410,000</div>
+              </div>
+              <div class="stat-row">
+                <div class="stat-label"><b>ミニマムギャランティ</b>契約上の最低保証</div>
+                <div class="stat-val num">¥3,000,000</div>
+              </div>
+              <div class="stat-row">
+                <div class="stat-label"><b>お支払い確定額</b>MG > 実績のため MG を適用</div>
+                <div class="stat-val num" style="color:var(--accent-deep)">¥3,000,000</div>
+              </div>
+              <div class="stat-row">
+                <div class="stat-label"><b>精算予定日</b>会期終了月の翌月末</div>
+                <div class="stat-val" style="font-size:13px">2026/12/25</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div><h2>次期共創に向けた示唆</h2><p>実績データから自動生成されたレコメンド。</p></div>
+            </div>
+            <div class="stack" style="gap:10px">
+              <div class="alert alert-accent">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/></svg>
+                <div><strong>枠が足りていない</strong>キャンセル待ち累計 <b>1,842名</b>。次期は拠点を4→9店舗、会期を2ヶ月→3ヶ月へ拡張する想定で <b>体験者12,000名規模</b>が視野に入る。</div>
+              </div>
+              <div class="alert alert-accent">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
+                <div><strong>物販化の余地</strong>「持ち帰り資材をそのまま購入したい」という声が自由記述の <b>31%</b>。次期はアトリエ限定の物販SKU化を提案。</div>
+              </div>
+              <div class="alert alert-accent">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                <div><strong>シーズン適合</strong>「静寂・リセット」需要は10-11月に突出。次期は<b>秋冬の定番企画</b>として同時期の再実施を推奨。</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:16px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap">
+          <div>
+            <h2 class="serif" style="font-size:15px">パートナー定例会用エグゼクティブレポート</h2>
+            <p style="margin-top:5px;font-size:11.5px;color:var(--ink-soft)">現在の表示設定（<span id="report-mode-label">パートナー提出モード ON</span>）がそのまま出力範囲に反映されます。</p>
+          </div>
+          <button type="button" class="btn btn-primary btn-lg" id="al-report-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M12 18v-6M9 15l3 3 3-3"/></svg>
+            エグゼクティブレポート（PDF）を出力
+          </button>
+        </div>
+      </section>
+
+      <!-- ==================================================================
+           REFERENCE 各UIコンポーネントのステータス定義
+      =================================================================== -->
+      <section class="view" id="view-states" hidden>
+        <div class="alert alert-accent" style="margin-bottom:18px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          <div>
+            <strong>ワイヤーフレーム／デザインへの落とし込み用</strong>
+            各画面で使用しているコンポーネントの状態（正常・警告・エラー・在庫ゼロ・期限切れ・権限外）を一覧化しています。Figma化の際はこの定義をコンポーネントのバリアントとしてそのまま使用できます。
+          </div>
+        </div>
+
+        <div class="section-rule"><h2>ステータス・バッジ</h2></div>
+        <div class="card card-flat">
+          <div class="table-wrap">
+            <table class="tbl state-table">
+              <thead><tr><th style="width:150px">状態</th><th style="width:170px">表示</th><th>適用条件・挙動</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td class="cell-main">公開中 / 接客中</td>
+                  <td><span class="badge badge-accent"><i></i>公開中</span></td>
+                  <td class="spec">許諾期間内かつ監修承認済かつ在庫あり。予約受付・消込ともに可能。</td>
+                </tr>
+                <tr>
+                  <td class="cell-main">残少（警告）</td>
+                  <td><span class="badge badge-warn"><i></i>残少</span></td>
+                  <td class="spec">残数 ≦ しきい値（既定 <code>10</code>）。予約は継続、店舗マネージャーと本部に通知。行は薄い警告色でハイライト。</td>
+                </tr>
+                <tr>
+                  <td class="cell-main">在庫ゼロ / 完売</td>
+                  <td><span class="badge badge-danger"><i></i>完売</span></td>
+                  <td class="spec">残数 = 0。WEB予約の選択肢から自動的に非表示、店頭カルテでも選択不可（<code>aria-disabled</code>）。既存予約は保持し代替提案へ誘導。</td>
+                </tr>
+                <tr>
+                  <td class="cell-main">期限切れ</td>
+                  <td><span class="badge badge-outline"><i></i>期限切れ</span></td>
+                  <td class="spec">契約許諾期間終了。有効/無効トグルとは独立して自動判定。契約終了時オートメーションの設定に従い完売表示／非公開へ遷移。</td>
+                </tr>
+                <tr>
+                  <td class="cell-main">監修待ち（ロック）</td>
+                  <td><span class="badge badge-warn"><i></i>監修待ち</span></td>
+                  <td class="spec">未承認アセットが1件以上。公開ボタンを <code>disabled</code> にし、理由をボタン直下に明示。</td>
+                </tr>
+                <tr>
+                  <td class="cell-main">権限外 / 非表示</td>
+                  <td><span class="badge"><i></i>社外非公開</span></td>
+                  <td class="spec">パートナー提出モードON時のグループ内指標。パネルごとロックオーバーレイで覆い、PDF出力からも除外。</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="section-rule"><h2>フォーム入力・エラー時表示</h2></div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head"><div><h2>入力フィールド</h2><p>通常 / フォーカス / エラー / 非活性</p></div></div>
+            <div class="field"><label>通常</label><input class="input" value="オリジナル調合ハーブミニ缶"></div>
+            <div class="field is-invalid">
+              <label>エラー（必須未入力・値域外）</label>
+              <input class="input" value="0">
+              <div class="field-error">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                必要ポイントは1以上で設定してください
+              </div>
+            </div>
+            <div class="field"><label>非活性（上位設定により編集不可）</label><input class="input" value="24" disabled></div>
+            <p class="spec">エラーは <b>フィールド直下に赤字＋アイコン</b>で表示し、枠線・背景も同時に変化させる（色のみに依存しない）。保存操作時は最初のエラー項目へフォーカス移動。</p>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><div><h2>選択肢の状態</h2><p>選択 / 未選択 / 選択不可（在庫ゼロ・上限到達）</p></div></div>
+            <div class="radio-list">
+              <button type="button" class="radio-opt" aria-checked="true"><span class="dot"></span><span class="radio-opt-body"><strong>選択中</strong><span>スナフキンタイプ（静寂ブレンド）</span></span></button>
+              <button type="button" class="radio-opt" aria-checked="false"><span class="dot"></span><span class="radio-opt-body"><strong>未選択</strong><span>ムーミンママタイプ（安らぎブレンド）</span></span></button>
+              <button type="button" class="radio-opt" aria-checked="false" aria-disabled="true"><span class="dot"></span><span class="radio-opt-body"><strong>選択不可（在庫ゼロ）</strong><span>リトルミイタイプ ─ 資材完売のため本日はご案内できません</span></span></button>
+            </div>
+            <p class="spec" style="margin-top:12px">選択不可は<b>非表示にせず、理由を添えてグレーアウト</b>する（店頭で会員から質問された際にスタッフが答えられるようにするため）。ただしWEBの予約導線では選択肢自体を非表示にする。</p>
+          </div>
+        </div>
+
+        <div class="section-rule"><h2>認証・消込の結果表示</h2></div>
+        <div class="stack">
+          <div class="alert alert-ok">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.2-8.6"/><path d="m9 11 3 3 8-8"/></svg>
+            <div><strong>認証成功：チケット消込完了</strong>会員名・ランク・決済状況を表示し、カルテ入力エリアを活性化する。</div>
+          </div>
+          <div class="alert alert-warn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.2 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.2a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg>
+            <div><strong>警告：枠時間を超過しています</strong>消込は可能。ただし後続枠に影響するため、所要時間の記録と次枠への遅延通知を促す。</div>
+          </div>
+          <div class="alert alert-danger">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/></svg>
+            <div><strong>エラー：このチケットは使用できません</strong>期限切れ／別店舗の予約／消込済みの3ケースを文言で出し分け、<b>次に取るべき行動（再発行・本部へ連絡）</b>まで表示する。カルテ入力エリアは非活性のまま。</div>
+          </div>
+        </div>
+
+        <div class="section-rule"><h2>在庫・残数の閾値設計</h2></div>
+        <div class="card card-flat">
+          <div class="table-wrap">
+            <table class="tbl">
+              <thead><tr><th>残数</th><th>行の表示</th><th>WEB予約</th><th>店頭カルテ</th><th>通知</th></tr></thead>
+              <tbody>
+                <tr><td class="cell-main">しきい値超</td><td><span class="badge badge-ok"><i></i>正常</span></td><td class="spec">選択可</td><td class="spec">選択可</td><td class="spec">なし</td></tr>
+                <tr class="is-alert"><td class="cell-main">1 〜 しきい値</td><td><span class="badge badge-warn"><i></i>残少</span></td><td class="spec">選択可（残数を併記）</td><td class="spec">選択可</td><td class="spec">店舗＋本部へアラート／補充手配を起票</td></tr>
+                <tr class="is-dead"><td class="cell-main">0</td><td><span class="badge badge-danger"><i></i>完売</span></td><td class="spec"><b>選択肢を非表示</b></td><td class="spec"><b>グレーアウト（理由表示）</b></td><td class="spec">パートナーへ寄託在庫の追加寄託を打診</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="modal-backdrop" id="modal-backdrop">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modal-title">確認</h3>
+      <p id="modal-desc"></p>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-foot">
+      <button type="button" class="btn btn-ghost" id="modal-cancel">閉じる</button>
+      <button type="button" class="btn btn-primary" id="modal-ok">OK</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ================= helpers ================= */
+  function $(id) { return document.getElementById(id); }
+  function el(tag, cls, html) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (html != null) n.innerHTML = html;
+    return n;
+  }
+  function num(n) { return (Number(n) || 0).toLocaleString("ja-JP"); }
+  function yen(n) { return "¥" + num(Math.round(Number(n) || 0)); }
+  function pct(a, b) { return b > 0 ? Math.round((a / b) * 1000) / 10 : 0; }
+
+  var ICON = {
+    chart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg>',
+    spark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/><path d="M12 8a4 4 0 0 0 4 4 4 4 0 0 0-4 4 4 4 0 0 0-4-4 4 4 0 0 0 4-4Z"/></svg>',
+    tablet: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M11 18h2"/></svg>',
+    box: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 8-9-5-9 5v8l9 5 9-5Z"/><path d="m3 8 9 5 9-5M12 13v8"/></svg>',
+    layers: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 9 5-9 5-9-5Z"/><path d="m3 12 9 5 9-5M3 17l9 5 9-5"/></svg>',
+    check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.2-8.6"/><path d="m9 11 3 3 8-8"/></svg>',
+    warn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.2 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.2a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg>',
+    cross: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/></svg>',
+    info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>',
+    dl: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5M12 15V3"/></svg>'
+  };
+
+  var toastTimer = null;
+  function toast(msg) {
+    var t = $("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove("show"); }, 2600);
+  }
+
+  function openModal(title, desc, bodyHtml, okLabel, onOk) {
+    $("modal-title").textContent = title;
+    $("modal-desc").textContent = desc || "";
+    $("modal-body").innerHTML = bodyHtml || "";
+    var ok = $("modal-ok");
+    ok.textContent = okLabel || "OK";
+    ok.hidden = !okLabel;
+    ok.onclick = function () { closeModal(); if (onOk) onOk(); };
+    $("modal-backdrop").classList.add("show");
+  }
+  function closeModal() { $("modal-backdrop").classList.remove("show"); }
+  $("modal-cancel").addEventListener("click", closeModal);
+  $("modal-backdrop").addEventListener("click", function (e) { if (e.target === $("modal-backdrop")) closeModal(); });
+
+  /* generic control binders */
+  function bindSeg(id, onChange) {
+    var root = $(id);
+    if (!root) return;
+    root.addEventListener("click", function (e) {
+      var b = e.target.closest("button[data-val]");
+      if (!b || b.disabled) return;
+      root.querySelectorAll("button[data-val]").forEach(function (x) {
+        x.setAttribute("aria-pressed", x === b ? "true" : "false");
+      });
+      if (onChange) onChange(b.dataset.val);
+    });
+  }
+  function segValue(id) {
+    var b = $(id).querySelector('button[aria-pressed="true"]');
+    return b ? b.dataset.val : null;
+  }
+  function bindPills(id, onChange) {
+    var root = $(id);
+    if (!root) return;
+    root.addEventListener("click", function (e) {
+      var b = e.target.closest(".pill");
+      if (!b || b.getAttribute("aria-disabled") === "true") return;
+      b.setAttribute("aria-checked", b.getAttribute("aria-checked") === "true" ? "false" : "true");
+      if (onChange) onChange(b);
+    });
+  }
+  function pillValues(id) {
+    return Array.prototype.map.call($(id).querySelectorAll('.pill[aria-checked="true"]'), function (b) {
+      return b.dataset.rank || b.dataset.val;
+    });
+  }
+  function bindRadios(id, onChange) {
+    var root = $(id);
+    if (!root) return;
+    root.addEventListener("click", function (e) {
+      var b = e.target.closest(".radio-opt");
+      if (!b || b.getAttribute("aria-disabled") === "true") return;
+      root.querySelectorAll(".radio-opt").forEach(function (x) {
+        x.setAttribute("aria-checked", x === b ? "true" : "false");
+      });
+      if (onChange) onChange(b.dataset.val, b);
+    });
+  }
+  function radioValue(id) {
+    var b = $(id).querySelector('.radio-opt[aria-checked="true"]');
+    return b ? b.dataset.val : null;
+  }
+  function bindSwitch(id, onChange) {
+    var b = $(id);
+    if (!b) return;
+    b.addEventListener("click", function () {
+      var on = b.getAttribute("aria-checked") !== "true";
+      b.setAttribute("aria-checked", on ? "true" : "false");
+      if (onChange) onChange(on);
+    });
+  }
+  function switchOn(id) { return $(id).getAttribute("aria-checked") === "true"; }
+
+  function stateLine(kind, text) {
+    var icon = kind === "ok" ? ICON.check : kind === "warn" ? ICON.warn : kind === "danger" ? ICON.cross : ICON.info;
+    return '<div class="state-line ' + kind + '">' + icon + "<span>" + text + "</span></div>";
+  }
+  function alertBox(kind, title, body) {
+    var icon = kind === "ok" ? ICON.check : kind === "warn" ? ICON.warn : kind === "danger" ? ICON.cross : ICON.info;
+    return '<div class="alert alert-' + kind + '">' + icon + "<div><strong>" + title + "</strong>" + body + "</div></div>";
+  }
+
+  /* ================= navigation ================= */
+  var NAV = {
+    core: [
+      { group: "概要", items: [{ id: "core-dash", label: "リワード実績ダッシュボード", icon: "chart" }] },
+      { group: "体験設計", items: [{ id: "core-builder", label: "自社エクスペリエンス作成", icon: "spark" }] },
+      { group: "店舗オペレーション", items: [{ id: "core-pos", label: "店頭消込＆カルテ", icon: "tablet" }] },
+      { group: "リファレンス", items: [{ id: "states", label: "ステータス定義", icon: "layers" }] }
+    ],
+    alliance: [
+      { group: "概要", items: [{ id: "al-dash", label: "アライアンスROI／相互インサイト", icon: "chart", ext: "拡張" }] },
+      { group: "体験設計", items: [{ id: "al-studio", label: "共創アトリエ・スタジオ", icon: "spark", ext: "拡張" }] },
+      {
+        group: "店舗オペレーション", items: [
+          { id: "al-stock", label: "拠点スロット＆IP資材", icon: "box", ext: "新設" },
+          { id: "al-pos", label: "アトリエ接客コンソール", icon: "tablet", ext: "拡張" }
+        ]
+      },
+      { group: "リファレンス", items: [{ id: "states", label: "ステータス定義", icon: "layers" }] }
+    ]
+  };
+
+  var META = {
+    "core-dash": ["店舗送客＆リテンション ダッシュボード", "自社リワード実績分析：パーソナル肌診断＆カスタムハーブティー処方体験", "MASH CORE CLOUD ＞ 実績分析 ＞ <b>自社リワード実績</b>", "画面1-C ／ 本部・統括用"],
+    "core-builder": ["自社エクスペリエンス作成", "ECで貯めたポイントを、店頭の接客体験に変換する企画を設計します。", "MASH CORE CLOUD ＞ リワード企画 ＞ <b>自社エクスペリエンス作成</b>", "画面1-A ／ 本部マーケ用"],
+    "core-pos": ["本日のリワード予約一覧", "Cosme Kitchen ルミネ新宿店 ／ 2026年10月12日（月）", "MASH CORE CLOUD ＞ 店舗オペレーション ＞ <b>店頭消込＆カルテ</b>", "画面1-B ／ 店頭スタッフ用"],
+    "al-studio": ["新規アトリエ設計", "外部IPホルダーと自社2ブランドを跨ぐ共創プロジェクトを設計します。", "MASH ALLIANCE CLOUD ＞ 共創プロジェクト ＞ <b>新規アトリエ設計</b>", "画面2-A ／ アライアンス統括用"],
+    "al-stock": ["アトリエ拠点管理", "接客枠のキャパシティと、IP限定資材（寄託在庫）を店舗単位で統制します。", "MASH ALLIANCE CLOUD ＞ 店舗オペレーション ＞ <b>拠点スロット＆IP資材</b>", "画面2-B ／ 店舗・資材マネージャー用"],
+    "al-pos": ["ムーミン・ボタニカルアトリエ 接客コンソール", "ルミネ新宿店（Cosme Kitchen / gelato pique 複合店舗）／ 2026年10月12日（月）", "MASH ALLIANCE CLOUD ＞ 店舗オペレーション ＞ <b>アトリエ接客コンソール</b>", "画面2-C ／ 店頭スタッフ用"],
+    "al-dash": ["アライアンス・インサイトレポート", "MASH × MOOMIN ／ 共創ROIとパートナー還元データ", "MASH ALLIANCE CLOUD ＞ 実績分析 ＞ <b>アライアンス・インサイト</b>", "画面2-D ／ 共創パートナー還元用"],
+    "states": ["ステータス定義", "各UIコンポーネントの状態（正常・警告・エラー・在庫ゼロ・期限切れ・権限外）の一覧。", "リファレンス ＞ <b>ステータス定義</b>", "Figma／ワイヤーフレーム落とし込み用"]
+  };
+
+  var VIEW_EL = {
+    "core-dash": "view-core-dash", "core-builder": "view-core-builder", "core-pos": "view-core-pos",
+    "al-studio": "view-al-studio", "al-stock": "view-al-stock", "al-pos": "view-al-pos",
+    "al-dash": "view-al-dash", "states": "view-states"
+  };
+
+  var state = { mode: "core", view: "core-dash", firstAlliance: true };
+
+  function renderNav() {
+    var nav = $("sidebar-nav");
+    nav.innerHTML = "";
+    NAV[state.mode].forEach(function (grp) {
+      nav.appendChild(el("div", "nav-group-label", grp.group));
+      grp.items.forEach(function (item) {
+        var b = el("button", "nav-btn" + (state.mode === "alliance" && item.ext && state.firstAlliance ? " nav-new" : ""));
+        b.type = "button";
+        b.dataset.nav = item.id;
+        b.innerHTML = ICON[item.icon] + "<span>" + item.label + "</span>" +
+          (item.ext ? '<span class="nav-ext">' + item.ext + "</span>" : "");
+        if (item.id === state.view) b.setAttribute("aria-current", "page");
+        b.addEventListener("click", function () { go(item.id); });
+        nav.appendChild(b);
+      });
+    });
+  }
+
+  function go(view) {
+    state.view = view;
+    Object.keys(VIEW_EL).forEach(function (k) { $(VIEW_EL[k]).hidden = true; });
+    $(VIEW_EL[view]).hidden = false;
+
+    document.querySelectorAll(".nav-btn").forEach(function (b) {
+      if (b.dataset.nav === view) b.setAttribute("aria-current", "page");
+      else b.removeAttribute("aria-current");
+    });
+
+    var m = META[view] || ["", "", "", ""];
+    $("topbar-title").textContent = m[0];
+    $("topbar-sub").textContent = m[1];
+    $("topbar-crumb").innerHTML = m[2] + '　<span class="badge badge-outline" style="margin-left:6px">' + m[3] + "</span>";
+
+    var actions = $("topbar-actions");
+    actions.innerHTML = "";
+    if (view === "core-dash" || view === "al-dash") {
+      var sel = el("select", "select");
+      sel.style.width = "auto";
+      sel.innerHTML = view === "core-dash"
+        ? "<option>2026/10/01 – 10/31</option><option>会期累計（10/01 – 12/31）</option>"
+        : "<option>会期累計（2026/10/01 – 11/30）</option><option>2026/11 単月</option>";
+      actions.appendChild(sel);
+      var dl = el("button", "btn", ICON.dl + "<span>CSVを出力</span>");
+      dl.type = "button";
+      dl.addEventListener("click", function () { toast("集計データをCSVで書き出しました（デモ）"); });
+      actions.appendChild(dl);
+    } else if (view === "core-builder" || view === "al-studio") {
+      var badge = el("span", "badge badge-ok", "<i></i>自動保存 済");
+      actions.appendChild(badge);
+    } else if (view === "core-pos" || view === "al-pos") {
+      actions.appendChild(el("span", "badge badge-outline", "端末ID: TAB-SHJ-02"));
+      actions.appendChild(el("span", "badge badge-ok", "<i></i>オンライン"));
+    }
+
+    if (view === "core-dash") animateCoreDash();
+    if (view === "al-dash") animateAllianceDash();
+    if (view === "al-stock") renderSlots();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function setMode(mode) {
+    state.mode = mode;
+    $("shell").dataset.mode = mode;
+    document.querySelectorAll(".mode-tab").forEach(function (b) {
+      b.setAttribute("aria-pressed", b.dataset.mode === mode ? "true" : "false");
+    });
+    if (mode === "core") {
+      $("brand-name").textContent = "MASH CORE";
+      $("brand-sub").textContent = "Reward Experience Cloud";
+      $("side-avatar").textContent = "本";
+      $("side-user").textContent = "本部マーケティング部";
+      $("side-role").textContent = "MASH ID 事業推進室";
+      state.view = "core-dash";
+    } else {
+      $("brand-name").textContent = "MASH ALLIANCE";
+      $("brand-sub").textContent = "Co-Creation Cloud";
+      $("side-avatar").textContent = "ア";
+      $("side-user").textContent = "アライアンス統括室";
+      $("side-role").textContent = "IPパートナーシップ推進";
+      state.view = "al-dash";
+    }
+    renderNav();
+    go(state.view);
+    if (mode === "alliance" && state.firstAlliance) {
+      state.firstAlliance = false;
+      setTimeout(function () {
+        toast("パートナー共創モジュール（IPガバナンス・寄託在庫・還元レポート）が有効になりました");
+      }, 320);
+    }
+  }
+
+  document.querySelectorAll(".mode-tab").forEach(function (b) {
+    b.addEventListener("click", function () { if (state.mode !== b.dataset.mode) setMode(b.dataset.mode); });
+  });
+
+  /* ================= 1-C 自社リワード実績ダッシュボード ================= */
+  var CORE_FUNNEL = [
+    { label: "ポイント交換完了", v: 2450, note: "上位ランク会員による交換" },
+    { label: "来店枠 予約確定", v: 2380, note: "交換後に日時・店舗を確定" },
+    { label: "店頭で消込（来店）", v: 2264, note: "美容部員がタブレットで認証" },
+    { label: "来店当日に購買", v: 1318, note: "接客からのアップセル" }
+  ];
+
+  var CORE_STORES = [
+    { name: "ルミネ新宿店", ex: 214, done: 208, rate: 97.2, buy: 63.1, aov: 7420, s: "good" },
+    { name: "渋谷スクランブルスクエア店", ex: 186, done: 178, rate: 95.7, buy: 61.2, aov: 7180, s: "good" },
+    { name: "グランフロント大阪店", ex: 172, done: 160, rate: 93.0, buy: 59.4, aov: 6910, s: "good" },
+    { name: "名古屋PARCO店", ex: 148, done: 132, rate: 89.2, buy: 54.7, aov: 6240, s: "normal" },
+    { name: "博多マルイ店", ex: 121, done: 96, rate: 79.3, buy: 48.9, aov: 5480, s: "alert" },
+    { name: "札幌ステラプレイス店", ex: 104, done: 78, rate: 75.0, buy: 46.2, aov: 5120, s: "alert" }
+  ];
+
+  function renderCoreDash() {
+    var max = CORE_FUNNEL[0].v;
+    var f = $("core-funnel");
+    f.innerHTML = "";
+    CORE_FUNNEL.forEach(function (s, i) {
+      var row = el("div", "funnel-step");
+      var w = Math.round((s.v / max) * 100);
+      var drop = i === 0 ? "" : '<span class="funnel-drop">前段比 ' + pct(s.v, CORE_FUNNEL[i - 1].v) + "%</span>";
+      row.innerHTML =
+        '<div class="funnel-bar num" style="width:0" data-w="' + w + '">' + num(s.v) + "件</div>" +
+        '<div class="funnel-meta"><b>' + s.label + "</b>" + s.note + drop + "</div>";
+      f.appendChild(row);
+    });
+
+    var bars = [
+      { label: "配信到達", v: 2264, base: 2264, txt: "2,264件" },
+      { label: "開封率", v: 946, base: 2264, txt: "41.8%" },
+      { label: "リンクタップ率", v: 512, base: 2264, txt: "22.6%" },
+      { label: "本品購入（+300pt付与）", v: 288, base: 2264, txt: "12.7%" }
+    ];
+    var b = $("core-follow-bars");
+    b.innerHTML = "";
+    bars.forEach(function (x) {
+      var w = Math.round((x.v / x.base) * 100);
+      b.appendChild(el("div", "", '<div class="bar-item-head"><strong>' + x.label + '</strong><span class="num">' + x.txt +
+        "</span></div><div class=\"meter\"><i style=\"width:" + w + '%"></i></div>'));
+    });
+
+    var tb = $("core-store-rows");
+    tb.innerHTML = "";
+    CORE_STORES.forEach(function (s) {
+      var cls = s.s === "alert" ? " class=\"is-alert\"" : "";
+      var badge = s.s === "alert"
+        ? '<span class="badge badge-warn"><i></i>未消化アラート</span>'
+        : s.s === "good" ? '<span class="badge badge-ok"><i></i>良好</span>' : '<span class="badge badge-outline"><i></i>標準</span>';
+      var mcls = s.rate >= 90 ? "" : s.rate >= 85 ? " class=\"warn\"" : " class=\"danger\"";
+      var tr = el("tr");
+      tr.innerHTML =
+        "<td><span class=\"cell-main\">" + s.name + '</span><span class="cell-sub">Cosme Kitchen</span></td>' +
+        '<td class="ta-r num">' + num(s.ex) + "</td>" +
+        '<td class="ta-r num">' + num(s.done) + "</td>" +
+        '<td><div class="meter-row"><div class="meter"><i' + mcls + ' style="width:' + s.rate + '%"></i></div>' +
+        '<span class="meter-val">' + s.rate.toFixed(1) + "%</span></div></td>" +
+        '<td class="ta-r num">' + s.buy.toFixed(1) + "%</td>" +
+        '<td class="ta-r num">' + yen(s.aov) + "</td>" +
+        "<td>" + badge + "</td>";
+      if (cls) tr.className = "is-alert";
+      tb.appendChild(tr);
+    });
+  }
+
+  function animateCoreDash() {
+    setTimeout(function () {
+      document.querySelectorAll("#core-funnel .funnel-bar").forEach(function (b) {
+        b.style.width = b.dataset.w + "%";
+      });
+      document.querySelectorAll("#view-core-dash .cmp-bar").forEach(function (b) {
+        b.style.height = b.dataset.h + "%";
+      });
+    }, 60);
+  }
+
+  /* ================= 1-A 自社リワード体験ビルダー ================= */
+  var RANK_LABEL = { diamond: "Diamond", platinum: "Platinum", gold: "Gold", regular: "Regular" };
+
+  function fmtDate(v) { return v ? v.replace(/-/g, "/") : "—"; }
+
+  function coreBuilderSync() {
+    var points = Number($("cb-points").value) || 0;
+    var mix = segValue("cb-paymode") === "mix";
+    var ranks = pillValues("cb-ranks");
+    var reach = 0;
+    document.querySelectorAll("#cb-ranks .pill").forEach(function (p) {
+      if (p.getAttribute("aria-checked") === "true") reach += Number(p.dataset.members) || 0;
+    });
+    var storeSel = $("cb-stores");
+    var storeText = storeSel.options[storeSel.selectedIndex].text;
+    var storeCount = Number(storeSel.options[storeSel.selectedIndex].dataset.count) || 0;
+    var cap = Number($("cb-capacity").value) || 0;
+
+    $("cb-points-yen").textContent = yen(points);
+    $("cb-reach").textContent = num(reach) + "名";
+    $("cb-eligible").textContent = num(Math.round(reach * 0.33)) + "名";
+    $("cb-total-cap").textContent = num(storeCount * cap) + "枠";
+
+    /* preview */
+    $("pv-brand").textContent = $("cb-brand").value;
+    $("pv-title").textContent = $("cb-title").value || "（企画名未入力）";
+    $("pv-points").textContent = num(points);
+    $("pv-period").textContent = fmtDate($("cb-from").value) + " 〜 " + fmtDate($("cb-to").value);
+    $("pv-stores").textContent = storeText;
+    $("pv-slot").textContent = $("cb-slot").value;
+    $("pv-deadline").textContent = $("cb-deadline").value;
+    $("pv-material").textContent = $("cb-material").value || "—";
+    $("pv-note").textContent = mix
+      ? "ポイントと現金を組み合わせてお支払いいただけます"
+      : "お手持ちのポイントで全額交換できます";
+
+    var gate = $("pv-gate");
+    if (ranks.length === 0) {
+      gate.textContent = "公開対象ランクが未設定です";
+      gate.style.background = "var(--danger-soft)";
+      gate.style.color = "var(--danger)";
+    } else if (ranks.length === 4) {
+      gate.textContent = "全会員が交換いただけます";
+      gate.style.background = "";
+      gate.style.color = "";
+    } else {
+      gate.textContent = ranks.map(function (r) { return RANK_LABEL[r]; }).join("・") + "会員限定の体験です";
+      gate.style.background = "";
+      gate.style.color = "";
+    }
+
+    var msg = $("cb-follow-msg").value;
+    $("cb-msg-count").textContent = msg.length;
+    $("pv-push-days").textContent = $("cb-follow-days").value;
+    $("pv-push-title").textContent = $("cb-brand").value + " からのご提案";
+    $("pv-push-body").textContent = msg || "（本文が未入力です）";
+
+    var st = $("cb-status").value;
+    var cta = $("pv-cta");
+    cta.className = "phone-cta" + (st === "active" ? "" : " is-disabled");
+    cta.textContent = st === "active" ? "来店枠を予約する" : st === "draft" ? "（下書き・会員には非表示）" : st === "paused" ? "受付を一時停止しています" : "受付は終了しました";
+
+    renderCoreChecks(points, ranks, reach);
+  }
+
+  function renderCoreChecks(points, ranks, reach) {
+    var out = [];
+    var from = $("cb-from").value, to = $("cb-to").value;
+    var dateOk = !(from && to && to < from);
+    var titleOk = !!$("cb-title").value.trim();
+    var pointsOk = points > 0;
+    var rankOk = ranks.length > 0;
+
+    out.push(stateLine(titleOk ? "ok" : "danger", titleOk ? "企画名が設定されています" : "企画名が未入力です"));
+    out.push(stateLine(dateOk ? "ok" : "danger", dateOk ? "提供期間 " + fmtDate(from) + " 〜 " + fmtDate(to) : "終了日が開始日より前になっています"));
+    out.push(stateLine(pointsOk ? "ok" : "danger", pointsOk ? "必要ポイント " + num(points) + "pt（引当消化 " + yen(points * 2450) + " 想定）" : "必要ポイントが0以下です"));
+    out.push(stateLine(rankOk ? "ok" : "danger", rankOk ? "公開対象 " + num(reach) + "名" : "公開対象ランクが1つも選択されていません"));
+
+    if (switchOn("cb-stock-switch")) {
+      var zero = $("cb-stock-zero").value;
+      var zeroText = zero === "stop" ? "在庫ゼロ時は該当店舗の予約受付を自動停止します"
+        : zero === "waitlist" ? "在庫ゼロ時もキャンセル待ちとして受付を継続します"
+          : "在庫ゼロ時は代替部材 CK-HB-002 へ自動切替します";
+      out.push(stateLine("ok", "在庫連動 有効：" + zeroText));
+    } else {
+      out.push(stateLine("warn", "在庫連動が無効です。部材切れによる店頭での交換不可が発生する可能性があります"));
+    }
+
+    if (switchOn("cb-follow-switch")) {
+      var msg = $("cb-follow-msg").value;
+      if (!msg.trim()) out.push(stateLine("danger", "フォローアップ本文が未入力です"));
+      else if (msg.length > 40) out.push(stateLine("warn", "本文が" + msg.length + "文字。端末によっては40文字以降が省略されます"));
+      else out.push(stateLine("ok", $("cb-follow-days").value + "日後のフォローアップ配信が設定されています"));
+    } else {
+      out.push(stateLine("warn", "フォローアップ配信が無効です。再来店率が平均15.7pt低下する想定です"));
+    }
+
+    $("cb-checks").innerHTML = out.join("");
+    $("cb-publish").disabled = !(titleOk && dateOk && pointsOk && rankOk);
+  }
+
+  function coreBuilderValidate(showError) {
+    var ok = true;
+    var from = $("cb-from").value, to = $("cb-to").value;
+    var dateBad = from && to && to < from;
+    var pointsBad = (Number($("cb-points").value) || 0) <= 0;
+    $("cb-field-to").classList.toggle("is-invalid", showError && dateBad);
+    $("cb-field-points").classList.toggle("is-invalid", showError && pointsBad);
+    if (dateBad || pointsBad) ok = false;
+    return ok;
+  }
+
+  ["cb-brand", "cb-title", "cb-from", "cb-to", "cb-points", "cb-stores", "cb-slot", "cb-deadline",
+    "cb-capacity", "cb-material", "cb-material-code", "cb-status", "cb-follow-days", "cb-follow-msg",
+    "cb-stock-zero", "cb-mix-pt", "cb-mix-cash", "cb-follow-bonus"].forEach(function (id) {
+      var n = $(id);
+      if (!n) return;
+      n.addEventListener("input", function () { coreBuilderSync(); coreBuilderValidate(false); });
+      n.addEventListener("change", function () { coreBuilderSync(); coreBuilderValidate(false); });
+    });
+
+  bindSeg("cb-paymode", function (v) {
+    $("cb-mix-panel").classList.toggle("is-open", v === "mix");
+    coreBuilderSync();
+  });
+  bindSeg("cb-preview-tabs", function (v) {
+    $("cb-pv-detail").hidden = v !== "detail";
+    $("cb-pv-push").hidden = v !== "push";
+  });
+  bindPills("cb-ranks", coreBuilderSync);
+  bindSwitch("cb-stock-switch", function (on) {
+    $("cb-stock-panel").classList.toggle("is-open", on);
+    coreBuilderSync();
+  });
+  bindSwitch("cb-follow-switch", function (on) {
+    $("cb-follow-panel").classList.toggle("is-open", on);
+    coreBuilderSync();
+  });
+  $("cb-save-draft").addEventListener("click", function () { toast("下書きを保存しました"); });
+  $("cb-publish").addEventListener("click", function () {
+    if (!coreBuilderValidate(true)) { toast("入力内容にエラーがあります"); return; }
+    var storeSel = $("cb-stores");
+    openModal(
+      "この内容で公開しますか？",
+      "公開すると、対象ランクの会員アプリに即時反映され、店舗側の予約受付が開始されます。",
+      '<div class="report-sheet"><dl>' +
+      "<dt>企画名</dt><dd>" + $("cb-title").value + "</dd>" +
+      "<dt>対象ブランド</dt><dd>" + $("cb-brand").value + "</dd>" +
+      "<dt>必要ポイント</dt><dd>" + num($("cb-points").value) + " pt</dd>" +
+      "<dt>公開対象</dt><dd>" + $("cb-reach").textContent + "</dd>" +
+      "<dt>展開店舗</dt><dd>" + storeSel.options[storeSel.selectedIndex].text + "</dd>" +
+      "<dt>フォロー配信</dt><dd>" + (switchOn("cb-follow-switch") ? $("cb-follow-days").value + "日後に自動送信" : "なし") + "</dd>" +
+      "</dl></div>",
+      "公開する",
+      function () { toast("企画を公開しました。全42店舗の予約受付を開始します"); }
+    );
+  });
+
+  /* ================= 1-B 店頭スタッフ タブレット ================= */
+  var POS_BOOKINGS = [
+    { t: "11:00", name: "山田 美咲", rank: "Gold", id: "*****2043", visits: 6, karte: 1, last: "2026/07/02", st: "done", doneAt: "11:18" },
+    { t: "11:40", name: "中村 千尋", rank: "Platinum", id: "*****7715", visits: 11, karte: 2, last: "2026/09/09", st: "done", doneAt: "11:56" },
+    { t: "13:20", name: "伊藤 沙耶", rank: "Platinum", id: "*****3390", visits: 4, karte: 0, last: "2026/06/18", st: "noshow" },
+    { t: "14:00", name: "佐藤 遥香", rank: "Diamond", id: "*****8921", visits: 14, karte: 3, last: "2026/08/24", st: "current" },
+    { t: "14:40", name: "小林 楓", rank: "Platinum", id: "*****5108", visits: 8, karte: 1, last: "2026/08/02", st: "wait" },
+    { t: "15:20", name: "渡辺 陽菜", rank: "Diamond", id: "*****6634", visits: 19, karte: 5, last: "2026/09/21", st: "wait" },
+    { t: "16:00", name: "加藤 莉子", rank: "Platinum", id: "*****1287", visits: 3, karte: 0, last: "2026/05/30", st: "wait" },
+    { t: "16:40", name: "松本 咲希", rank: "Diamond", id: "*****9042", visits: 22, karte: 7, last: "2026/09/28", st: "wait" }
+  ];
+  var POS_ST = {
+    done: ['<span class="badge badge-ok"><i></i>完了</span>', "接客完了"],
+    current: ['<span class="badge badge-accent"><i></i>接客中</span>', "接客中"],
+    wait: ['<span class="badge badge-outline"><i></i>受付待ち</span>', "受付待ち"],
+    noshow: ['<span class="badge badge-danger"><i></i>未来店</span>', "未来店"]
+  };
+  var HERBS = [
+    { id: "chamomile", label: "カモミール", stock: 42 },
+    { id: "linden", label: "リンデン", stock: 30 },
+    { id: "elder", label: "エルダーフラワー", stock: 18 },
+    { id: "peppermint", label: "ペパーミント", stock: 26 },
+    { id: "rosehip", label: "ローズヒップ", stock: 12 },
+    { id: "lemonbalm", label: "レモンバーム", stock: 9 },
+    { id: "lavender", label: "ラベンダー", stock: 0 }
+  ];
+  var posSel = 3;
+  var posHerbs = ["chamomile", "linden", "elder"];
+  var posScanned = false;
+
+  function renderPosBookings() {
+    var wrap = $("pos-bookings");
+    wrap.innerHTML = "";
+    POS_BOOKINGS.forEach(function (b, i) {
+      var btn = el("button", "booking");
+      btn.type = "button";
+      if (i === posSel) btn.setAttribute("aria-current", "true");
+      btn.innerHTML =
+        '<span class="booking-time">' + b.t + "</span>" +
+        '<span class="booking-body"><strong>' + b.name + " 様</strong><span>" + b.rank + "会員 ／ 来店" + b.visits + "回</span></span>" +
+        '<span class="booking-badge">' + POS_ST[b.st][0] + "</span>";
+      btn.addEventListener("click", function () { posSel = i; renderPosBookings(); renderPosDetail(); });
+      wrap.appendChild(btn);
+    });
+    $("pos-done-count").textContent = POS_BOOKINGS.filter(function (b) { return b.st === "done"; }).length;
+  }
+
+  function renderPosDetail() {
+    var b = POS_BOOKINGS[posSel];
+    var end = b.t.split(":");
+    var mins = Number(end[0]) * 60 + Number(end[1]) + 20;
+    $("pos-slot-time").textContent = b.t + " - " + String(Math.floor(mins / 60)).padStart(2, "0") + ":" + String(mins % 60).padStart(2, "0");
+    $("pos-slot-badge").innerHTML = POS_ST[b.st][0];
+    $("pos-cust-initial").textContent = b.name.charAt(0);
+    $("pos-cust-name").textContent = b.name + " 様";
+    $("pos-cust-tags").innerHTML =
+      '<span class="badge ' + (b.rank === "Diamond" ? "badge-gold" : "badge-outline") + '">' + b.rank + "会員</span>" +
+      '<span class="badge badge-outline">MASH ID: ' + b.id + "</span>" +
+      '<span class="badge badge-outline">前回来店 ' + b.last + "</span>" +
+      (b.karte === 0 ? '<span class="badge badge-warn"><i></i>カルテ未作成</span>' : "");
+    $("pos-cust-visits").textContent = b.visits;
+    $("pos-cust-karte").textContent = b.karte;
+    $("pos-scan-input").value = "*******" + b.id.slice(-4);
+    posScanned = false;
+    renderPosScan("idle");
+  }
+
+  function setKarteEnabled(on) {
+    var k = $("pos-karte");
+    k.style.opacity = on ? "1" : ".42";
+    k.style.pointerEvents = on ? "auto" : "none";
+  }
+
+  function renderPosScan(kind) {
+    var b = POS_BOOKINGS[posSel];
+    var box = $("pos-scan-result");
+    if (b.st === "done" && kind === "idle") {
+      box.innerHTML = alertBox("ok", "この予約は消込済みです（本日 " + b.doneAt + "）",
+        "カルテは保存済みです。内容の追記は「カルテを再編集」から行えます。");
+      setKarteEnabled(false);
+      return;
+    }
+    if (b.st === "noshow" && kind === "idle") {
+      box.innerHTML = alertBox("warn", "予約時刻を過ぎましたが来店確認が取れていません",
+        "枠終了から30分で自動的に「未来店」となり、消費したポイントは<b>翌営業日に自動返還</b>されます。会員には返還通知が送信されます。");
+      setKarteEnabled(false);
+      return;
+    }
+    if (kind === "idle") {
+      box.innerHTML = alertBox("info", "会員バーコードを読み取ってください",
+        "読み取りが完了するまでカウンセリング記録は入力できません（誤登録防止のため）。");
+      setKarteEnabled(false);
+      return;
+    }
+    if (kind === "ok") {
+      box.innerHTML = alertBox("ok", "認証成功：チケット消込完了",
+        "会員 " + b.name + " 様（" + b.rank + "）／ 交換ID: RW-2026-104412 ／ 消込時刻 " + b.t +
+        "　<b>1,500pt の引当を消化しました。</b>");
+      setKarteEnabled(true);
+      posScanned = true;
+      return;
+    }
+    setKarteEnabled(false);
+    posScanned = false;
+    if (kind === "expired") {
+      box.innerHTML = alertBox("danger", "エラー：このチケットは有効期限が切れています",
+        "交換日 2026/07/05 から90日を経過しています。<br><b>次の対応：</b>本部リワード窓口（内線4120）へ連絡し、再発行の可否を確認してください。消込は行えません。");
+    } else if (kind === "other") {
+      box.innerHTML = alertBox("danger", "エラー：この予約は別店舗のものです",
+        "予約店舗：<b>グランフロント大阪店</b>（2026/10/12 14:00）<br><b>次の対応：</b>店舗変更は会員アプリの予約詳細から前日23:59まで可能である旨をご案内してください。");
+    } else if (kind === "used") {
+      box.innerHTML = alertBox("warn", "このチケットは既に消込済みです",
+        "本日 13:58 に当店で消込されています（担当：早瀬）。<br><b>次の対応：</b>二重接客の可能性があります。カルテ一覧から該当レコードをご確認ください。");
+    }
+  }
+
+  function renderHerbs() {
+    var wrap = $("pos-herbs");
+    wrap.innerHTML = "";
+    HERBS.forEach(function (h) {
+      var on = posHerbs.indexOf(h.id) !== -1;
+      var soldOut = h.stock === 0;
+      var blocked = !on && (soldOut || posHerbs.length >= 3);
+      var c = el("button", "chip");
+      c.type = "button";
+      c.dataset.val = h.id;
+      c.setAttribute("aria-checked", on ? "true" : "false");
+      if (blocked) c.setAttribute("aria-disabled", "true");
+      c.innerHTML = h.label + (soldOut ? "（在庫切れ）" : "");
+      c.addEventListener("click", function () {
+        if (c.getAttribute("aria-disabled") === "true") {
+          toast(soldOut ? h.label + " は在庫切れのため選択できません" : "処方は最大3種までです");
+          return;
+        }
+        if (on) posHerbs = posHerbs.filter(function (x) { return x !== h.id; });
+        else posHerbs.push(h.id);
+        renderHerbs();
+      });
+      wrap.appendChild(c);
+    });
+    $("pos-herb-count").textContent = posHerbs.length + " / 3 種選択中";
+  }
+
+  bindSeg("pos-scan-mode", function () { if (posScanned || $("pos-scan-result").innerHTML) renderPosScan("idle"); });
+  bindRadios("pos-skin");
+  bindPills("pos-actions");
+  $("pos-scan-btn").addEventListener("click", function () {
+    var b = POS_BOOKINGS[posSel];
+    if (b.st === "done") { toast("この予約は既に消込済みです"); return; }
+    if (b.st === "noshow") { toast("未来店の予約は消込できません"); return; }
+    renderPosScan(segValue("pos-scan-mode"));
+  });
+  $("pos-scan-reset").addEventListener("click", function () { renderPosScan("idle"); });
+  $("pos-save").addEventListener("click", function () {
+    if (!posScanned) { toast("チケットの消込が完了していません"); return; }
+    if (posHerbs.length === 0) { toast("処方ハーブを1種以上選択してください"); return; }
+    var b = POS_BOOKINGS[posSel];
+    var names = posHerbs.map(function (id) {
+      return HERBS.filter(function (h) { return h.id === id; })[0].label;
+    }).join(" ＋ ");
+    openModal("カルテをMASH IDへ保存しました", "接客記録は次回来店時に全店舗で参照できます。",
+      '<div class="report-sheet"><h4>' + b.name + " 様 ／ 2026/10/12 " + b.t + "</h4>" +
+      '<div class="rs-rule"></div><dl>' +
+      "<dt>肌悩み</dt><dd>" + document.querySelector('#pos-skin .radio-opt[aria-checked="true"] strong').textContent + "</dd>" +
+      "<dt>処方ブレンド</dt><dd>" + names + "</dd>" +
+      "<dt>推奨アイテム</dt><dd>" + $("pos-item").value + "</dd>" +
+      "<dt>フォロー配信</dt><dd>2026/10/26 に自動予約</dd>" +
+      "</dl></div>", null, null);
+    b.st = "done";
+    b.doneAt = b.t;
+    b.karte += 1;
+    renderPosBookings();
+    renderPosDetail();
+    toast("接客完了。14日後のフォローアップ配信を予約しました");
+  });
+
+  /* ================= 2-A 共創アトリエ・スタジオ ================= */
+  var AL_ASSETS = [
+    { name: "特設ページ メインビジュアル", use: "WEB / アプリ", sent: "2026/08/12", st: "ok", note: "承認 2026/09/15" },
+    { name: "店頭POP・サイネージ", use: "店頭", sent: "2026/08/29", st: "ok", note: "承認 2026/09/15（初稿差戻し1回）" },
+    { name: "刻印ウッドチャーム 意匠", use: "限定資材", sent: "2026/08/12", st: "ok", note: "承認 2026/09/03" },
+    { name: "SNS投稿クリエイティブ（12点）", use: "SNS", sent: "2026/09/08", st: "ok", note: "承認 2026/09/15" }
+  ];
+
+  function renderAlAssets() {
+    var tb = $("al-asset-rows");
+    tb.innerHTML = "";
+    var pending = 0;
+    AL_ASSETS.forEach(function (a) {
+      if (a.st !== "ok") pending++;
+      var badge = a.st === "ok" ? '<span class="badge badge-ok"><i></i>承認済</span>'
+        : a.st === "review" ? '<span class="badge badge-warn"><i></i>監修中</span>'
+          : '<span class="badge badge-danger"><i></i>差戻し</span>';
+      var tr = el("tr");
+      tr.innerHTML = "<td><span class=\"cell-main\">" + a.name + '</span><span class="cell-sub">' + a.note + "</span></td>" +
+        "<td>" + a.use + "</td><td>" + a.sent + "</td><td>" + badge + "</td>";
+      tb.appendChild(tr);
+    });
+    $("al-approval-state").textContent = pending === 0 ? "全" + AL_ASSETS.length + "件 承認済" : pending + "件 未承認";
+
+    var step = $("al-step-final");
+    if (pending === 0) {
+      step.className = "step done current";
+      step.innerHTML = "<strong>全クリエイティブ承認済</strong><span>版権元サイン完了 2026/09/15</span>";
+    } else {
+      step.className = "step current";
+      step.innerHTML = "<strong>再監修中（差戻し " + pending + "件）</strong><span>承認まで公開をロック</span>";
+    }
+    $("al-asset-demo").textContent = pending === 0
+      ? "SNS投稿クリエイティブを「差戻し」にする"
+      : "監修を「承認済」に戻す";
+    return pending;
+  }
+
+  $("al-asset-demo").addEventListener("click", function () {
+    var a = AL_ASSETS[AL_ASSETS.length - 1];
+    if (a.st === "ok") {
+      a.st = "reject";
+      a.note = "差戻し 2026/09/18 ／ キャラクター単独使用の比率を要調整";
+      alStudioSync();
+      toast("未承認アセットが発生したため、公開ボタンと特設ページをロックしました");
+    } else {
+      a.st = "ok";
+      a.note = "承認 2026/09/15";
+      alStudioSync();
+      toast("全アセットが承認済になりました。公開ロックを解除しました");
+    }
+  });
+
+  var AL_CLOCK = {
+    pre: { label: "公開前", time: "2026/09/28 09:41", badge: "badge-outline" },
+    vip: { label: "先行予約期間", time: "2026/10/03 09:41", badge: "badge-gold" },
+    open: { label: "一般公開中", time: "2026/10/12 09:41", badge: "badge-accent" },
+    after: { label: "契約終了後", time: "2026/12/03 09:41", badge: "badge-danger" }
+  };
+
+  function alStudioSync() {
+    var royalty = Number($("al-royalty").value) || 0;
+    var mg = Number($("al-mg").value) || 0;
+    var sold = Number($("al-sold").value) || 0;
+    var used = royalty * sold;
+    var p = mg > 0 ? Math.min(100, (used / mg) * 100) : 0;
+    var left = Math.max(0, mg - used);
+    var need = royalty > 0 ? Math.ceil(left / royalty) : 0;
+
+    $("al-mg-pct").textContent = (Math.round(p * 10) / 10) + "%";
+    $("al-mg-bar").style.width = p + "%";
+    $("al-mg-bar").className = p >= 100 ? "" : p >= 60 ? "warn" : "danger";
+    $("al-mg-used").textContent = yen(used);
+    $("al-mg-left").textContent = yen(left);
+    $("al-mg-need").textContent = num(need);
+
+    $("al-mg-alert").innerHTML = p >= 100
+      ? alertBox("ok", "MGを超過しました", "以降は実績に応じた従量精算に切り替わります（超過分 " + yen(used - mg) + "）。")
+      : p >= 60
+        ? alertBox("warn", "MG未達の見込みです", "現在のペースでは会期終了時点で <b>" + yen(left) + "</b> の未消化が発生します。MGは最低保証のため、未達でも全額のお支払いが必要です。先行枠の拡大または拠点追加を検討してください。")
+        : alertBox("danger", "MG消化が大幅に遅れています", "残 " + yen(left) + "（あと " + num(need) + "件）。会期折返し前に販促強化の判断が必要です。");
+
+    var full = Number($("al-full-pt").value) || 0;
+    var mixPt = Number($("al-mix-pt").value) || 0;
+    var mixCash = Number($("al-mix-cash").value) || 0;
+    var isMix = segValue("al-paymode") === "mix";
+    $("al-pv-pt").textContent = num(full);
+    $("al-pv-mix").textContent = isMix ? num(mixPt) + "pt ＋ " + yen(mixCash) + "（税込）" : "全額ポイントのみ";
+    $("al-pv-mix").parentNode.hidden = !isMix;
+
+    $("al-pv-title").textContent = $("al-title").value.replace(/（.*$/, "") || "（企画名未入力）";
+    var from = $("al-from").value.replace("T", " ").replace(/-/g, "/");
+    var to = $("al-to").value.replace("T", " ").replace(/-/g, "/");
+    $("al-pv-period").textContent = from + " 〜 " + to;
+
+    var brands = pillValues("al-brands");
+    $("al-cross-state").textContent = brands.length >= 2 ? "有効" : "無効（共催ブランドが1つ）";
+
+    var pending = renderAlAssets();
+    applyAlClock(pending);
+  }
+
+  function applyAlClock(pending) {
+    var mode = segValue("al-clock");
+    var c = AL_CLOCK[mode];
+    $("al-clock-time").textContent = c.time;
+    $("al-clock-badge").className = "badge " + c.badge;
+    $("al-clock-badge").textContent = c.label;
+
+    var cta = $("al-pv-cta");
+    var gate = $("al-pv-gate");
+    var note = $("al-pv-note");
+    var expiry = radioValue("al-expiry");
+    var checks = [];
+
+    if (pending > 0) {
+      cta.className = "phone-cta is-disabled";
+      cta.textContent = "監修承認待ちのため公開できません";
+      gate.textContent = "社内確認中";
+      note.textContent = "監修未承認のアセットがあります";
+    } else if (mode === "pre") {
+      cta.className = "phone-cta is-disabled";
+      cta.textContent = "10/01 10:00 から受付開始";
+      gate.textContent = "先行予約は Diamond・Platinum 会員から開始します";
+      note.textContent = "公開までのカウントダウンを表示中";
+    } else if (mode === "vip") {
+      cta.className = "phone-cta";
+      cta.textContent = "アトリエを予約する（先行枠）";
+      gate.textContent = $("al-public-open").value.replace(/-/g, "/") + " まで Diamond・Platinum会員の先行予約期間です";
+      note.textContent = "先行枠 1,928枠 / 残 612枠";
+    } else if (mode === "open") {
+      cta.className = "phone-cta";
+      cta.textContent = "アトリエを予約する";
+      gate.textContent = "全会員が予約いただけます（キャラクターは店頭で選択）";
+      note.textContent = "キャラクター（アロマ）は店頭でお選びいただけます";
+    } else {
+      if (expiry === "hide") {
+        cta.className = "phone-cta is-disabled";
+        cta.textContent = "ページは公開を終了しました";
+        gate.textContent = "許諾期間終了に伴い、特設ページを非公開にしました";
+        note.textContent = "アクセスは404へリダイレクトされます";
+      } else if (expiry === "manual") {
+        cta.className = "phone-cta";
+        cta.textContent = "アトリエを予約する";
+        gate.textContent = "⚠ 許諾期間を過ぎていますが受付が継続しています";
+        note.textContent = "手動対応設定のため自動停止されません";
+      } else {
+        cta.className = "phone-cta is-soldout";
+        cta.textContent = "SOLD OUT ／ 受付を終了しました";
+        gate.textContent = "たくさんのご参加をありがとうございました";
+        note.textContent = "次回の共創企画はアプリのお知らせでご案内します";
+      }
+    }
+
+    checks.push(stateLine(pending === 0 ? "ok" : "danger",
+      pending === 0 ? "監修：全クリエイティブ承認済（版権元サイン 2026/09/15）" : "監修：" + pending + "件が未承認のため公開をロック中"));
+    checks.push(stateLine(mode === "after" ? (expiry === "manual" ? "danger" : "ok") : "ok",
+      mode === "after"
+        ? (expiry === "manual" ? "契約許諾期間を超過。手動対応設定のため受付が継続しており契約逸脱リスクがあります" : "契約許諾期間を超過。設定に従い受付を自動停止しました")
+        : "契約許諾期間内（2026/10/01 10:00 〜 11/30 23:59）"));
+    checks.push(stateLine("ok", "クリエイティブ利用範囲：WEB／アプリ／店頭POP／SNS（OOHは許諾外のため入稿ブロック）"));
+    checks.push(stateLine(pillValues("al-brands").length >= 2 ? "ok" : "warn",
+      pillValues("al-brands").length >= 2 ? "共催2ブランド以上：クロスユース計測を自動で有効化" : "共催ブランドが1つのためクロスユース計測は行われません"));
+    checks.push(stateLine("ok", "ロイヤリティ：1交換 " + yen(Number($("al-royalty").value)) + " ／ MG " + yen(Number($("al-mg").value)) + " を自動按分計上"));
+    $("al-checks").innerHTML = checks.join("");
+
+    $("al-publish").disabled = pending > 0;
+  }
+
+  ["al-partner", "al-title", "al-from", "al-to", "al-royalty", "al-mg", "al-sold",
+    "al-full-pt", "al-mix-pt", "al-mix-cash", "al-vip-open", "al-public-open"].forEach(function (id) {
+      var n = $(id);
+      if (!n) return;
+      n.addEventListener("input", alStudioSync);
+      n.addEventListener("change", alStudioSync);
+    });
+  bindPills("al-brands", alStudioSync);
+  bindRadios("al-expiry", alStudioSync);
+  bindSeg("al-paymode", alStudioSync);
+  bindSeg("al-clock", alStudioSync);
+  $("al-save-draft").addEventListener("click", function () { toast("下書きを保存しました"); });
+  $("al-publish").addEventListener("click", function () {
+    openModal("この内容で公開しますか？",
+      "公開と同時に、契約許諾期間・監修承認・ロイヤリティ計上の自動ガードが有効になります。",
+      '<div class="report-sheet"><dl>' +
+      "<dt>提携パートナー</dt><dd>" + $("al-partner").value + "</dd>" +
+      "<dt>共同主催</dt><dd>" + (pillValues("al-brands").length) + "ブランド</dd>" +
+      "<dt>許諾期間</dt><dd>" + $("al-from").value.replace("T", " ") + " 〜 " + $("al-to").value.replace("T", " ") + "</dd>" +
+      "<dt>ロイヤリティ</dt><dd>1交換 " + yen(Number($("al-royalty").value)) + " ／ MG " + yen(Number($("al-mg").value)) + "</dd>" +
+      "<dt>終了時挙動</dt><dd>" + document.querySelector('#al-expiry .radio-opt[aria-checked="true"] strong').textContent + "</dd>" +
+      "</dl></div>", "公開する",
+      function () { toast("共創プロジェクトを公開しました。10/01 10:00 に先行予約を自動開始します"); });
+  });
+
+  /* ================= 2-B 店舗スロット＆IP限定資材 ================= */
+  var MATERIALS = [
+    {
+      id: "pouch", name: "ピケ残反 ムーミン刺繍巾着", sub: "gelato pique 残反活用 ／ シリアル PK-MM-#####",
+      own: "寄託", unit: "枚", total: 500, used: 342, warn: 60, hide: 30, char: null
+    },
+    {
+      id: "snufkin", name: "刻印ウッドチャーム：スナフキン", sub: "静寂ブレンド（ウッディ・シダーウッド）／ CH-SN-#####",
+      own: "寄託", unit: "個", total: 180, used: 168, warn: 20, hide: 10, char: "スナフキン"
+    },
+    {
+      id: "mama", name: "刻印ウッドチャーム：ムーミンママ", sub: "安らぎブレンド（ラベンダー・バニラ）／ CH-MM-#####",
+      own: "寄託", unit: "個", total: 180, used: 102, warn: 20, hide: 10, char: "ムーミンママ"
+    },
+    {
+      id: "mymble", name: "刻印ウッドチャーム：リトルミイ", sub: "活力ブレンド（スィートオレンジ・ハッカ）／ CH-LM-#####",
+      own: "寄託", unit: "個", total: 180, used: 112, warn: 20, hide: 10, char: "リトルミイ"
+    }
+  ];
+  var MAT_INITIAL = MATERIALS.map(function (m) { return m.used; });
+
+  function matLeft(m) { return Math.max(0, m.total - m.used); }
+  function matState(m) {
+    var left = matLeft(m);
+    if (left === 0) return "sold";
+    if (left <= m.hide) return "hidden";
+    if (left <= m.warn) return "low";
+    return "ok";
+  }
+
+  var MAT_STATE_BADGE = {
+    ok: '<span class="badge badge-ok"><i></i>選択可</span>',
+    low: '<span class="badge badge-warn"><i></i>選択可（残数を併記）</span>',
+    hidden: '<span class="badge badge-danger"><i></i>選択肢を自動非表示</span>',
+    sold: '<span class="badge badge-danger"><i></i>完売・選択不可</span>'
+  };
+
+  function renderMaterials() {
+    var tb = $("stk-rows");
+    tb.innerHTML = "";
+    var alerts = 0;
+    MATERIALS.forEach(function (m) {
+      var st = matState(m);
+      var left = matLeft(m);
+      var p = Math.round((m.used / m.total) * 100);
+      if (st !== "ok") alerts++;
+      var tr = el("tr");
+      if (st === "sold") tr.className = "is-dead";
+      else if (st === "hidden" || st === "low") tr.className = "is-alert";
+      var leftHtml = '<span class="num" style="font-weight:800">' + num(left) + "</span> " + m.unit +
+        (st === "low" ? '<span class="cell-sub">⚠ 残少アラート（しきい値 ' + m.warn + m.unit + "）</span>" : "") +
+        (st === "hidden" ? '<span class="cell-sub">⚠ 残' + m.hide + m.unit + "以下：WEB予約から非表示</span>" : "") +
+        (st === "sold" ? '<span class="cell-sub">完売：店頭でも選択不可</span>' : "");
+      tr.innerHTML =
+        "<td><span class=\"cell-main\">" + m.name + '</span><span class="cell-sub">' + m.sub + "</span></td>" +
+        '<td><span class="badge badge-outline">パートナー' + m.own + "</span></td>" +
+        '<td class="ta-r num">' + num(m.total) + "</td>" +
+        '<td class="ta-r num">' + num(m.used) + "</td>" +
+        '<td class="ta-r">' + leftHtml + "</td>" +
+        '<td><div class="meter-row"><div class="meter"><i class="' + (st === "sold" ? "danger" : st === "ok" ? "" : "warn") +
+        '" style="width:' + p + '%"></i></div><span class="meter-val">' + p + "%</span></div></td>" +
+        "<td>" + MAT_STATE_BADGE[st] + "</td>";
+      tb.appendChild(tr);
+    });
+    $("stk-alerts").textContent = alerts;
+
+    var banner = [];
+    MATERIALS.forEach(function (m) {
+      var st = matState(m);
+      if (st === "sold") {
+        banner.push(alertBox("danger", m.name + " が完売しました",
+          "WEB予約・店頭カルテの双方で選択不可になりました。既存の予約分（" + (m.char ? m.char + "指名" : "共通資材") +
+          "）は代替キャラクターへの振替をご案内してください。パートナーへ追加寄託を打診中です。"));
+      } else if (st === "hidden") {
+        banner.push(alertBox("warn", m.name + " の残数が " + matLeft(m) + m.unit + " になりました",
+          "しきい値（残" + m.hide + m.unit + "）を下回ったため、<b>WEB予約の選択肢から自動的に非表示</b>にしました。店頭ではご案内可能です。"));
+      } else if (st === "low") {
+        banner.push(alertBox("warn", m.name + " が残少です（残 " + matLeft(m) + m.unit + "）",
+          "本部・資材マネージャーへ通知済み。残" + m.hide + m.unit + "でWEB予約の選択肢が自動的に非表示になります。"));
+      }
+    });
+    $("stk-banner").innerHTML = banner.join('<div style="height:10px"></div>');
+
+    var s = $("stk-settlement");
+    var totalAll = 0, usedAll = 0;
+    MATERIALS.forEach(function (m) { totalAll += m.total; usedAll += m.used; });
+    s.innerHTML =
+      '<div class="stat-row"><div class="stat-label"><b>寄託受領数（当店分）</b>4品目 合計</div><div class="stat-val num">' + num(totalAll) + "</div></div>" +
+      '<div class="stat-row"><div class="stat-label"><b>実消化数</b>シリアル読取ベース</div><div class="stat-val num">' + num(usedAll) + "</div></div>" +
+      '<div class="stat-row"><div class="stat-label"><b>返却対象（未消化）</b>会期終了後にパートナーへ返送</div><div class="stat-val num">' + num(totalAll - usedAll) + "</div></div>" +
+      '<div class="stat-row"><div class="stat-label"><b>ロイヤリティ計上対象</b>消化数 × ¥500</div><div class="stat-val num">' + yen(usedAll * 500) + "</div></div>";
+  }
+
+  function renderSlots() {
+    var grid = $("stk-slots");
+    grid.innerHTML = "";
+    var times = ["11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30"];
+    var pattern = ["booked", "booked", "booked", "blocked", "booked", "booked", "booked", "booked", "booked", "booked", "hold", "booked"];
+    times.forEach(function (t, i) {
+      ["A", "B"].forEach(function (booth, j) {
+        var kind = pattern[(i + j) % pattern.length];
+        var label = kind === "booked" ? "予約済" : kind === "blocked" ? "休憩" : kind === "hold" ? "仮押さえ" : "空き";
+        grid.appendChild(el("div", "slot " + kind, t + "<small>" + booth + "／" + label + "</small>"));
+      });
+    });
+  }
+
+  document.querySelectorAll("[data-stk-consume]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var id = b.dataset.stkConsume, n = Number(b.dataset.n) || 1;
+      var m = MATERIALS.filter(function (x) { return x.id === id; })[0];
+      if (!m) return;
+      var before = matState(m);
+      m.used = Math.min(m.total, m.used + n);
+      renderMaterials();
+      renderMindOptions();
+      var after = matState(m);
+      if (after !== before) {
+        if (after === "sold") toast(m.name + " が完売しました。選択肢を自動的に無効化しました");
+        else if (after === "hidden") toast("残" + m.hide + "個を下回ったため、WEB予約の選択肢から自動的に非表示にしました");
+      } else {
+        toast(m.name + " を " + n + m.unit + " 消化しました（残 " + matLeft(m) + m.unit + "）");
+      }
+    });
+  });
+  $("stk-reset").addEventListener("click", function () {
+    MATERIALS.forEach(function (m, i) { m.used = MAT_INITIAL[i]; });
+    renderMaterials();
+    renderMindOptions();
+    toast("在庫を初期値に戻しました");
+  });
+  $("stk-slot").addEventListener("change", recalcCapacity);
+  $("stk-booth").addEventListener("input", recalcCapacity);
+  function recalcCapacity() {
+    var mins = parseInt($("stk-slot").value, 10) || 30;
+    var booth = Number($("stk-booth").value) || 1;
+    var max = Math.floor((6 * 60) / mins) * booth;
+    $("stk-max").value = max;
+    $("stk-today").textContent = Math.min(24, max) + " / " + max;
+    $("stk-capacity-note").innerHTML = (max <= 24)
+      ? ICON.info + "<div><strong>本日 " + Math.min(24, max) + "/" + max + " 満席</strong>キャンセル待ち 6名が登録済み。空きが出ると先着順に自動繰上げ通知が送信されます。</div>"
+      : ICON.info + "<div><strong>本日 24/" + max + "</strong>枠設計の変更により空き枠が発生しました。WEB予約への開放は「枠を公開」から行えます。</div>";
+    renderSlots();
+  }
+
+  /* ================= 2-C 共創アトリエ 接客コンソール ================= */
+  var AL_BOOKINGS = [
+    { t: "13:00", name: "斎藤 真央", rank: "Diamond", id: "*****2211", st: "done", pay: "全額pt" },
+    { t: "13:30", name: "森田 芽衣", rank: "Platinum", id: "*****8830", st: "done", pay: "Points+Cash" },
+    { t: "14:00", name: "岡田 里奈", rank: "Gold", id: "*****4471", st: "done", pay: "Points+Cash" },
+    { t: "14:30", name: "藤井 かなみ", rank: "Platinum", id: "*****0092", st: "done", pay: "全額pt" },
+    { t: "15:00", name: "高橋 綾", rank: "Platinum", id: "*****4412", st: "current", pay: "Points+Cash" },
+    { t: "15:30", name: "西村 詩織", rank: "Diamond", id: "*****7768", st: "wait", pay: "全額pt" },
+    { t: "16:00", name: "大野 ひかり", rank: "Platinum", id: "*****3325", st: "wait", pay: "Points+Cash" },
+    { t: "16:30", name: "青木 まりえ", rank: "Gold", id: "*****9917", st: "wait", pay: "Points+Cash" }
+  ];
+  var alSel = 4;
+  var alScanned = false;
+
+  function renderAlBookings() {
+    var wrap = $("alpos-bookings");
+    wrap.innerHTML = "";
+    AL_BOOKINGS.forEach(function (b, i) {
+      var btn = el("button", "booking");
+      btn.type = "button";
+      if (i === alSel) btn.setAttribute("aria-current", "true");
+      btn.innerHTML =
+        '<span class="booking-time">' + b.t + "</span>" +
+        '<span class="booking-body"><strong>' + b.name + " 様</strong><span>" + b.rank + " ／ " + b.pay + "</span></span>" +
+        '<span class="booking-badge">' + POS_ST[b.st][0] + "</span>";
+      btn.addEventListener("click", function () { alSel = i; renderAlBookings(); renderAlDetail(); });
+      wrap.appendChild(btn);
+    });
+  }
+
+  function renderAlDetail() {
+    var b = AL_BOOKINGS[alSel];
+    var hm = b.t.split(":");
+    var mins = Number(hm[0]) * 60 + Number(hm[1]) + 30;
+    $("alpos-slot-time").textContent = b.t + " - " + String(Math.floor(mins / 60)).padStart(2, "0") + ":" + String(mins % 60).padStart(2, "0");
+    $("alpos-slot-badge").innerHTML = POS_ST[b.st][0];
+    $("alpos-cust-initial").textContent = b.name.charAt(0);
+    $("alpos-cust-name").textContent = b.name + " 様";
+    $("alpos-scan-input").value = "*******" + b.id.slice(-4);
+    alScanned = false;
+    renderAlScan("idle");
+  }
+
+  function setAlKarteEnabled(on) {
+    var k = $("alpos-karte");
+    k.style.opacity = on ? "1" : ".42";
+    k.style.pointerEvents = on ? "auto" : "none";
+  }
+
+  function renderAlScan(kind) {
+    var b = AL_BOOKINGS[alSel];
+    var box = $("alpos-scan-result");
+    if (b.st === "done" && kind === "idle") {
+      box.innerHTML = alertBox("ok", "この枠は消込済みです", "カルテ登録済み ／ 30日後のリフィル予約権を付与済みです。");
+      setAlKarteEnabled(false); return;
+    }
+    if (kind === "idle") {
+      box.innerHTML = alertBox("info", "チケットを読み取ってください", "Points + Cash 併用の場合は、現金受領の確認まで完了しないと診断入力に進めません。");
+      setAlKarteEnabled(false); return;
+    }
+    if (kind === "ok") {
+      box.innerHTML = alertBox("ok", "認証成功：Points + Cash 決済確認済（¥2,200 受領済）",
+        b.name + " 様（" + b.rank + "会員）／ 交換ID: AL-MM-208841 ／ 1,000pt 消化 ＋ ¥2,200 店頭決済<br>" +
+        "先行予約枠での申込 ／ 本企画の参加は初回です。");
+      setAlKarteEnabled(true); alScanned = true; return;
+    }
+    setAlKarteEnabled(false); alScanned = false;
+    if (kind === "unpaid") {
+      box.innerHTML = alertBox("danger", "エラー：現金分（¥2,200）が未受領です",
+        "ポイント分（1,000pt）は消込済みですが、現金決済が完了していません。<br><b>次の対応：</b>レジで決済を完了し「再読取」してください。決済完了までカルテ入力はできません。");
+    } else if (kind === "expired") {
+      box.innerHTML = alertBox("warn", "警告：予約枠の時間を超過しています",
+        "予約枠 15:00-15:30 に対して現在 15:47。消込は可能ですが、<b>次枠（16:00）に遅延が発生します</b>。次のお客様へ遅延通知を送信しますか？");
+      setAlKarteEnabled(true); alScanned = true;
+    }
+  }
+
+  function renderMindOptions() {
+    var wrap = $("alpos-mind");
+    if (!wrap) return;
+    var current = radioValue("alpos-mind");
+    wrap.innerHTML = "";
+    var opts = [
+      { id: "snufkin", title: "スナフキンタイプ", desc: "思考をリセットしたい ／ ウッディ・シダーウッド調合" },
+      { id: "mama", title: "ムーミンママタイプ", desc: "包み込まれたい ／ ラベンダー・バニラ調合" },
+      { id: "mymble", title: "リトルミイタイプ", desc: "前向きなエネルギーが欲しい ／ スィートオレンジ・ハッカ調合" }
+    ];
+    var firstAvailable = null;
+    opts.forEach(function (o) {
+      var m = MATERIALS.filter(function (x) { return x.id === o.id; })[0];
+      var left = matLeft(m);
+      var sold = left === 0;
+      if (!sold && firstAvailable === null) firstAvailable = o.id;
+      var b = el("button", "radio-opt");
+      b.type = "button";
+      b.dataset.val = o.id;
+      if (sold) b.setAttribute("aria-disabled", "true");
+      b.setAttribute("aria-checked", "false");
+      b.innerHTML = '<span class="dot"></span><span class="radio-opt-body"><strong>' + o.title +
+        (sold ? "（本日ご案内不可）" : "") + "</strong><span>" + o.desc +
+        "<br>限定資材 残 " + num(left) + "個" + (sold ? " ／ 完売のため選択できません" : left <= m.warn ? " ／ 残少" : "") +
+        "</span></span>";
+      wrap.appendChild(b);
+    });
+    var pick = current;
+    var picked = wrap.querySelector('.radio-opt[data-val="' + pick + '"]');
+    if (!picked || picked.getAttribute("aria-disabled") === "true") pick = firstAvailable;
+    if (pick) {
+      var target = wrap.querySelector('.radio-opt[data-val="' + pick + '"]');
+      if (target) target.setAttribute("aria-checked", "true");
+    }
+    validateSerials(false);
+  }
+
+  var CHARM_PREFIX = { snufkin: "CH-SN-", mama: "CH-MM-", mymble: "CH-LM-" };
+
+  function validateSerials(show) {
+    var pouch = $("alpos-pouch").value.trim();
+    var charm = $("alpos-charm").value.trim();
+    var mind = radioValue("alpos-mind");
+    var pouchOk = /^PK-MM-\d{5}$/.test(pouch);
+    var charmOk = mind ? new RegExp("^" + CHARM_PREFIX[mind] + "\\d{5}$").test(charm) : /^CH-(SN|MM|LM)-\d{5}$/.test(charm);
+    $("alpos-field-pouch").classList.toggle("is-invalid", show && !pouchOk);
+    $("alpos-field-charm").classList.toggle("is-invalid", show && !charmOk);
+    return pouchOk && charmOk;
+  }
+
+  bindSeg("alpos-scan-mode", function () { renderAlScan("idle"); });
+  $("alpos-scan-btn").addEventListener("click", function () {
+    var b = AL_BOOKINGS[alSel];
+    if (b.st === "done") { toast("この枠は既に消込済みです"); return; }
+    renderAlScan(segValue("alpos-scan-mode"));
+  });
+  $("alpos-scan-reset").addEventListener("click", function () { renderAlScan("idle"); });
+  $("alpos-mind").addEventListener("click", function (e) {
+    var b = e.target.closest(".radio-opt");
+    if (!b) return;
+    if (b.getAttribute("aria-disabled") === "true") { toast("この資材は完売のため選択できません"); return; }
+    $("alpos-mind").querySelectorAll(".radio-opt").forEach(function (x) {
+      x.setAttribute("aria-checked", x === b ? "true" : "false");
+    });
+    var mind = b.dataset.val;
+    $("alpos-charm").value = CHARM_PREFIX[mind] + "00" + (400 + Math.floor(Math.random() * 99));
+    validateSerials(false);
+  });
+  ["alpos-pouch", "alpos-charm"].forEach(function (id) {
+    $(id).addEventListener("input", function () { validateSerials(false); });
+  });
+  $("alpos-save").addEventListener("click", function () {
+    if (!alScanned) { toast("チケットの認証が完了していません"); return; }
+    var mind = radioValue("alpos-mind");
+    if (!mind) { toast("マインド診断を選択してください"); return; }
+    if (!validateSerials(true)) { toast("資材シリアルの読取内容を確認してください"); return; }
+    var m = MATERIALS.filter(function (x) { return x.id === mind; })[0];
+    var pouchM = MATERIALS[0];
+    m.used = Math.min(m.total, m.used + 1);
+    pouchM.used = Math.min(pouchM.total, pouchM.used + 1);
+    renderMaterials();
+    var b = AL_BOOKINGS[alSel];
+    b.st = "done";
+    renderAlBookings();
+    openModal("カルテ登録が完了しました", "サシェをお渡しし、接客を終了してください。",
+      '<div class="report-sheet"><h4>' + b.name + " 様 ／ 2026/10/12 " + b.t + "</h4><div class=\"rs-rule\"></div><dl>" +
+      "<dt>診断タイプ</dt><dd>" + document.querySelector('#alpos-mind .radio-opt[aria-checked="true"] strong').textContent + "</dd>" +
+      "<dt>使用資材</dt><dd>" + $("alpos-pouch").value + " ／ " + $("alpos-charm").value + "</dd>" +
+      "<dt>連動提案</dt><dd>" + $("alpos-cross").value + "</dd>" +
+      "<dt>付与された権利</dt><dd>2026/11/11「ムーミン谷のしずく」自動予約権</dd>" +
+      "<dt>パートナー還元</dt><dd>キャラクター選択ログを匿名集計へ反映</dd>" +
+      "</dl></div>", null, null);
+    renderMindOptions();
+    renderAlDetail();
+    toast("寄託在庫を1点消込し、30日後のリフィル予約権を付与しました");
+  });
+
+  /* ================= 2-D アライアンスROI＆相互インサイト ================= */
+  var SHARE = [
+    { label: "スナフキン", v: 48, color: "#2f4a63", note: "静寂・リセット" },
+    { label: "ムーミンママ", v: 32, color: "#6f88a6", note: "包容・安らぎ" },
+    { label: "リトルミイ", v: 20, color: "#adc0d1", note: "活力・前向き" }
+  ];
+  var ATTR = [
+    { label: "20代前半 女性", v: 9 },
+    { label: "20代後半 女性", v: 34 },
+    { label: "30代 女性", v: 38 },
+    { label: "40代以上 女性", v: 13 },
+    { label: "男性・その他", v: 6 }
+  ];
+  var VOICE = [
+    { label: "「ムーミンの世界観を大人の上質さで楽しめた」", v: 88 },
+    { label: "「調合を選ぶ体験そのものが記憶に残った」", v: 61 },
+    { label: "「持ち帰り資材をそのまま購入したい」", v: 31 },
+    { label: "「予約が取りづらかった」", v: 24 }
+  ];
+  var VS_CORE = [
+    { label: "30日以内 再来店率", core: 34.2, al: 41.0, unit: "%", max: 50 },
+    { label: "体験当日 客単価リフト", core: 2100, al: 7400, unit: "円", max: 8000 },
+    { label: "ブランド横断クロスユース率", core: 0, al: 46.2, unit: "%", max: 50 },
+    { label: "1体験あたり引当ポイント消化", core: 1500, al: 2341, unit: "pt", max: 2600 }
+  ];
+  var AL_CROSS = [
+    { label: "アトリエ体験者", v: 4820, note: "Cosme Kitchen 店頭" },
+    { label: "同施設のgelato piqueへ回遊", v: 3182, note: "当日中の入店（アプリ位置情報ベース）" },
+    { label: "gelato piqueで購入", v: 2227, note: "クロスユース率 46.2%" },
+    { label: "両ブランドの会員特典を利用", v: 1104, note: "MASH ID 共通ポイントを使用" }
+  ];
+
+  function renderAllianceDash() {
+    var bar = $("al-share-bar");
+    bar.innerHTML = "";
+    var lg = $("al-share-legend");
+    lg.innerHTML = "";
+    SHARE.forEach(function (s) {
+      var seg = el("div", "share-seg", s.v + "%");
+      seg.style.background = s.color;
+      seg.style.width = "0%";
+      seg.dataset.w = s.v;
+      bar.appendChild(seg);
+      lg.appendChild(el("span", "", '<i style="background:' + s.color + '"></i>' + s.label +
+        "（" + s.note + "）<b>" + s.v + "%</b>"));
+    });
+
+    var ab = $("al-attr-bars");
+    ab.innerHTML = "";
+    ATTR.forEach(function (a) {
+      ab.appendChild(el("div", "", '<div class="bar-item-head"><strong>' + a.label + '</strong><span class="num">' +
+        a.v + '%</span></div><div class="meter"><i style="width:' + (a.v / 40 * 100) + '%"></i></div>'));
+    });
+
+    var vb = $("al-voice-bars");
+    vb.innerHTML = "";
+    VOICE.forEach(function (v) {
+      vb.appendChild(el("div", "", '<div class="bar-item-head"><strong>' + v.label + '</strong><span class="num">' +
+        v.v + '%</span></div><div class="meter"><i style="width:' + v.v + '%"></i></div>'));
+    });
+
+    var vs = $("al-vs-core");
+    vs.innerHTML = "";
+    VS_CORE.forEach(function (r) {
+      var fmt = function (n) { return r.unit === "円" ? "+" + yen(n) : num(n) + r.unit; };
+      vs.appendChild(el("div", "", '' +
+        '<div class="bar-item-head"><strong>' + r.label + '</strong><span class="num" style="color:var(--ok)">' +
+        (r.core === 0 ? "—" : fmt(r.core)) + " → " + fmt(r.al) + "</span></div>" +
+        '<div class="meter" style="margin-bottom:5px"><i class="" style="width:' + (r.core / r.max * 100) + '%;background:rgba(27,25,23,.2)"></i></div>' +
+        '<div class="meter"><i style="width:' + (r.al / r.max * 100) + '%"></i></div>' +
+        '<div style="display:flex;justify-content:space-between;margin-top:5px;font-size:10px;color:var(--ink-faint)">' +
+        "<span>自社完結型（画面1-C）</span><span>共創型（本企画）</span></div>"));
+    });
+
+    var maxC = AL_CROSS[0].v;
+    var cf = $("al-cross-funnel");
+    cf.innerHTML = "";
+    AL_CROSS.forEach(function (s, i) {
+      var w = Math.round((s.v / maxC) * 100);
+      cf.appendChild(el("div", "funnel-step",
+        '<div class="funnel-bar num" style="width:0" data-w="' + w + '">' + num(s.v) + "名</div>" +
+        '<div class="funnel-meta"><b>' + s.label + "</b>" + s.note +
+        (i === 0 ? "" : '<span class="funnel-drop">前段比 ' + pct(s.v, AL_CROSS[i - 1].v) + "%</span>") + "</div>"));
+    });
+  }
+
+  function animateAllianceDash() {
+    setTimeout(function () {
+      document.querySelectorAll("#al-share-bar .share-seg").forEach(function (s) { s.style.width = s.dataset.w + "%"; });
+      document.querySelectorAll("#al-cross-funnel .funnel-bar").forEach(function (b) { b.style.width = b.dataset.w + "%"; });
+    }, 60);
+  }
+
+  function applyMask() {
+    var on = switchOn("mask-switch");
+    $("internal-panel").classList.toggle("is-locked", on);
+    $("mask-state-text").textContent = on ? "個人情報マスキング済 ／ 社内限定指標を非表示" : "社内閲覧モード ／ 全指標を表示中";
+    $("mask-note").textContent = on ? "※個人情報マスキング済" : "※社内閲覧モード（マスキング解除中）";
+    $("internal-note").innerHTML = on ? '<span class="badge badge-dark">社外非公開</span>' : "社内限定指標";
+    $("attr-note").textContent = on ? "年代 × 性別（個人が特定されない粒度に丸め込み）" : "年代 × 性別（社内閲覧モードでは推計値も表示）";
+    $("report-mode-label").textContent = on ? "パートナー提出モード ON" : "社内閲覧モード";
+    document.querySelectorAll(".maskable").forEach(function (n) { n.classList.toggle("masked-value", on); });
+  }
+
+  bindSwitch("mask-switch", function () {
+    applyMask();
+    toast(switchOn("mask-switch") ? "パートナー提出モード：社内指標を非表示にしました" : "社内閲覧モード：全指標を表示します");
+  });
+
+  $("al-report-btn").addEventListener("click", function () {
+    var on = switchOn("mask-switch");
+    var btn = $("al-report-btn");
+    btn.disabled = true;
+    btn.innerHTML = "レポートを生成中…";
+    setTimeout(function () {
+      btn.disabled = false;
+      btn.innerHTML = ICON.dl + "<span>エグゼクティブレポート（PDF）を出力</span>";
+      openModal("エグゼクティブレポートを生成しました",
+        on ? "パートナー提出モードのため、グループ内の売上・買い回り指標は除外されています。" : "社内閲覧モードのため、全指標を含む完全版です。",
+        '<div class="report-sheet"><h4>MASH × MOOMIN Alliance Report</h4>' +
+        "<div>会期 2026/10/01 – 11/30 ／ ムーミン谷のボタニカル・アトリエ</div><div class=\"rs-rule\"></div><dl>" +
+        "<dt>体験者数</dt><dd>4,820名（消化率 96.4%）</dd>" +
+        "<dt>キャラ選択</dt><dd>スナフキン48% ／ ムーミンママ32% ／ リトルミイ20%</dd>" +
+        "<dt>体験後NPS</dt><dd>+74pt</dd>" +
+        "<dt>ロイヤリティ</dt><dd>¥2,410,000（MG ¥3,000,000 適用）</dd>" +
+        (on ? "" : "<dt>クロスユース率</dt><dd>46.2%</dd><dt>客単価リフト</dt><dd>+¥7,400</dd><dt>リフィル再来店率</dt><dd>41.0%</dd>") +
+        "</dl><div class=\"rs-rule\"></div><div>" +
+        (on ? "収録 6ページ ／ 個人が特定される情報は含まれません（k匿名化 k≧50）"
+            : "収録 11ページ ／ <b>社外提出不可</b>：グループ内売上指標を含みます") +
+        "</div></div>", null, null);
+      toast("PDFを書き出しました（デモ）");
+    }, 900);
+  });
+
+  /* ================= init ================= */
+  renderCoreDash();
+  coreBuilderSync();
+  coreBuilderValidate(false);
+  renderPosBookings();
+  renderPosDetail();
+  renderHerbs();
+  renderAlAssets();
+  alStudioSync();
+  renderMaterials();
+  renderSlots();
+  renderAlBookings();
+  renderAlDetail();
+  renderMindOptions();
+  renderAllianceDash();
+  applyMask();
+  renderNav();
+  go("core-dash");
+})();
+</script>
