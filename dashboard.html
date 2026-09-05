@@ -173,6 +173,15 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
 .legend i{font-style:normal; display:inline-flex; align-items:center; gap:6px}
 .legend .sq{width:10px; height:10px; border-radius:2px; flex:none}
 
+/* ---------- 残高カード ---------- */
+.bal{display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; margin-bottom:2px}
+.bal .n{font-family:var(--din); font-size:44px; font-weight:600; line-height:1.1; font-variant-numeric:tabular-nums; letter-spacing:-.015em}
+.bal .n small{font-size:15px; font-weight:500; margin-left:2px}
+.bal .y{font-family:var(--din); font-size:17px; font-weight:600; color:var(--ink-mute); font-variant-numeric:tabular-nums}
+.balrow{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:12px; padding-top:12px; border-top:1px solid var(--line)}
+.balrow .l{font-size:10.5px; color:var(--ink-mute); line-height:1.5}
+.balrow .v{font-family:var(--din); font-size:20px; font-weight:600; font-variant-numeric:tabular-nums; line-height:1.3}
+
 /* ---------- サマリー：コックピット ---------- */
 .hero{background:var(--main); color:var(--on-fill); border-radius:10px; padding:22px 28px 24px;
   display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:30px; align-items:center; margin-bottom:12px}
@@ -371,8 +380,19 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
         <div class="hero" id="hero"></div>
         <div class="vitals" id="vitals"></div>
 
-        <div class="sec-h"><h2>ポイントの流れ</h2><p>今月付与したポイントが、どれだけ使われ、失効し、残高として積み上がったか</p></div>
-        <div class="card"><svg class="c" id="cFlow" viewBox="0 0 1240 250" role="img" aria-label="ポイントの付与・利用・失効の流れ"></svg></div>
+        <div class="sec-h"><h2>未利用ポイント残高の増減</h2>
+          <p>今月の付与・利用・失効が、負債である残高をどう動かしたか</p></div>
+        <div class="chart-grid">
+          <div class="card"><div class="card-h"><h3>今月のポイント収支</h3><span>百万pt（1pt＝1円）</span></div>
+            <svg class="c" id="cWaterfall" viewBox="0 0 560 300" role="img" aria-label="今月のポイント収支"></svg>
+          </div>
+          <div class="card"><div class="card-h"><h3>未利用ポイント残高の推移</h3><span>直近12ヶ月</span></div>
+            <div id="balHead"></div>
+            <svg class="c" id="cBalance" viewBox="0 0 560 190" role="img" aria-label="未利用ポイント残高の推移"></svg>
+            <div id="balFoot"></div>
+          </div>
+        </div>
+        <div class="note" id="balNote"></div>
 
         <div class="sec-h"><h2>ポイント経済</h2><p>付与・利用・失効の推移と、会員のランク構成</p></div>
         <div class="chart-grid">
@@ -1464,50 +1484,142 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
       vital({ lab: "未利用ポイント残高（負債）", val: yenV(PT.balance * 1000000), unit: yenU(PT.balance * 1000000),
         delta: "+2.8%", dir: "down", sub: fmt(PT.balance) + "百万pt（1pt＝1円）",
         tgt: "増加を抑制したい", tgtState: "ng",
-        spark: spark([1610,1642,1679,1712,1748,1781,1772,1794,1806,1819,1831,1842], 200, 34, "#959595", .14) })
+        spark: spark(PT.series, 200, 34, "#959595", .14) })
     ].join("");
 
-    /* ---------- ポイントの流れ（付与 → 利用／失効／残高） ---------- */
+    /* ---------- 今月のポイント収支（ウォーターフォール） ----------
+       付与・利用・失効は同じ月の実績だが、失効するのは2年前に付与されたポイントであり
+       「今月付与の内訳」ではない。したがって分解するのは残高（負債）の増減である。 */
     (function () {
-      var s = clear("cFlow"), W = 1240, SX = 116, SW = 30, TX = 806, TW = 30;
-      var acc = PT.accrued[11], use = PT.redeemed[11], exp = PT.expired[11], keep = acc - use - exp;
-      var H = 168, sy0 = 40, top = 26, gap = 22;
-      var segs = [
-        { lab: "ポイント利用", v: use,  c: "#018838", note: "交換・リワードへ" },
-        { lab: "失効",         v: exp,  c: "#959595", note: "有効期限切れ" },
-        { lab: "残高へ積み増し", v: keep, c: "#9BD4B5", note: "未利用ポイント残高が増える" }
-      ];
-      var totalTH = H + gap * (segs.length - 1);
-      // 付与の帯
-      s.appendChild(el("rect", { x: SX, y: sy0, width: SW, height: H, rx: 3, fill: "#115A36" }));
-      s.appendChild(el("text", { x: SX, y: sy0 - 26, "font-size": 11.5, "font-weight": 700,
-        fill: "#1A1A1C" }, "今月のポイント付与"));
-      s.appendChild(el("text", { x: SX, y: sy0 - 8, class: "num",
-        "font-size": 17, "font-weight": 600, fill: "#115A36" }, acc.toFixed(1) + "百万pt"));
-      var sy = sy0, ty = top;
-      segs.forEach(function (g) {
-        var sh = g.v / acc * H, th = g.v / acc * H;
-        var x1 = SX + SW, x2 = TX, mid = (x1 + x2) / 2;
-        s.appendChild(el("path", {
-          d: "M" + x1 + "," + sy + " C" + mid + "," + sy + " " + mid + "," + ty + " " + x2 + "," + ty +
-             " L" + x2 + "," + (ty + th) + " C" + mid + "," + (ty + th) + " " + mid + "," + (sy + sh) +
-             " " + x1 + "," + (sy + sh) + " Z",
-          fill: g.c, "fill-opacity": .5 }));
-        s.appendChild(el("rect", { x: TX, y: ty, width: TW, height: th, rx: 3, fill: g.c }));
-        s.appendChild(el("text", { x: TX + TW + 14, y: ty + th / 2 - 6, "font-size": 11.5,
-          "font-weight": 700, fill: "#1A1A1C" }, g.lab));
-        s.appendChild(el("text", { x: TX + TW + 14, y: ty + th / 2 + 11, class: "num",
-          "font-size": 15, "font-weight": 600, fill: g.c === "#9BD4B5" ? "#115A36" : g.c },
-          g.v.toFixed(1) + "百万pt　" + (g.v / acc * 100).toFixed(1) + "%"));
-        s.appendChild(el("text", { x: TX + TW + 14, y: ty + th / 2 + 25, "font-size": 10,
-          fill: "#767676" }, g.note));
-        sy += sh; ty += th + gap;
+      var acc = PT.accrued[11], use = PT.redeemed[11], exp = PT.expired[11], net = PT.net[11];
+      var s = clear("cWaterfall"), W = 560, X0 = 58, X1 = W - 18, Y0 = 34, Y1 = 232;
+      var mx = 90, k = (Y1 - Y0) / mx;
+      var step = (X1 - X0) / 4, bw = Math.min(72, step * 0.56);
+      [0, .5, 1].forEach(function (t) {
+        var y = Y1 - t * (Y1 - Y0);
+        s.appendChild(el("line", { x1: X0, y1: y, x2: X1, y2: y, stroke: t ? "#EFF2F0" : "#D9D9D9" }));
+        s.appendChild(el("text", { x: X0 - 8, y: y + 3.5, "text-anchor": "end", class: "num",
+          "font-size": 9.5, fill: "#767676" }, (mx * t).toFixed(0)));
       });
-      s.setAttribute("viewBox", "0 0 " + W + " " + Math.max(250, ty + 4));
-      s.appendChild(el("text", { x: SX, y: ty - 12, "font-size": 10.5, fill: "#767676" },
-        "1pt＝1円。未利用ポイント残高の累計は " + fmt(PT.balance) + "百万pt（" +
-        yen(PT.balance * 1000000) + "）で、これが会計上の引当対象になる。"));
+      var bars = [
+        { lab: "ポイント付与",  v:  acc, from: 0,           c: "#018838", note: "会員に配った分" },
+        { lab: "ポイント利用",  v: -use, from: acc,         c: "#51B883", note: "交換・リワードで使われた分" },
+        { lab: "失効",          v: -exp, from: acc - use,   c: "#959595", note: "有効期限切れで消えた分" },
+        { lab: "今月の純増",    v:  net, from: 0,           c: "#115A36", total: true, note: "残高に積み上がる分" }
+      ];
+      var prevTopX = null, prevTopY = null;
+      bars.forEach(function (g, i) {
+        var x = X0 + i * step + (step - bw) / 2;
+        var hi = Math.max(g.from, g.from + g.v), lo = Math.min(g.from, g.from + g.v);
+        var yTop = Y1 - hi * k, h = (hi - lo) * k;
+        s.appendChild(el("rect", { x: x, y: yTop, width: bw, height: Math.max(2, h), rx: 2, fill: g.c }));
+        // 値ラベル
+        var sign = g.v > 0 ? "+" : "−";
+        s.appendChild(el("text", { x: x + bw / 2, y: yTop - 8, "text-anchor": "middle", class: "num",
+          "font-size": 15, "font-weight": 700, fill: g.total ? "#115A36" : (g.v > 0 ? "#115A36" : "#4D4D4D") },
+          sign + Math.abs(g.v).toFixed(1)));
+        // 区分ラベル
+        s.appendChild(el("text", { x: x + bw / 2, y: Y1 + 18, "text-anchor": "middle",
+          "font-size": 11.5, "font-weight": g.total ? 700 : 500, fill: "#1A1A1C" }, g.lab));
+        s.appendChild(el("text", { x: x + bw / 2, y: Y1 + 33, "text-anchor": "middle",
+          "font-size": 9.5, fill: "#767676" }, g.note));
+        // 繋ぎ線
+        if (prevTopX !== null && !g.total) {
+          s.appendChild(el("line", { x1: prevTopX, y1: prevTopY, x2: x, y2: prevTopY,
+            stroke: "#B9C2BC", "stroke-dasharray": "3 3" }));
+        }
+        prevTopX = x + bw;
+        prevTopY = Y1 - (g.from + g.v) * k;
+      });
+      // 合計バーの手前に区切り
+      var sx = X0 + 3 * step - 4;
+      s.appendChild(el("line", { x1: sx, y1: Y0 - 12, x2: sx, y2: Y1 + 40, stroke: "#D9D9D9" }));
+      s.appendChild(el("text", { x: X0, y: Y0 - 16, "font-size": 10.5, fill: "#767676" },
+        "付与 − 利用 − 失効 ＝ 残高の増分"));
+      s.setAttribute("viewBox", "0 0 " + W + " " + (Y1 + 48));
     })();
+
+    /* ---------- 未利用ポイント残高の推移 ---------- */
+    (function () {
+      var bal = PT.series, last = bal[11], first = bal[0];
+      var months = last / PT.accrued[11];
+      document.getElementById("balHead").innerHTML =
+        '<div class="bal"><span class="n">' + fmt(Math.round(last)) + "<small>百万pt</small></span>" +
+        '<span class="y">' + yen(last * 1000000) + "</span></div>" +
+        '<div style="font-size:11px;color:var(--ink-mute)">' +
+        '<span class="delta down">+' + fmt(Math.round(last - first)) + "</span> 直近12ヶ月（+" +
+        ((last / first - 1) * 100).toFixed(1) + "%）</div>";
+
+      // 上段＝残高の推移、下段＝月次の純増。3月だけ失効で純増が落ちることを見せる。
+      var s = clear("cBalance"), W = 560, X0 = 54, X1 = W - 14;
+      var AY0 = 14, AY1 = 106;                       // 上段（残高）
+      var BY0 = 126, BY1 = 168;                      // 下段（純増）
+      var lo = 1400, hi = 1880, k = (AY1 - AY0) / (hi - lo);
+      [lo, (lo + hi) / 2, hi].forEach(function (v) {
+        var y = AY1 - (v - lo) * k;
+        s.appendChild(el("line", { x1: X0, y1: y, x2: X1, y2: y, stroke: "#EFF2F0" }));
+        s.appendChild(el("text", { x: X0 - 6, y: y + 3.5, "text-anchor": "end", class: "num",
+          "font-size": 9, fill: "#767676" }, fmt(v)));
+      });
+      var step = (X1 - X0) / 11;
+      var pts = bal.map(function (v, i) { return [X0 + i * step, AY1 - (v - lo) * k]; });
+      var d = "M" + pts.map(function (q) { return q[0].toFixed(1) + "," + q[1].toFixed(1); }).join(" L");
+      s.appendChild(el("path", { d: d + " L" + X1 + "," + AY1 + " L" + X0 + "," + AY1 + " Z",
+        fill: "#959595", "fill-opacity": .16 }));
+      s.appendChild(el("path", { d: d, fill: "none", stroke: "#4D4D4D", "stroke-width": 2.4,
+        "stroke-linejoin": "round" }));
+      s.appendChild(el("circle", { cx: pts[11][0], cy: pts[11][1], r: 4.5, fill: "#4D4D4D",
+        stroke: "#FFFFFF", "stroke-width": 1.5 }));
+      s.appendChild(el("text", { x: X0, y: AY0 - 2, "font-size": 10, fill: "#767676" }, "残高（百万pt）"));
+
+      // 下段：月次の純増
+      var mxN = 42, bw = step * 0.5;
+      s.appendChild(el("line", { x1: X0, y1: BY1, x2: X1, y2: BY1, stroke: "#D9D9D9" }));
+      s.appendChild(el("text", { x: X0, y: BY0 - 4, "font-size": 10, fill: "#767676" }, "月次の純増（百万pt）"));
+      PT.net.forEach(function (v, i) {
+        var h = Math.max(1.5, v / mxN * (BY1 - BY0));
+        var low = i === 6;
+        s.appendChild(el("rect", { x: X0 + i * step - bw / 2, y: BY1 - h, width: bw, height: h,
+          rx: 1.5, fill: low ? "#3460FB" : "#B9C2BC" }));
+        if (i === 6 || i === 11) {
+          s.appendChild(el("text", { x: X0 + i * step, y: BY1 - h - 5, "text-anchor": "middle",
+            class: "num", "font-size": 10, "font-weight": 700,
+            fill: low ? "#00118F" : "#4D4D4D" }, v.toFixed(1)));
+        }
+      });
+      halo(s, { x: X0 + 6 * step, y: BY0 - 4, "text-anchor": "middle", "font-size": 10,
+        "font-weight": 700, fill: "#00118F" }, "3月＝失効28.4で純増が落ちる");
+      M12.forEach(function (l, i) {
+        if (i % 3) return;
+        s.appendChild(el("text", { x: X0 + i * step, y: BY1 + 15, "text-anchor": "middle", class: "num",
+          "font-size": 9, fill: "#767676" }, l));
+      });
+      s.setAttribute("viewBox", "0 0 " + W + " " + (BY1 + 22));
+
+      document.getElementById("balFoot").innerHTML =
+        '<div class="balrow">' +
+        '<div><div class="l">付与 何ヶ月分が滞留しているか</div><div class="v">' + months.toFixed(1) +
+          '<span style="font-size:12px">ヶ月分</span></div></div>' +
+        '<div><div class="l">有効期限（最長）</div><div class="v">36<span style="font-size:12px">ヶ月</span></div></div>' +
+        '<div><div class="l">残高が横ばいになる利用率</div><div class="v">' +
+          ((PT.accrued[11] - PT.expired[11]) / PT.accrued[11] * 100).toFixed(0) +
+          '<span style="font-size:12px">%</span></div></div>' +
+        "</div>";
+    })();
+
+    document.getElementById("balNote").innerHTML =
+      "<b>ここで分解しているのは「今月付与したポイントの行き先」ではなく、残高（負債）の増減である。</b>" +
+      "今月失効した " + PT.expired[11].toFixed(1) + "百万ptは<b>2年前に付与された分</b>であり、" +
+      "今月の利用 " + PT.redeemed[11].toFixed(1) + "百万ptにも過去の付与分が含まれる。" +
+      "同じ月の付与を分岐させる図にすると会計上は成り立たないため、" +
+      "<b>付与 − 利用 − 失効 ＝ 残高の増分</b>という収支の形にしている。<br>" +
+      "<b>残高が横ばいになる利用率は 96%</b>で、現実的な水準ではない。" +
+      "つまり会員が増えているあいだ、残高（将来の支払義務）は構造的に積み上がり続ける。" +
+      "唯一これを圧縮するのが<b>年度末の失効</b>で、3月だけ純増が " + PT.net[6].toFixed(1) +
+      "百万ptまで落ちる。<br>" +
+      "現在の残高は付与 <b>" + (PT.balance / PT.accrued[11]).toFixed(1) + "ヶ月分</b>。" +
+      "有効期限が最長36ヶ月なので、失効を待たずに使ってもらう設計（要件定義 14.3 #14 の失効予告）が" +
+      "負債の圧縮と再来訪の両方に効く。";
 
     /* ---------- 会員 ／ 非会員の比較 ---------- */
     hGroupBars("cCompare", [
@@ -2098,6 +2210,15 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
     expired: [1.2,1.1,1.4,1.3,1.2,1.5,28.4,1.6,1.4,1.5,1.7,3.2],
     balance: 1842
   };
+  // 残高は当月末の実数から、付与・利用・失効を遡って復元する（フローと必ず一致させる）
+  PT.net = PT.accrued.map(function (v, i) { return v - PT.redeemed[i] - PT.expired[i]; });
+  PT.series = (function () {
+    var n = PT.accrued.length, out = new Array(n);
+    out[n - 1] = PT.balance;
+    for (var i = n - 1; i > 0; i--) out[i - 1] = +(out[i] - PT.net[i]).toFixed(1);
+    return out;
+  })();
+
   var TIERS = [
     { lab: "プラチナ", v: 46000,  c: "#115A36" },
     { lab: "ゴールド", v: 118000, c: "#018838" },
