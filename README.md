@@ -33,7 +33,11 @@
   - スコアの配点は **77ポイントサービス「ななポ」の実配点**（預金残高 10〜2,000pt／ローン残高 10〜80pt／給与・年金受取 各20pt／キャッシュレス決済 10〜80pt／公共料金 各5pt）を出発点に設計している。人数・収益換算レートはダミー値。
   - デザインは **東京都デジタルサービス局「ダッシュボード作成ガイドブック」**のカラーパレット・フォントサイズ・配置ルール（左上→右下、注目指標は背景色で強調）に準拠。チャートは外部ライブラリ不使用のインラインSVG。
 
-## 公開(Vercel)
+## 公開・共有(Vercel)
+
+**共有URLの正はここ。** プロトタイプを複数人・複数端末で確認するときは Vercel のURLを配る。
+Claude Artifact への再公開は運用から外した（更新のたびに公開済み全文の読み直しが必要になり、
+1回の更新にかかるコストが大きいため）。
 
 静的サイトなのでビルド設定は不要。Vercel のダッシュボードでこのリポジトリを Import すれば、
 Framework Preset は "Other"、Build Command 空欄、Output Directory はリポジトリ直下のままデプロイできる。
@@ -79,9 +83,10 @@ build.py      thin wrapperを単一HTMLファイルに束ねるビルドスク�
 
 **共通ロジックを直したいとき**は `assets/core.css` / `assets/core.js` を1回編集すれば、3ビルドすべてに反映される(ブラウザは `<link>` / `<script src>` で毎回最新のファイルを読み込むため、GitHub Pages 上では commit → push するだけでよい)。フル版だけの見た目・挙動(モード切替やガチャなど)を直したいときは `assets/theme-switch.*` を編集する。各ページ固有のHTML構成(下部ナビ vs ハブナビなど)は各 `.html` ファイル自体を編集する。
 
-### Claude Artifact 用に単一ファイルへ束ねる
+### 単一ファイルへ束ねる
 
-Claude Artifact は1ファイルしか受け付けないため、上記の分割ファイルをその場で1ファイルに結合するスクリプトを用意している。
+`assets/` を相対参照できない配布先（1ファイルしか置けない場所、メール添付、
+Claude Artifact など）向けに、分割ファイルをその場で1ファイルに結合するスクリプトを用意している。
 
 ```bash
 python3 build.py index.html          # index.standalone.html を生成
@@ -90,9 +95,13 @@ python3 build.py hub.html
 python3 build.py --all /path/to/dir  # 3つまとめて生成
 ```
 
-`assets/core.*` や `assets/theme-switch.*` を更新したら、Artifactとして配布している版を最新化するために `build.py` を実行し、生成された `*.standalone.html` をArtifactとして再公開する。
+Vercel は `assets/` をそのまま配信するので、**通常の更新でこのスクリプトを実行する必要はない**
+（commit → push すれば反映される）。単一ファイルが要る場面に限って使う。
+`dashboard.html` と `admin.html` は元から単一ファイルなので対象外。
 
-## デモ公開(GitHub Pages)
+## デモ公開(GitHub Pages・従来手段)
+
+Vercel を使わない場合の代替。`main` を配信するため、レビュー中のブランチは見えない。
 
 このリポジトリを GitHub にプッシュし、Pages を有効化すると `https://<ユーザー名>.github.io/<リポジトリ名>/` で複数人にURLを配布してデモできる(サブパスの `/lite.html` `/hub.html` も同様)。
 

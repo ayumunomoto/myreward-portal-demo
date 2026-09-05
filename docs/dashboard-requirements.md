@@ -515,8 +515,8 @@ ROI ＝ 増分収益 ÷（ポイント原資 ＋ 運用費）
   （`admin.html` の QR 生成・グラフ描画と同じ流儀）
 - 消費者向けアプリ（`core.js`）とはコードを共有しない**独立したプロトタイプ**
   （`admin.html` と同じ扱い）
-- ファイル：`dashboard.html`（単一ファイル）を想定。Claude Artifact／GitHub Pages の
-  両方でそのまま配布できる
+- ファイル：`dashboard.html`（単一ファイル）を想定。Vercel／GitHub Pages に
+  そのまま置ける（共有URLの正は Vercel）
 - 推奨アクションは、既存 CMS の実在するレバー（**チャレンジ / プッシュ通知 / アンケート /
   リワード / QR**）に対応付ける
 
