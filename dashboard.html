@@ -265,10 +265,32 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
         <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/></svg>
         クラスター詳細
       </button>
-      <div class="nav-lab">効果</div>
+      <div class="nav-lab">プログラム分析</div>
+      <button type="button" class="nav-btn" data-v="acq">
+        <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6"/><path d="M22 11h-6"/></svg>
+        会員獲得
+      </button>
+      <button type="button" class="nav-btn" data-v="eng">
+        <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg>
+        エンゲージメント
+      </button>
+      <button type="button" class="nav-btn" data-v="prt">
+        <svg viewBox="0 0 24 24"><path d="M20 12v9H4v-9"/><rect x="2" y="7" width="20" height="5" rx="1"/><path d="M12 21V7"/><path d="M12 7 8.5 3.5a2.1 2.1 0 1 0-3 3L9 10"/><path d="M12 7l3.5-3.5a2.1 2.1 0 1 1 3 3L15 10"/></svg>
+        交換・パートナー
+      </button>
+      <button type="button" class="nav-btn" data-v="sat">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>
+        満足度（NPS / CSAT）
+      </button>
+
+      <div class="nav-lab">効果・監視</div>
       <button type="button" class="nav-btn" data-v="camp">
         <svg viewBox="0 0 24 24"><path d="M3 4h18l-7 8v7l-4 2v-9Z"/></svg>
         施策効果
+      </button>
+      <button type="button" class="nav-btn" data-v="fraud">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+        不正検知
       </button>
     </nav>
     <div class="side-foot">
@@ -305,6 +327,20 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
       <!-- ============ サマリー ============ -->
       <section class="view" id="v-sum">
         <div class="kpis" id="sumKpis"></div>
+
+        <div class="sec-h"><h2>ポイント経済</h2><p>獲得・償還・失効と、その差引で積み上がる未使用ポイント残高（会計上の負債）</p></div>
+        <div class="kpis" id="ptKpis"></div>
+        <div class="chart-grid" style="margin-top:12px">
+          <div class="card"><div class="card-h"><h3>ポイントの獲得・償還・失効の推移</h3><span>直近12ヶ月・百万pt（＝百万円）</span></div>
+            <svg class="c" id="cPoints" viewBox="0 0 440 260" role="img" aria-label="ポイントの獲得・償還・失効の推移"></svg>
+            <div class="legend"><i><span class="sq" style="background:var(--g1)"></span>獲得</i><i><span class="sq" style="background:var(--g3)"></span>償還</i><i><span class="sq" style="background:var(--n3)"></span>失効</i><i><span class="sq" style="background:var(--g2)"></span>償還率</i></div>
+          </div>
+          <div class="card"><div class="card-h"><h3>ランク分布</h3><span>ななポ会員のステージ</span></div>
+            <svg class="c" id="cTier" viewBox="0 0 440 250" role="img" aria-label="ランク分布"></svg>
+            <div class="card-h" style="margin:14px 0 8px"><h3 style="font-size:12.5px">会員区分</h3><span>個人顧客 全体</span></div>
+            <svg class="c" id="cSeg" viewBox="0 0 440 96" role="img" aria-label="会員区分"></svg>
+          </div>
+        </div>
 
         <div class="sec-h"><h2>会員 ／ 非会員の金融取引比較</h2><p>傾向スコアマッチングで年代・預金残高帯・取引年数を揃えた対照群との比較（Lv3）</p></div>
         <div class="chart-grid">
@@ -422,9 +458,93 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
         </div>
       </section>
 
+      <!-- ============ 会員獲得 ============ -->
+      <section class="view" id="v-acq" hidden>
+        <div class="kpis" id="acqKpis"></div>
+        <div class="chart-grid" style="margin-top:12px">
+          <div class="card"><div class="card-h"><h3>獲得チャネル別の新規会員</h3><span>当月・構成比</span></div>
+            <svg class="c" id="cChan" viewBox="0 0 440 250" role="img" aria-label="獲得チャネル別の新規会員"></svg></div>
+          <div class="card"><div class="card-h"><h3>紹介経由の割合</h3><span>当月の新規会員</span></div>
+            <svg class="c" id="cRef" viewBox="0 0 440 250" role="img" aria-label="紹介経由の割合"></svg></div>
+        </div>
+        <div class="chart-grid" style="margin-top:12px">
+          <div class="card"><div class="card-h"><h3>新規会員数と紹介経由の推移</h3><span>直近12ヶ月</span></div>
+            <svg class="c" id="cNew" viewBox="0 0 440 250" role="img" aria-label="新規会員数と紹介経由の推移"></svg>
+            <div class="legend"><i><span class="sq" style="background:var(--gbg)"></span>新規会員（人）</i><i><span class="sq" style="background:var(--g2)"></span>紹介経由（人）</i></div></div>
+          <div class="card"><div class="card-h"><h3>会員数と金融取引実施者の推移</h3><span>直近12ヶ月・万人</span></div>
+            <svg class="c" id="cMemTx" viewBox="0 0 440 250" role="img" aria-label="会員数と取引実施者の推移"></svg>
+            <div class="legend"><i><span class="sq" style="background:var(--gbg)"></span>会員数</i><i><span class="sq" style="background:var(--g2)"></span>1件以上の金融取引あり</i></div></div>
+        </div>
+        <div class="sec-h"><h2>獲得チャネル別のパフォーマンス</h2><p>獲得後の定着まで見て、チャネルの良し悪しを判断する</p></div>
+        <div class="tw"><table id="chanTable">
+          <thead><tr><th>獲得チャネル</th><th class="n">新規会員</th><th class="n">構成比</th><th class="n">90日後 定着率</th><th class="n">初回取引到達</th><th class="n">CPA</th><th class="n">平均ななポ</th></tr></thead>
+          <tbody></tbody></table></div>
+        <div class="note" id="acqNote"></div>
+      </section>
+
+      <!-- ============ エンゲージメント ============ -->
+      <section class="view" id="v-eng" hidden>
+        <div class="kpis" id="engKpis"></div>
+        <div class="chart-grid" style="margin-top:12px">
+          <div class="card"><div class="card-h"><h3>失効ポイントと失効者数</h3><span>月次・年度末（3月）に集中</span></div>
+            <svg class="c" id="cExp" viewBox="0 0 440 260" role="img" aria-label="失効ポイントと失効者数の推移"></svg>
+            <div class="legend"><i><span class="sq" style="background:var(--n3)"></span>失効ポイント（百万pt）</i><i><span class="sq" style="background:var(--r1)"></span>失効した会員数（人）</i></div></div>
+          <div class="card"><div class="card-h"><h3>最終取引からの経過日数</h3><span>会員の分布</span></div>
+            <svg class="c" id="cRecency" viewBox="0 0 440 260" role="img" aria-label="最終取引からの経過日数の分布"></svg></div>
+        </div>
+        <div class="chart-grid" style="margin-top:12px">
+          <div class="card"><div class="card-h"><h3>在籍期間別のエンゲージメント</h3><span>会員登録からの経過</span></div>
+            <svg class="c" id="cTenure" viewBox="0 0 440 260" role="img" aria-label="在籍期間別のエンゲージメント"></svg>
+            <div class="legend"><i><span class="sq" style="background:var(--g1)"></span>MAU率</i><i><span class="sq" style="background:var(--r1)"></span>ポイント償還率</i></div></div>
+          <div class="card"><div class="card-h"><h3>休眠会員の推移</h3><span>90日以上 未起動</span></div>
+            <svg class="c" id="cInactive" viewBox="0 0 440 260" role="img" aria-label="休眠会員の推移"></svg>
+            <div class="legend"><i><span class="sq" style="background:var(--nbg)"></span>休眠会員数（万人）</i><i><span class="sq" style="background:var(--r1)"></span>休眠率</i></div></div>
+        </div>
+        <div class="note" id="engNote"></div>
+      </section>
+
+      <!-- ============ 交換・パートナー ============ -->
+      <section class="view" id="v-prt" hidden>
+        <div class="kpis" id="prtKpis"></div>
+        <div class="chart-grid" style="margin-top:12px">
+          <div class="card"><div class="card-h"><h3>交換先別のポイント償還</h3><span>当月・百万pt</span></div>
+            <svg class="c" id="cPartner" viewBox="0 0 440 250" role="img" aria-label="交換先別のポイント償還"></svg></div>
+          <div class="card"><div class="card-h"><h3>交換先別の交換単価と交換者数</h3><span>1回あたり平均</span></div>
+            <svg class="c" id="cPartner2" viewBox="0 0 440 250" role="img" aria-label="交換先別の交換単価"></svg></div>
+        </div>
+        <div class="sec-h"><h2>交換先・リワード別の実績</h2><p>どの交換先が償還を進めるか。償還は未使用ポイント負債を減らし、再来の起点にもなる</p></div>
+        <div class="tw"><table id="prtTable">
+          <thead><tr><th>交換先・リワード</th><th>種別</th><th class="n">交換件数</th><th class="n">償還pt</th><th class="n">構成比</th><th class="n">交換単価</th><th class="n">交換後30日の再取引率</th></tr></thead>
+          <tbody></tbody></table></div>
+        <div class="note" id="prtNote"></div>
+      </section>
+
+      <!-- ============ 満足度 ============ -->
+      <section class="view" id="v-sat" hidden>
+        <div class="kpis" id="satKpis"></div>
+        <div class="chart-grid" style="margin-top:12px">
+          <div class="card"><div class="card-h"><h3>NPS の内訳</h3><span>回答 n=4,820</span></div>
+            <svg class="c" id="cNps" viewBox="0 0 440 250" role="img" aria-label="NPSの内訳"></svg></div>
+          <div class="card"><div class="card-h"><h3>NPS の推移</h3><span>直近12ヶ月</span></div>
+            <svg class="c" id="cNpsTrend" viewBox="0 0 440 250" role="img" aria-label="NPSの推移"></svg></div>
+        </div>
+        <div class="chart-grid" style="margin-top:12px">
+          <div class="card"><div class="card-h"><h3>CSAT の推移</h3><span>「ななポにどの程度満足していますか」5段階</span></div>
+            <svg class="c" id="cCsat" viewBox="0 0 440 250" role="img" aria-label="CSATの推移"></svg></div>
+          <div class="card"><div class="card-h"><h3>クラスター別の NPS</h3><span>推奨意向は接点スコアと相関するか</span></div>
+            <svg class="c" id="cNpsCl" viewBox="0 0 440 250" role="img" aria-label="クラスター別のNPS"></svg></div>
+        </div>
+        <div class="note" id="satNote"></div>
+      </section>
+
       <!-- ============ 施策効果 ============ -->
       <section class="view" id="v-camp" hidden>
-        <div class="sec-h"><h2>施策効果</h2><p>配信 → 反応 → 金融アクション到達までのファネルと、施策別の費用対効果</p></div>
+        <div class="kpis" id="promoKpis"></div>
+        <div class="sec-h"><h2>施策の収益貢献</h2><p>施策がなかった場合の予測収益との差分が、施策によって生まれた収益</p></div>
+        <div class="card"><svg class="c" id="cPromo" viewBox="0 0 900 320" role="img" aria-label="施策実施時と非実施時の予測収益"></svg>
+          <div class="legend"><i><span class="sq" style="background:var(--g1)"></span>実績収益</i><i><span class="sq" style="background:var(--n3)"></span>施策がなかった場合の予測収益</i><i><span class="sq" style="background:var(--gbg)"></span>施策起因の増分収益</i></div>
+        </div>
+        <div class="sec-h"><h2>配信 → 金融アクションのファネル</h2><p>配信 → 反応 → 金融アクション到達までのファネルと、施策別の費用対効果</p></div>
         <div class="chart-grid">
           <div class="card"><div class="card-h"><h3>施策ファネル</h3><span>2026年8月・全施策合計</span></div>
             <svg class="c" id="cFunnel" viewBox="0 0 440 260" role="img" aria-label="施策ファネル"></svg></div>
@@ -438,6 +558,41 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
           <thead><tr><th>施策</th><th>種別</th><th class="n">配信</th><th class="n">反応率</th><th class="n">到達</th><th class="n">リフト</th><th class="n">原資</th><th class="n">CPA</th><th class="n">ROI</th></tr></thead>
           <tbody></tbody>
         </table></div>
+        <div class="chart-grid" style="margin-top:12px">
+          <div class="card"><div class="card-h"><h3>増分収益の大きい施策</h3><span>年換算</span></div>
+            <svg class="c" id="cTopPromo" viewBox="0 0 440 250" role="img" aria-label="増分収益の大きい施策"></svg></div>
+          <div class="card"><div class="card-h"><h3>施策の実施期間</h3><span>日数</span></div>
+            <svg class="c" id="cPromoDays" viewBox="0 0 440 250" role="img" aria-label="施策の実施期間"></svg></div>
+        </div>
+        <div class="note" id="campNote"></div>
+      </section>
+
+      <!-- ============ 不正検知 ============ -->
+      <section class="view" id="v-fraud" hidden>
+        <div class="kpis" id="fraudKpis"></div>
+        <div class="card" style="margin-top:12px">
+          <div class="card-h"><h3>検知しきい値</h3><span>該当した会員だけを下に抽出します</span></div>
+          <div class="filters" style="gap:10px">
+            <div class="fset"><label for="thTx">月間取引件数が</label>
+              <select id="thTx"><option value="30">30件以上</option><option value="50" selected>50件以上</option><option value="100">100件以上</option></select></div>
+            <div class="fset"><label for="thPt">月間獲得ptが</label>
+              <select id="thPt"><option value="500">500pt以上</option><option value="1000" selected>1,000pt以上</option><option value="2000">2,000pt以上</option></select></div>
+            <div class="fset"><label for="thKind">種別</label>
+              <select id="thKind"><option>すべて</option><option>QRチェックイン</option><option>キャッシュレス決済</option><option>ポイント交換</option></select></div>
+          </div>
+        </div>
+        <div class="chart-grid" style="margin-top:12px">
+          <div class="card"><div class="card-h"><h3>該当会員ランキング</h3><span>月間取引件数</span></div>
+            <svg class="c" id="cLeader" viewBox="0 0 440 340" role="img" aria-label="該当会員の取引件数ランキング"></svg></div>
+          <div class="card"><div class="card-h"><h3>獲得 ／ 償還の散布図</h3><span>横＝獲得pt、縦＝償還pt、面積＝取引件数</span></div>
+            <svg class="c" id="cScatter" viewBox="0 0 440 340" role="img" aria-label="ポイント獲得と償還の散布図"></svg>
+            <div class="legend"><i><span class="sq" style="background:var(--r1)"></span>要確認（獲得に対して償還が過大）</i><i><span class="sq" style="background:var(--g3)"></span>正常範囲</i></div></div>
+        </div>
+        <div class="sec-h"><h2>該当トランザクション明細</h2><p>しきい値に該当した会員の取引。個人特定を避けるため会員IDのみを表示します</p></div>
+        <div class="tw"><table id="fraudTable">
+          <thead><tr><th>取引ID</th><th>日時</th><th>会員ID</th><th>種別</th><th class="n">取引額</th><th class="n">獲得pt</th><th class="n">償還pt</th><th>取引店・加盟店</th><th>判定</th></tr></thead>
+          <tbody></tbody></table></div>
+        <div class="note" id="fraudNote"></div>
       </section>
 
       <div class="foot" id="foot"></div>
@@ -1600,6 +1755,609 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
   }
 
   /* ============================================================
+     追加チャート（ドーナツ／折れ線／100%積み上げ／散布図）
+     ============================================================ */
+  var PAL = ["#115A36", "#018838", "#51B883", "#9BD4B5", "#959595", "#D9D9D9"];
+
+  function donut(id, segs, centerVal, centerLab) {
+    var s = clear(id), W = 440, cx = 122, cy = 112, R = 82, r0 = 52;
+    var tot = segs.reduce(function (a, b) { return a + b.v; }, 0) || 1, ang = -Math.PI / 2;
+    segs.forEach(function (g, i) {
+      var a2 = ang + g.v / tot * Math.PI * 2, big = (a2 - ang) > Math.PI ? 1 : 0;
+      var c = g.c || PAL[i % PAL.length];
+      var p1 = [cx + R * Math.cos(ang), cy + R * Math.sin(ang)];
+      var p2 = [cx + R * Math.cos(a2), cy + R * Math.sin(a2)];
+      var q1 = [cx + r0 * Math.cos(a2), cy + r0 * Math.sin(a2)];
+      var q2 = [cx + r0 * Math.cos(ang), cy + r0 * Math.sin(ang)];
+      s.appendChild(el("path", { d: "M" + p1 + " A" + R + "," + R + " 0 " + big + " 1 " + p2 +
+        " L" + q1 + " A" + r0 + "," + r0 + " 0 " + big + " 0 " + q2 + " Z",
+        fill: c, stroke: "#FFFFFF", "stroke-width": 2 }));
+      ang = a2;
+    });
+    s.appendChild(el("text", { x: cx, y: cy - 2, "text-anchor": "middle", class: "num",
+      "font-size": 24, "font-weight": 600, fill: "#1A1A1C" }, centerVal));
+    s.appendChild(el("text", { x: cx, y: cy + 16, "text-anchor": "middle",
+      "font-size": 10.5, fill: "#767676" }, centerLab));
+    var ly = 34;
+    segs.forEach(function (g, i) {
+      s.appendChild(el("rect", { x: 232, y: ly - 9, width: 11, height: 11, rx: 2,
+        fill: g.c || PAL[i % PAL.length] }));
+      s.appendChild(el("text", { x: 250, y: ly, "font-size": 11.5, fill: "#1A1A1C" }, g.lab));
+      s.appendChild(el("text", { x: W - 12, y: ly, "text-anchor": "end", class: "num",
+        "font-size": 11.5, "font-weight": 600, fill: "#1A1A1C" },
+        fmt(g.v) + "　" + (g.v / tot * 100).toFixed(1) + "%"));
+      ly += 24;
+    });
+    s.setAttribute("viewBox", "0 0 " + W + " " + Math.max(210, ly + 8));
+  }
+
+  // series: [{data, color, dash, area, right}]  right=true で右軸
+  function lineChart(id, labels, series, maxL, maxR, unitL, unitR) {
+    var s = clear(id), W = 440, H = 250, X0 = 44, X1 = W - (maxR ? 44 : 16), Y0 = 18, Y1 = H - 34;
+    var n = labels.length, step = (X1 - X0) / (n - 1);
+    [0, .25, .5, .75, 1].forEach(function (t) {
+      var y = Y1 - t * (Y1 - Y0);
+      s.appendChild(el("line", { x1: X0, y1: y, x2: X1, y2: y, stroke: "#EFF2F0" }));
+      s.appendChild(el("text", { x: X0 - 6, y: y + 3.5, "text-anchor": "end", class: "num",
+        "font-size": 9, fill: "#767676" }, (maxL * t).toFixed(maxL < 10 ? 1 : 0) + (t === 1 ? (unitL || "") : "")));
+      if (maxR) s.appendChild(el("text", { x: X1 + 6, y: y + 3.5, class: "num",
+        "font-size": 9, fill: "#767676" }, (maxR * t).toFixed(maxR < 10 ? 1 : 0) + (t === 1 ? (unitR || "") : "")));
+    });
+    series.forEach(function (sr) {
+      var mx = sr.right ? maxR : maxL;
+      var pts = sr.data.map(function (v, i) { return [X0 + i * step, Y1 - v / mx * (Y1 - Y0)]; });
+      var d = "M" + pts.map(function (q) { return q[0].toFixed(1) + "," + q[1].toFixed(1); }).join(" L");
+      if (sr.area) s.appendChild(el("path", { d: d + " L" + pts[n - 1][0] + "," + Y1 + " L" + pts[0][0] + "," + Y1 + " Z",
+        fill: sr.color, "fill-opacity": .12 }));
+      s.appendChild(el("path", { d: d, fill: "none", stroke: sr.color, "stroke-width": 2.4,
+        "stroke-linejoin": "round", "stroke-dasharray": sr.dash || null }));
+      s.appendChild(el("circle", { cx: pts[n - 1][0], cy: pts[n - 1][1], r: 4,
+        fill: sr.color, stroke: "#FFFFFF", "stroke-width": 1.4 }));
+    });
+    labels.forEach(function (l, i) {
+      if (i % Math.ceil(n / 6)) return;
+      s.appendChild(el("text", { x: X0 + i * step, y: Y1 + 15, "text-anchor": "middle",
+        class: "num", "font-size": 9, fill: "#767676" }, l));
+    });
+  }
+
+  // 棒（左軸）＋折れ線（右軸）を任意色で
+  function barLine(id, labels, bars, barColor, lines, maxB, maxR) {
+    var s = clear(id), W = 440, H = 260, X0 = 42, X1 = W - 40, Y0 = 18, Y1 = H - 34;
+    var n = labels.length, step = (X1 - X0) / n, bw = step * 0.5;
+    [0, .5, 1].forEach(function (t) {
+      var y = Y1 - t * (Y1 - Y0);
+      s.appendChild(el("line", { x1: X0, y1: y, x2: X1, y2: y, stroke: "#EFF2F0" }));
+      s.appendChild(el("text", { x: X0 - 6, y: y + 3.5, "text-anchor": "end", class: "num",
+        "font-size": 9, fill: "#767676" }, (maxB * t).toFixed(maxB < 10 ? 1 : 0)));
+      if (maxR) s.appendChild(el("text", { x: X1 + 6, y: y + 3.5, class: "num",
+        "font-size": 9, fill: "#767676" }, (maxR * t).toFixed(maxR < 10 ? 1 : 0)));
+    });
+    bars.forEach(function (v, i) {
+      var h = v / maxB * (Y1 - Y0);
+      s.appendChild(el("rect", { x: X0 + i * step + (step - bw) / 2, y: Y1 - h, width: bw, height: h,
+        rx: 1.5, fill: barColor }));
+    });
+    (lines || []).forEach(function (ln) {
+      var pts = ln.data.map(function (v, i) { return [X0 + i * step + step / 2, Y1 - v / (maxR || maxB) * (Y1 - Y0)]; });
+      s.appendChild(el("path", { d: "M" + pts.map(function (q) { return q[0].toFixed(1) + "," + q[1].toFixed(1); }).join(" L"),
+        fill: "none", stroke: ln.color, "stroke-width": 2.4, "stroke-linejoin": "round" }));
+      s.appendChild(el("circle", { cx: pts[n - 1][0], cy: pts[n - 1][1], r: 4, fill: ln.color,
+        stroke: "#FFFFFF", "stroke-width": 1.4 }));
+    });
+    labels.forEach(function (l, i) {
+      if (i % Math.ceil(n / 6)) return;
+      s.appendChild(el("text", { x: X0 + i * step + step / 2, y: Y1 + 15, "text-anchor": "middle",
+        class: "num", "font-size": 9, fill: "#767676" }, l));
+    });
+  }
+
+  function stack100(id, segs) {
+    var s = clear(id), W = 440, X0 = 12, X1 = W - 12, y = 10, h = 34, x = X0;
+    var tot = segs.reduce(function (a, b) { return a + b.v; }, 0) || 1;
+    segs.forEach(function (g, i) {
+      var w = g.v / tot * (X1 - X0);
+      s.appendChild(el("rect", { x: x, y: y, width: w, height: h, fill: g.c || PAL[i] }));
+      if (w > 46) s.appendChild(el("text", { x: x + w / 2, y: y + h / 2 + 4, "text-anchor": "middle",
+        class: "num", "font-size": 11, "font-weight": 700, fill: i >= 3 ? "#1A1A1C" : "#FFFFFF" },
+        (g.v / tot * 100).toFixed(1) + "%"));
+      x += w;
+    });
+    var lx = X0, ly = y + h + 22;
+    segs.forEach(function (g, i) {
+      s.appendChild(el("rect", { x: lx, y: ly - 9, width: 10, height: 10, rx: 2, fill: g.c || PAL[i] }));
+      s.appendChild(el("text", { x: lx + 14, y: ly, "font-size": 10.5, fill: "#1A1A1C" },
+        g.lab + " " + fmt(g.v)));
+      lx += 14 + (g.lab.length * 10.5 + String(g.v).length * 7) + 22;
+      if (lx > X1 - 80) { lx = X0; ly += 18; }
+    });
+    s.setAttribute("viewBox", "0 0 " + W + " " + (ly + 12));
+  }
+
+  function scatter(id, pts, xmax, ymax, xlab, ylab) {
+    var s = clear(id), W = 440, H = 340, X0 = 48, X1 = W - 14, Y0 = 16, Y1 = H - 42;
+    [0, .5, 1].forEach(function (t) {
+      var y = Y1 - t * (Y1 - Y0);
+      s.appendChild(el("line", { x1: X0, y1: y, x2: X1, y2: y, stroke: "#EFF2F0" }));
+      s.appendChild(el("text", { x: X0 - 6, y: y + 3.5, "text-anchor": "end", class: "num",
+        "font-size": 9, fill: "#767676" }, (ymax * t / 1000).toFixed(1) + "k"));
+      var x = X0 + t * (X1 - X0);
+      s.appendChild(el("text", { x: x, y: Y1 + 15, "text-anchor": "middle", class: "num",
+        "font-size": 9, fill: "#767676" }, (xmax * t / 1000).toFixed(1) + "k"));
+    });
+    // 参照線：償還 = 獲得
+    s.appendChild(el("line", { x1: X0, y1: Y1, x2: X0 + (X1 - X0) * Math.min(1, ymax / xmax),
+      y2: Y0, stroke: "#D9D9D9", "stroke-dasharray": "4 4" }));
+    pts.forEach(function (q) {
+      s.appendChild(el("circle", {
+        cx: X0 + q.x / xmax * (X1 - X0), cy: Y1 - q.y / ymax * (Y1 - Y0),
+        r: 3 + Math.sqrt(q.n) / 2.6, fill: q.flag ? "#3460FB" : "#51B883",
+        "fill-opacity": q.flag ? .8 : .55, stroke: "#FFFFFF", "stroke-width": 1 }));
+    });
+    s.appendChild(el("text", { x: (X0 + X1) / 2, y: H - 8, "text-anchor": "middle",
+      "font-size": 10.5, fill: "#767676" }, xlab));
+    s.appendChild(el("text", { x: 12, y: (Y0 + Y1) / 2, "text-anchor": "middle", "font-size": 10.5,
+      fill: "#767676", transform: "rotate(-90 12 " + ((Y0 + Y1) / 2) + ")" }, ylab));
+  }
+
+  /* ============================================================
+     Salesforce Loyalty Management 相当のデータ
+     ============================================================ */
+  var M12 = ["9月","10月","11月","12月","1月","2月","3月","4月","5月","6月","7月","8月"];
+
+  // ポイント経済（百万pt = 百万円）
+  var PT = {
+    accrued: [71.2,72.8,74.1,76.9,75.4,77.1,78.0,77.6,78.4,79.2,79.7,80.1],
+    redeemed:[33.1,34.6,35.2,38.9,36.4,37.2,39.8,38.1,39.0,40.2,40.7,41.3],
+    expired: [1.2,1.1,1.4,1.3,1.2,1.5,28.4,1.6,1.4,1.5,1.7,3.2],
+    balance: 1842
+  };
+  var TIERS = [
+    { lab: "プラチナ", v: 46000,  c: "#115A36" },
+    { lab: "ゴールド", v: 118000, c: "#018838" },
+    { lab: "シルバー", v: 224000, c: "#51B883" },
+    { lab: "ブロンズ", v: 312000, c: "#9BD4B5" }
+  ];
+  var SEGS = [
+    { lab: "ななポ会員", v: 700000, c: "#018838" },
+    { lab: "アプリのみ（ななポ未登録）", v: 162400, c: "#9BD4B5" },
+    { lab: "未接続", v: 342400, c: "#D9D9D9" }
+  ];
+
+  // 会員獲得
+  var ACQ = {
+    newM: 8420, newDelta: 12.4, referral: 1140, zeroTx: 1860, firstTx: 4290,
+    chan: [
+      { lab: "店頭・窓口", v: 2780, keep: 71.2, first: 58.4, cpa: 1180, nana: 96 },
+      { lab: "ATM", v: 1940, keep: 62.8, first: 44.1, cpa: 640, nana: 71 },
+      { lab: "Web明細・郵送", v: 1510, keep: 58.3, first: 39.6, cpa: 820, nana: 84 },
+      { lab: "アプリ内バナー", v: 1050, keep: 79.4, first: 66.2, cpa: 210, nana: 118 },
+      { lab: "会員紹介", v: 1140, keep: 84.1, first: 72.8, cpa: 1000, nana: 134 }
+    ],
+    newTrend: [6120,6480,6710,7240,7080,7390,7610,7840,8010,8180,8340,8420],
+    refTrend: [610,660,700,790,750,810,860,910,980,1040,1090,1140],
+    members:  [62.1,63.0,63.8,64.9,65.6,66.4,67.0,67.9,68.5,69.1,69.6,70.0],
+    withTx:   [41.2,42.0,42.6,44.1,44.0,44.8,45.1,45.9,46.4,47.0,47.4,47.8]
+  };
+
+  // エンゲージメント
+  var ENG = {
+    expiredPt:  [1.2,1.1,1.4,1.3,1.2,1.5,28.4,1.6,1.4,1.5,1.7,3.2],
+    expiredMem: [3100,2900,3600,3400,3100,3900,71200,4100,3600,3800,4400,8640],
+    recency: [
+      { lab: "7日以内", v: 148900 }, { lab: "8〜30日", v: 147200 },
+      { lab: "31〜90日", v: 199200 }, { lab: "91〜180日", v: 121800 },
+      { lab: "181〜365日", v: 54100 }, { lab: "1年超", v: 28800 }
+    ],
+    tenure: [
+      { lab: "3ヶ月未満", mau: 61.2, red: 18.4 },
+      { lab: "3〜12ヶ月", mau: 52.8, red: 34.1 },
+      { lab: "1〜3年",   mau: 44.6, red: 48.9 },
+      { lab: "3〜5年",   mau: 38.1, red: 53.2 },
+      { lab: "5年以上",  mau: 31.4, red: 56.8 }
+    ],
+    inactiveN: [24.8,24.2,23.6,22.9,22.4,21.8,21.4,21.2,20.9,20.7,20.6,20.5],
+    inactiveR: [39.9,38.4,37.0,35.3,34.1,32.8,31.9,31.2,30.5,30.0,29.6,29.2]
+  };
+
+  // 交換・パートナー
+  var PARTNERS = [
+    { lab: "Vポイント",        kind: "共通ポイント", cnt: 41200, pt: 14200000, unit: 345, re: 34.2, c: "#115A36" },
+    { lab: "PayPayポイント",   kind: "共通ポイント", cnt: 34600, pt: 11800000, unit: 341, re: 31.8, c: "#018838" },
+    { lab: "J-POINT",          kind: "共通ポイント", cnt: 22100, pt:  8600000, unit: 389, re: 47.6, c: "#51B883" },
+    { lab: "沿線カフェ 優待券", kind: "グループ",     cnt:  9800, pt:  2940000, unit: 300, re: 52.1, c: "#9BD4B5" },
+    { lab: "ATM手数料無料券",   kind: "グループ",     cnt:  7400, pt:  2220000, unit: 300, re: 61.4, c: "#959595" },
+    { lab: "資産運用相談 優待", kind: "グループ",     cnt:  3300, pt:  1540000, unit: 467, re: 68.9, c: "#D9D9D9" }
+  ];
+
+  // 満足度
+  var SAT = {
+    nps: -8.4, npsDelta: 3.2, n: 4820,
+    mix: [
+      { lab: "推奨者（9-10）", v: 1027, c: "#018838" },
+      { lab: "中立者（7-8）",  v: 2362, c: "#9BD4B5" },
+      { lab: "批判者（0-6）",  v: 1431, c: "#3460FB" }
+    ],
+    trend: [-18.2,-16.4,-15.1,-14.8,-13.2,-12.9,-14.1,-12.0,-11.4,-10.2,-9.6,-8.4],
+    csat: [3.11,3.14,3.18,3.21,3.19,3.24,3.16,3.28,3.31,3.36,3.39,3.42],
+    byCl: [
+      { lab: "C1 ロイヤルコア", v: 42.1 }, { lab: "C4 アクティブ・ミドル", v: 31.6 },
+      { lab: "C7 ポイントファン", v: 24.8 }, { lab: "C2 資産形成パートナー", v: 12.4 },
+      { lab: "C5 ボリュームゾーン", v: -4.2 }, { lab: "C8 お試し接点層", v: -9.8 },
+      { lab: "C6 取引先行層", v: -18.6 }, { lab: "C3 サイレント優良", v: -24.1 },
+      { lab: "C9 休眠・離反予備軍", v: -38.4 }
+    ]
+  };
+
+  // 施策の収益貢献（月次・百万円）
+  var PROMO = {
+    actual:    [188,196,203,214,209,218,221,229,236,244,251,258],
+    baseline:  [188,190,191,193,192,194,193,195,196,197,198,199],
+    liability: 1842000000,
+    tx: 74832,
+    top: [
+      { lab: "給与振込チャレンジ", v: 142.2, days: 92 },
+      { lab: "初回ログインボーナス", v: 97.8, days: 61 },
+      { lab: "ななポ登録ボーナス", v: 90.9, days: 183 },
+      { lab: "月次ネクストアクション", v: 83.9, days: 31 },
+      { lab: "口座振替まとめ", v: 47.1, days: 92 },
+      { lab: "利用機能アンケート", v: 8.4, days: 14 }
+    ]
+  };
+
+  // 不正検知
+  var FRAUD = {
+    leader: [
+      { lab: "M-4821093", v: 412, flag: true }, { lab: "M-3910477", v: 388, flag: true },
+      { lab: "M-7742018", v: 341, flag: true }, { lab: "M-2284551", v: 296, flag: false },
+      { lab: "M-6630982", v: 271, flag: true }, { lab: "M-1194736", v: 244, flag: false },
+      { lab: "M-8853120", v: 218, flag: true }, { lab: "M-5507364", v: 199, flag: false },
+      { lab: "M-9021845", v: 184, flag: true }, { lab: "M-3348692", v: 162, flag: false }
+    ],
+    tx: [
+      ["TX-20260831-04182","08/31 23:47","M-4821093","QRチェックイン",0,"1,200",0,"提携カフェ 仙台駅前店","要確認"],
+      ["TX-20260831-04176","08/31 23:41","M-4821093","QRチェックイン",0,"1,200",0,"提携カフェ 仙台駅前店","要確認"],
+      ["TX-20260831-04170","08/31 23:38","M-4821093","QRチェックイン",0,"1,200",0,"提携カフェ 仙台駅前店","要確認"],
+      ["TX-20260830-11923","08/30 02:14","M-3910477","ポイント交換",0,0,"18,000","Vポイント","要確認"],
+      ["TX-20260830-11902","08/30 02:11","M-3910477","ポイント交換",0,0,"18,000","Vポイント","要確認"],
+      ["TX-20260829-08841","08/29 14:02","M-7742018","キャッシュレス決済","¥412,800","3,300",0,"77カード","要確認"],
+      ["TX-20260829-08702","08/29 11:20","M-6630982","QRチェックイン",0,"900",0,"提携店 泉中央店","要確認"],
+      ["TX-20260828-06615","08/28 19:33","M-2284551","キャッシュレス決済","¥98,400","800",0,"77JCBデビット","正常"],
+      ["TX-20260828-06402","08/28 09:51","M-8853120","ポイント交換",0,0,"12,000","PayPayポイント","要確認"],
+      ["TX-20260827-03318","08/27 16:44","M-1194736","キャッシュレス決済","¥62,100","800",0,"77カード","正常"]
+    ]
+  };
+  function scatterPts() {
+    var out = [], seed = 7;
+    function rnd() { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; }
+    for (var i = 0; i < 46; i++) {
+      var x = 200 + rnd() * 4300;
+      var ratio = 0.25 + rnd() * 0.55;
+      var flag = i % 8 === 3;
+      if (flag) ratio = 1.05 + rnd() * 0.35;
+      out.push({ x: x, y: x * ratio, n: 8 + rnd() * 90, flag: flag });
+    }
+    return out;
+  }
+
+  /* ============================================================
+     追加ビューの描画
+     ============================================================ */
+  function drawPointEconomy() {
+    var last = PT.accrued.length - 1;
+    document.getElementById("ptKpis").innerHTML = [
+      kpi({ lab: "当月 ポイント獲得", val: PT.accrued[last].toFixed(1), unit: "百万pt",
+            delta: "+0.5%", dir: "up", sub: "1pt＝1円。会員 " + man(MEMBERS) + "万人" }),
+      kpi({ lab: "当月 ポイント償還", val: PT.redeemed[last].toFixed(1), unit: "百万pt",
+            delta: "+1.5%", dir: "up", sub: "償還率 " + (PT.redeemed[last] / PT.accrued[last] * 100).toFixed(1) + "%" }),
+      kpi({ lab: "当月 ポイント失効", val: PT.expired[last].toFixed(1), unit: "百万pt",
+            delta: "+88.2%", dir: "down", sub: "有効期限は獲得から2年経過後の年度末" }),
+      kpi({ fill: true, lab: "未使用ポイント残高（負債）", val: fmt(PT.balance), unit: "百万pt",
+            sub: "会計上は引当金。償還が進まないほど積み上がる" })
+    ].join("");
+    (function () {
+      var s = clear("cPoints"), W = 440, H = 260, X0 = 42, X1 = W - 40, Y0 = 18, Y1 = H - 34;
+      var n = 12, step = (X1 - X0) / n, bw = (step * 0.74) / 3, mx = 90;
+      [0, .5, 1].forEach(function (t) {
+        var y = Y1 - t * (Y1 - Y0);
+        s.appendChild(el("line", { x1: X0, y1: y, x2: X1, y2: y, stroke: "#EFF2F0" }));
+        s.appendChild(el("text", { x: X0 - 6, y: y + 3.5, "text-anchor": "end", class: "num",
+          "font-size": 9, fill: "#767676" }, (mx * t).toFixed(0)));
+        s.appendChild(el("text", { x: X1 + 6, y: y + 3.5, class: "num", "font-size": 9,
+          fill: "#115A36" }, (100 * t).toFixed(0) + "%"));
+      });
+      [[PT.accrued, "#018838"], [PT.redeemed, "#51B883"], [PT.expired, "#959595"]].forEach(function (sr, k) {
+        sr[0].forEach(function (v, i) {
+          var h = Math.max(v > 0 ? 1.5 : 0, v / mx * (Y1 - Y0));
+          s.appendChild(el("rect", { x: X0 + i * step + step * 0.13 + k * bw, y: Y1 - h,
+            width: bw - 1, height: h, rx: 1, fill: sr[1] }));
+        });
+      });
+      var rate = PT.redeemed.map(function (v, i) { return v / PT.accrued[i] * 100; });
+      var pts = rate.map(function (v, i) { return [X0 + i * step + step / 2, Y1 - v / 100 * (Y1 - Y0)]; });
+      s.appendChild(el("path", { d: "M" + pts.map(function (q) { return q[0].toFixed(1) + "," + q[1].toFixed(1); }).join(" L"),
+        fill: "none", stroke: "#115A36", "stroke-width": 2.2, "stroke-linejoin": "round" }));
+      s.appendChild(el("circle", { cx: pts[11][0], cy: pts[11][1], r: 4, fill: "#115A36",
+        stroke: "#FFFFFF", "stroke-width": 1.4 }));
+      halo(s, { x: pts[11][0], y: pts[11][1] - 10, "text-anchor": "end", class: "num",
+        "font-size": 11, "font-weight": 700, fill: "#115A36" }, rate[11].toFixed(1) + "%");
+      // 年度末の失効に注記
+      var ex = X0 + 6 * step + step / 2, ey = Y1 - PT.expired[6] / mx * (Y1 - Y0);
+      halo(s, { x: ex, y: ey - 8, "text-anchor": "middle", class: "num", "font-size": 10,
+        "font-weight": 700, fill: "#4D4D4D" }, "28.4");
+      halo(s, { x: ex, y: ey - 21, "text-anchor": "middle", "font-size": 9.5, fill: "#4D4D4D" }, "年度末の失効");
+      M12.forEach(function (l, i) {
+        if (i % 2) return;
+        s.appendChild(el("text", { x: X0 + i * step + step / 2, y: Y1 + 15, "text-anchor": "middle",
+          class: "num", "font-size": 9, fill: "#767676" }, l));
+      });
+    })();
+    donut("cTier", TIERS, fmt(MEMBERS), "ななポ会員");
+    stack100("cSeg", SEGS);
+  }
+
+  function drawAcq() {
+    document.getElementById("acqKpis").innerHTML = [
+      kpi({ fill: true, lab: "当月 新規会員", val: fmt(ACQ.newM), unit: "人",
+            delta: "+" + ACQ.newDelta + "%", dir: "up", sub: "ななポ会員登録ベース" }),
+      kpi({ lab: "紹介経由", val: fmt(ACQ.referral), unit: "人",
+            delta: "+4.6%", dir: "up", sub: "新規の " + (ACQ.referral / ACQ.newM * 100).toFixed(1) + "%" }),
+      kpi({ lab: "30日以内に初回取引", val: fmt(ACQ.firstTx), unit: "人",
+            sub: "新規の " + (ACQ.firstTx / ACQ.newM * 100).toFixed(1) + "%が金融取引に到達" }),
+      kpi({ lab: "初回取引 未到達", val: fmt(ACQ.zeroTx), unit: "人",
+            delta: "+6.1%", dir: "down", sub: "登録のみで取引がない。オンボーディングの対象" })
+    ].join("");
+    donut("cChan", ACQ.chan.map(function (c) { return { lab: c.lab, v: c.v }; }), fmt(ACQ.newM), "当月 新規");
+    donut("cRef", [
+      { lab: "紹介経由", v: ACQ.referral, c: "#018838" },
+      { lab: "紹介なし", v: ACQ.newM - ACQ.referral, c: "#D9D9D9" }
+    ], fmt(ACQ.referral), "紹介経由");
+    barLine("cNew", M12, ACQ.newTrend, "#9BD4B5", [{ data: ACQ.refTrend, color: "#115A36" }], 9000, 9000);
+    barLine("cMemTx", M12, ACQ.members, "#9BD4B5", [{ data: ACQ.withTx, color: "#115A36" }], 80, 80);
+    var tb = document.querySelector("#chanTable tbody"); tb.textContent = "";
+    ACQ.chan.slice().sort(function (a, b) { return b.keep - a.keep; }).forEach(function (c) {
+      var tr = document.createElement("tr");
+      tr.innerHTML = "<td><strong>" + c.lab + "</strong></td>" +
+        '<td class="n">' + fmt(c.v) + "</td>" +
+        '<td class="n">' + (c.v / ACQ.newM * 100).toFixed(1) + "%</td>" +
+        '<td class="n"><strong style="color:' + (c.keep >= 70 ? "var(--main)" : "var(--ink)") + '">' + c.keep.toFixed(1) + "%</strong></td>" +
+        '<td class="n">' + c.first.toFixed(1) + "%</td>" +
+        '<td class="n">' + yen(c.cpa) + "</td>" +
+        '<td class="n">' + c.nana + "pt</td>";
+      tb.appendChild(tr);
+    });
+    document.getElementById("acqNote").innerHTML =
+      "<b>獲得数ではなく定着率で見る。</b>店頭・窓口が最大の獲得数だが、90日後の定着率は" +
+      "<b>会員紹介（84.1%）とアプリ内バナー（79.4%）が上位</b>で、CPA も低い。" +
+      "紹介は獲得後のななポ実績も最高（134pt/月）で、C1 ロイヤルコアのアンバサダー化（R2 の打ち手）が" +
+      "獲得チャネルとしても効いていることを示す。<br>" +
+      "一方 ATM 経由は CPA が最安だが初回取引到達が 44.1% と低く、<b>登録だけさせて終わっている</b>。" +
+      "オンボーディングの導線を分けて検証する必要がある。";
+  }
+
+  function drawEng() {
+    var last = 11, totalRec = ENG.recency.reduce(function (a, b) { return a + b.v; }, 0);
+    document.getElementById("engKpis").innerHTML = [
+      kpi({ fill: true, lab: "休眠会員（90日以上 未起動）", val: ENG.inactiveN[last].toFixed(1), unit: "万人",
+            delta: "-0.4pt", dir: "up", sub: "休眠率 " + ENG.inactiveR[last].toFixed(1) + "%。前年同月 39.9%" }),
+      kpi({ lab: "30日以内に取引あり", val: ((ENG.recency[0].v + ENG.recency[1].v) / totalRec * 100).toFixed(1), unit: "%",
+            delta: "+1.8pt", dir: "up", sub: fmt(ENG.recency[0].v + ENG.recency[1].v) + "人" }),
+      kpi({ lab: "当月 失効ポイント", val: ENG.expiredPt[last].toFixed(1), unit: "百万pt",
+            sub: "失効した会員 " + fmt(ENG.expiredMem[last]) + "人" }),
+      kpi({ lab: "年度末（3月）の失効", val: ENG.expiredPt[6].toFixed(1), unit: "百万pt",
+            delta: "7.1万人", dir: "down", sub: "有効期限が年度末固定のため集中する" })
+    ].join("");
+    barLine("cExp", M12, ENG.expiredPt, "#959595",
+      [{ data: ENG.expiredMem.map(function (v) { return v / 1000; }), color: "#3460FB" }], 30, 75);
+    hBars("cRecency", ENG.recency.map(function (r) { return { label: r.lab, v: Math.round(r.v / 1000) }; }),
+      200, "千人", function (row, i) { return i <= 1 ? "#018838" : (i <= 2 ? "#51B883" : (i <= 3 ? "#9BD4B5" : "#959595")); });
+    var s = clear("cTenure"), W = 440, X0 = 76, X1 = W - 46, top = 16, rowH = 46;
+    ENG.tenure.forEach(function (t, i) {
+      var y = top + i * rowH;
+      s.appendChild(el("text", { x: X0 - 8, y: y + 18, "text-anchor": "end", "font-size": 11.5, fill: "#1A1A1C" }, t.lab));
+      [["mau", "#018838", 0], ["red", "#3460FB", 15]].forEach(function (m) {
+        var w = t[m[0]] / 70 * (X1 - X0);
+        s.appendChild(el("rect", { x: X0, y: y + 3 + m[2], width: w, height: 12, rx: 2, fill: m[1] }));
+        s.appendChild(el("text", { x: X0 + w + 6, y: y + 13 + m[2], class: "num", "font-size": 10.5,
+          "font-weight": 600, fill: m[1] }, t[m[0]].toFixed(1) + "%"));
+      });
+    });
+    s.setAttribute("viewBox", "0 0 " + W + " " + (top + ENG.tenure.length * rowH + 4));
+    barLine("cInactive", M12, ENG.inactiveN, "#D9D9D9", [{ data: ENG.inactiveR, color: "#3460FB" }], 30, 45);
+    document.getElementById("engNote").innerHTML =
+      "<b>在籍期間が長くなるほど MAU 率は下がり、償還率は上がる。</b>" +
+      "3ヶ月未満の MAU 61.2% が 5年以上で 31.4% まで落ちる一方、償還率は 18.4% → 56.8% に上がる。" +
+      "つまり<b>長期会員は「アプリを開かないが、貯まったら交換する」層に変わっていく</b>。" +
+      "接点スコア（縦軸）の低下は在籍期間の関数でもあるため、クラスター遷移を評価するときは在籍期間で層別する。<br>" +
+      "<b>3月の失効 28.4百万pt・7.1万人は最大の改善余地。</b>失効予告（要件定義 14.3 #14）で事前に交換を促せば、" +
+      "未使用ポイント負債の圧縮と再来訪の両方に効く。";
+  }
+
+  function drawPrt() {
+    var totPt = PARTNERS.reduce(function (a, b) { return a + b.pt; }, 0);
+    var totCnt = PARTNERS.reduce(function (a, b) { return a + b.cnt; }, 0);
+    document.getElementById("prtKpis").innerHTML = [
+      kpi({ fill: true, lab: "当月 ポイント償還", val: (totPt / 1000000).toFixed(1), unit: "百万pt",
+            sub: "獲得 " + PT.accrued[11].toFixed(1) + "百万pt に対して " + (totPt / 1000000 / PT.accrued[11] * 100).toFixed(1) + "%" }),
+      kpi({ lab: "交換件数", val: fmt(totCnt), unit: "件", delta: "+3.2%", dir: "up",
+            sub: "交換した会員 " + fmt(Math.round(totCnt * 0.71)) + "人" }),
+      kpi({ lab: "平均交換単価", val: Math.round(totPt / totCnt), unit: "pt",
+            sub: "最低交換 100pt・100pt単位" }),
+      kpi({ lab: "交換後30日の再取引率", val: "42.8", unit: "%",
+            sub: "交換した会員が再び金融取引をした割合" })
+    ].join("");
+    donut("cPartner", PARTNERS.map(function (p) {
+      return { lab: p.lab, v: Math.round(p.pt / 1000000 * 10) / 10, c: p.c }; }),
+      (totPt / 1000000).toFixed(1), "百万pt");
+    var s = clear("cPartner2"), W = 440, X0 = 118, X1 = W - 58, top = 14, rowH = 36;
+    PARTNERS.forEach(function (p, i) {
+      var y = top + i * rowH;
+      s.appendChild(el("text", { x: X0 - 8, y: y + 12, "text-anchor": "end", "font-size": 11, fill: "#1A1A1C" }, p.lab));
+      var w = p.unit / 500 * (X1 - X0);
+      s.appendChild(el("rect", { x: X0, y: y + 2, width: w, height: 10, rx: 2, fill: p.c }));
+      s.appendChild(el("text", { x: X1 + 6, y: y + 11, class: "num", "font-size": 10.5,
+        "font-weight": 600, fill: "#1A1A1C" }, p.unit + "pt"));
+      var w2 = p.cnt / 45000 * (X1 - X0);
+      s.appendChild(el("rect", { x: X0, y: y + 16, width: w2, height: 7, rx: 2, fill: "#D9D9D9" }));
+      s.appendChild(el("text", { x: X1 + 6, y: y + 23, class: "num", "font-size": 9.5, fill: "#767676" },
+        fmt(p.cnt) + "件"));
+    });
+    s.setAttribute("viewBox", "0 0 " + W + " " + (top + PARTNERS.length * rowH + 4));
+    var tb = document.querySelector("#prtTable tbody"); tb.textContent = "";
+    PARTNERS.forEach(function (p) {
+      var tr = document.createElement("tr");
+      tr.innerHTML = "<td><strong>" + p.lab + "</strong></td>" +
+        '<td><span class="pill low">' + p.kind + "</span></td>" +
+        '<td class="n">' + fmt(p.cnt) + "</td>" +
+        '<td class="n">' + (p.pt / 1000000).toFixed(2) + "百万</td>" +
+        '<td class="n">' + (p.pt / totPt * 100).toFixed(1) + "%</td>" +
+        '<td class="n">' + p.unit + "pt</td>" +
+        '<td class="n"><strong style="color:' + (p.re >= 50 ? "var(--main)" : "var(--ink)") + '">' + p.re.toFixed(1) + "%</strong></td>";
+      tb.appendChild(tr);
+    });
+    document.getElementById("prtNote").innerHTML =
+      "<b>共通ポイントへの交換が償還額の 83.6% を占めるが、交換後の再取引率は低い。</b>" +
+      "Vポイント 34.2%・PayPay 31.8% に対し、グループアセット（ATM手数料無料券 61.4%、資産運用相談優待 68.9%）は倍近い。" +
+      "共通ポイントは<b>ポイントが行外へ流出して関係が切れる</b>のに対し、行内リワードは次の来店・取引につながる。<br>" +
+      "ただし共通ポイントは交換のしやすさで<b>償還率そのものを押し上げ、未使用ポイント負債を減らす</b>役割がある。" +
+      "「負債を減らす交換先」と「関係を深める交換先」を分けて設計し、後者の品揃えを増やすのが打ち手になる。";
+  }
+
+  function drawSat() {
+    document.getElementById("satKpis").innerHTML = [
+      kpi({ fill: true, lab: "NPS", val: SAT.nps.toFixed(1), unit: "",
+            delta: "+" + SAT.npsDelta + "pt", dir: "up", sub: "推奨者 − 批判者。回答 n=" + fmt(SAT.n) }),
+      kpi({ lab: "推奨者比率", val: (SAT.mix[0].v / SAT.n * 100).toFixed(1), unit: "%",
+            sub: fmt(SAT.mix[0].v) + "人。紹介プログラムの母集団" }),
+      kpi({ lab: "CSAT", val: SAT.csat[11].toFixed(2), unit: "/5",
+            delta: "+0.03", dir: "up", sub: "「ななポにどの程度満足していますか」" }),
+      kpi({ lab: "アンケート回答率", val: "18.4", unit: "%",
+            sub: "配信 26,200人 → 回答 " + fmt(SAT.n) + "人" })
+    ].join("");
+    donut("cNps", SAT.mix, SAT.nps.toFixed(1), "NPS");
+    lineChart("cNpsTrend", M12, [{ data: SAT.trend.map(function (v) { return v + 30; }), color: "#018838", area: true }],
+      50, 0, "");
+    var s = document.getElementById("cNpsTrend");
+    s.appendChild(el("text", { x: 44, y: 14, "font-size": 9, fill: "#767676" }, "※ 目盛は −30 起点"));
+    lineChart("cCsat", M12, [{ data: SAT.csat, color: "#115A36", area: true }], 5, 0, "");
+    var s2 = clear("cNpsCl"), W = 440, X0 = 148, XC = 300, top = 12, rowH = 25;
+    var mxn = 45;
+    SAT.byCl.forEach(function (c, i) {
+      var y = top + i * rowH;
+      s2.appendChild(el("text", { x: X0 - 8, y: y + 13, "text-anchor": "end", "font-size": 10.5, fill: "#1A1A1C" }, c.lab));
+      s2.appendChild(el("line", { x1: XC, y1: top, x2: XC, y2: top + SAT.byCl.length * rowH - 8, stroke: "#D9D9D9" }));
+      var w = Math.abs(c.v) / mxn * 108;
+      s2.appendChild(el("rect", { x: c.v >= 0 ? XC : XC - w, y: y + 3, width: w, height: 12, rx: 2,
+        fill: c.v >= 0 ? "#018838" : "#3460FB" }));
+      s2.appendChild(el("text", { x: c.v >= 0 ? XC + w + 5 : XC - w - 5, y: y + 13,
+        "text-anchor": c.v >= 0 ? "start" : "end", class: "num", "font-size": 10.5, "font-weight": 600,
+        fill: c.v >= 0 ? "#115A36" : "#00118F" }, (c.v > 0 ? "+" : "") + c.v.toFixed(1)));
+    });
+    s2.setAttribute("viewBox", "0 0 " + W + " " + (top + SAT.byCl.length * rowH + 6));
+    document.getElementById("satNote").innerHTML =
+      "<b>NPS はデジタル接点スコア（縦軸）とほぼ一致し、金融取引スコア（横軸）とは一致しない。</b>" +
+      "C7 ポイントファンは取引が薄いのに +24.8、C3 サイレント優良は取引が最上位なのに −24.1。" +
+      "<b>推奨意向は「取引の厚さ」ではなく「アプリ体験の良さ」で決まる</b>ことを示しており、" +
+      "縦軸をポイント付与から行動ログに切り替えた設計（要件定義 4.3）の妥当性を裏づける。<br>" +
+      "紹介プログラムの母集団は推奨者 " + fmt(SAT.mix[0].v) + "人。C1 と C4 に集中しているため、" +
+      "アンバサダー化はこの2クラスターに絞るのが効率的。";
+  }
+
+  function drawPromo() {
+    var inc = PROMO.actual.reduce(function (a, v, i) { return a + (v - PROMO.baseline[i]); }, 0);
+    document.getElementById("promoKpis").innerHTML = [
+      kpi({ fill: true, lab: "施策起因の増分収益（年換算）", val: "¥" + inc.toFixed(0), unit: "百万",
+            sub: "実績収益 − 施策がなかった場合の予測収益" }),
+      kpi({ lab: "未使用ポイント残高（負債）", val: yen(PROMO.liability), unit: "",
+            delta: "+2.8%", dir: "down", sub: "施策で積み上がる将来の支払義務" }),
+      kpi({ lab: "施策経由の金融アクション", val: fmt(PROMO.tx), unit: "件",
+            delta: "+9.4%", dir: "up", sub: "配信 → 反応 → 到達のファネル最終段" }),
+      kpi({ lab: "実施中の施策", val: "6", unit: "件",
+            sub: "チャレンジ3／プッシュ1／アンケート1／QR1" })
+    ].join("");
+    var s = clear("cPromo"), W = 900, H = 320, X0 = 56, X1 = W - 20, Y0 = 20, Y1 = H - 46;
+    var n = 12, step = (X1 - X0) / (n - 1), mx = 280;
+    [0, .25, .5, .75, 1].forEach(function (t) {
+      var y = Y1 - t * (Y1 - Y0);
+      s.appendChild(el("line", { x1: X0, y1: y, x2: X1, y2: y, stroke: "#EFF2F0" }));
+      s.appendChild(el("text", { x: X0 - 6, y: y + 3.5, "text-anchor": "end", class: "num",
+        "font-size": 9.5, fill: "#767676" }, (mx * t).toFixed(0)));
+    });
+    var pa = PROMO.actual.map(function (v, i) { return [X0 + i * step, Y1 - v / mx * (Y1 - Y0)]; });
+    var pb = PROMO.baseline.map(function (v, i) { return [X0 + i * step, Y1 - v / mx * (Y1 - Y0)]; });
+    s.appendChild(el("path", {
+      d: "M" + pa.map(function (q) { return q[0].toFixed(1) + "," + q[1].toFixed(1); }).join(" L") +
+         " L" + pb.slice().reverse().map(function (q) { return q[0].toFixed(1) + "," + q[1].toFixed(1); }).join(" L") + " Z",
+      fill: "#9BD4B5", "fill-opacity": .55 }));
+    s.appendChild(el("path", { d: "M" + pb.map(function (q) { return q[0].toFixed(1) + "," + q[1].toFixed(1); }).join(" L"),
+      fill: "none", stroke: "#959595", "stroke-width": 2, "stroke-dasharray": "6 4" }));
+    s.appendChild(el("path", { d: "M" + pa.map(function (q) { return q[0].toFixed(1) + "," + q[1].toFixed(1); }).join(" L"),
+      fill: "none", stroke: "#018838", "stroke-width": 2.6, "stroke-linejoin": "round" }));
+    s.appendChild(el("circle", { cx: pa[11][0], cy: pa[11][1], r: 5, fill: "#018838", stroke: "#FFFFFF", "stroke-width": 1.6 }));
+    halo(s, { x: pa[11][0], y: pa[11][1] - 14, "text-anchor": "end", class: "num", "font-size": 12,
+      "font-weight": 700, fill: "#115A36" }, "¥" + PROMO.actual[11] + "百万");
+    halo(s, { x: pb[11][0], y: pb[11][1] + 20, "text-anchor": "end", class: "num", "font-size": 11,
+      "font-weight": 600, fill: "#767676" }, "¥" + PROMO.baseline[11] + "百万");
+    var midI = 7;
+    halo(s, { x: pa[midI][0], y: (pa[midI][1] + pb[midI][1]) / 2 + 4, "text-anchor": "middle",
+      "font-size": 11.5, "font-weight": 700, fill: "#115A36" }, "施策起因の増分");
+    M12.forEach(function (l, i) {
+      s.appendChild(el("text", { x: X0 + i * step, y: Y1 + 16, "text-anchor": "middle", class: "num",
+        "font-size": 9.5, fill: "#767676" }, l));
+    });
+    s.appendChild(el("text", { x: 14, y: (Y0 + Y1) / 2, "text-anchor": "middle", "font-size": 10.5,
+      fill: "#767676", transform: "rotate(-90 14 " + ((Y0 + Y1) / 2) + ")" }, "月次収益（百万円）"));
+    hBars("cTopPromo", PROMO.top.map(function (t) { return { label: t.lab, v: t.v }; }), 150, "百万");
+    hBars("cPromoDays", PROMO.top.map(function (t) { return { label: t.lab, v: t.days }; }), 200, "日",
+      function () { return "#51B883"; });
+    document.getElementById("campNote").innerHTML =
+      "<b>増分収益は、施策がなかった場合の予測収益（点線）との差で測る。</b>" +
+      "予測は施策開始前のトレンドと季節性から推定し、ホールドアウト群（要件定義 #10・実施可能）の実測で補正する。" +
+      "点線と実線の差が開いていない施策は、原資を投じても収益が動いていない。<br>" +
+      "<b>実施期間が長い施策ほど増分が大きいとは限らない。</b>ななポ登録ボーナス（183日・¥90.9百万）に対し、" +
+      "給与振込チャレンジは 92日で ¥142.2百万。期間あたりの効率で並べ替えて原資を再配分する。";
+  }
+
+  function drawFraud() {
+    var pts = scatterPts(), flagged = pts.filter(function (p) { return p.flag; }).length;
+    document.getElementById("fraudKpis").innerHTML = [
+      kpi({ fill: true, lab: "しきい値に該当した会員", val: "37", unit: "人",
+            sub: "月間取引50件以上 かつ 獲得1,000pt以上" }),
+      kpi({ lab: "該当トランザクション", val: fmt(4182), unit: "件",
+            sub: "全取引 " + fmt(1206400) + "件の 0.35%" }),
+      kpi({ lab: "要確認（獲得＜償還）", val: String(flagged), unit: "人",
+            delta: "+2人", dir: "down", sub: "獲得に対して償還が過大な会員" }),
+      kpi({ lab: "該当会員の獲得pt", val: "1.24", unit: "百万pt",
+            sub: "当月獲得の 1.5%。金額では " + yen(1240000) })
+    ].join("");
+    hBars("cLeader", FRAUD.leader.map(function (l) { return { label: l.lab, v: l.v }; }), 450, "件",
+      function (row, i) { return FRAUD.leader[i].flag ? "#3460FB" : "#51B883"; });
+    scatter("cScatter", pts, 5000, 5000, "獲得ポイント（pt / 月）", "償還ポイント（pt / 月）");
+    var tb = document.querySelector("#fraudTable tbody"); tb.textContent = "";
+    FRAUD.tx.forEach(function (r) {
+      var tr = document.createElement("tr");
+      tr.innerHTML = '<td class="cid">' + r[0] + "</td>" +
+        '<td class="n">' + r[1] + "</td>" +
+        '<td class="cid">' + r[2] + "</td>" +
+        '<td><span class="pill low">' + r[3] + "</span></td>" +
+        '<td class="n">' + (r[4] || "—") + "</td>" +
+        '<td class="n">' + (r[5] || "—") + "</td>" +
+        '<td class="n">' + (r[6] || "—") + "</td>" +
+        "<td>" + r[7] + "</td>" +
+        '<td><span class="st ' + (r[8] === "要確認" ? "late" : "done") + '">' + r[8] + "</span></td>";
+      tb.appendChild(tr);
+    });
+    document.getElementById("fraudNote").innerHTML =
+      "<b>このレポート自体が不正を検知するわけではない。</b>しきい値をこちらで設定し、該当した会員を目視で確認する運用になる。" +
+      "上のセレクタで条件を変えると母集団が変わる。<br>" +
+      "散布図の破線は「償還＝獲得」。<b>破線より上（獲得より償還が多い）は、通常の利用では起こりにくい</b>。" +
+      "同一店舗での短時間の連続QRチェックイン（TX-20260831-04170〜04182 は9分間に3回）や、" +
+      "深夜の連続ポイント交換が典型的なパターン。<br>" +
+      "個人特定を避けるため会員IDのみを表示している。実運用ではしきい値超過時のアラート通知" +
+      "（要件定義 14.3 #9）と組み合わせ、この画面は確認と記録のために使う。";
+  }
+
+  /* ============================================================
      ナビゲーション
      ============================================================ */
   var VIEWS = {
@@ -1607,7 +2365,12 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
     road: ["ロイヤルティ顧客育成ロードマップ", "どのクラスターに誰がいて、次にどこへ、どの施策で動かすか"],
     mig:  ["遷移分析", "期首から期末にかけて、誰がどこへ動いたか"],
     cl:   ["クラスター詳細", "選択したクラスターのプロフィールと打ち手"],
-    camp: ["施策効果", "配信 → 反応 → 金融アクション到達のファネルと費用対効果"]
+    acq:  ["会員獲得", "新規会員の獲得数・チャネル・紹介と、獲得後の定着"],
+    eng:  ["エンゲージメント", "取引の鮮度、ポイント失効、在籍期間、休眠会員"],
+    prt:  ["交換・パートナー", "どの交換先で償還が進み、その後どれだけ再取引につながるか"],
+    sat:  ["満足度（NPS / CSAT）", "推奨意向と満足度、そのクラスター別の分布"],
+    camp: ["施策効果", "施策の収益貢献と、配信 → 金融アクション到達のファネル"],
+    fraud:["不正検知", "しきい値に該当したポイント獲得・償還の確認"]
   };
   function show(v) {
     Object.keys(VIEWS).forEach(function (k) {
@@ -1621,6 +2384,12 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
     document.getElementById("tSub").textContent = VIEWS[v][1];
     if (v === "cl") drawClusterDetail();
     if (v === "mig") drawMigration();
+    if (v === "acq") drawAcq();
+    if (v === "eng") drawEng();
+    if (v === "prt") drawPrt();
+    if (v === "sat") drawSat();
+    if (v === "camp") drawPromo();
+    if (v === "fraud") drawFraud();
     window.scrollTo({ top: 0, behavior: "instant" });
   }
   Array.prototype.forEach.call(document.querySelectorAll(".nav-btn"), function (b) {
@@ -1643,7 +2412,12 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
      初期化
      ============================================================ */
   drawSummary();
+  drawPointEconomy();
   drawCampaign();
+  drawPromo();
+  ["thTx", "thPt", "thKind"].forEach(function (id) {
+    document.getElementById(id).addEventListener("change", drawFraud);
+  });
   selCluster = RT[0].from;
   refreshPeriod();
   drawClusterDetail();
@@ -1651,6 +2425,8 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
   document.getElementById("foot").innerHTML =
     "マイリワードポータル プロトタイプ ／ ロイヤルティ顧客育成ダッシュボード<br>" +
     "デザインは東京都デジタルサービス局「ダッシュボード作成ガイドブック」のカラーパレット・フォントサイズ・配置ルールに準拠。<br>" +
+    "画面構成は Salesforce Loyalty Management の Performance / Promotion / Fraud Analytics の要素を、" +
+    "本プログラム（ななポ）の実配点と2軸クラスター設計に合わせて再構成したもの。<br>" +
     "本ページの数値はすべて検討用のダミー値であり、実顧客データは含まれていません。" +
     "ななポの付与ポイント数のみ、77ポイントサービスの公開情報にもとづく実配点を使用しています。";
 })();
