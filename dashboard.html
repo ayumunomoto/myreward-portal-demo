@@ -894,11 +894,14 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
   }
   function fmt(n) { return n.toLocaleString("ja-JP"); }
   function man(n) { return (n / 10000).toFixed(1); }
-  function yen(n) {
-    if (n >= 100000000) return "¥" + (n / 100000000).toFixed(2) + "億";
-    if (n >= 10000) return "¥" + (n / 10000).toFixed(0) + "万";
-    return "¥" + fmt(n);
+  // 金額は「値」と「単位」を分けて持つ。KPI では単位だけ小さく組むため。
+  function yenV(n) {
+    if (n >= 100000000) return (n / 100000000).toFixed(2);
+    if (n >= 10000) return (n / 10000).toFixed(0);
+    return fmt(n);
   }
+  function yenU(n) { return n >= 100000000 ? "億円" : n >= 10000 ? "万円" : "円"; }
+  function yen(n) { return yenV(n) + yenU(n); }   // 本文・表の中で使う
 
   // ななポ実績 → メインパレットの4段階
   function nanaColor(pt) {
@@ -1198,7 +1201,7 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
         stat(PERIODS[period].label + " 実績遷移", fmt(flowOf(r.from, r.to)), "人") +
         stat("昇格予備軍", fmt(pipeN), "人") +
         stat("想定転換人数 / 年", fmt(r.conv), "人") +
-        stat("必要ポイント原資", yen(r.cost), "") +
+        stat("必要ポイント原資", yenV(r.cost), yenU(r.cost)) +
         stat("ROI", r.roi.toFixed(1), "倍") +
       "</div>" +
       '<div class="rd-cols">' +
@@ -1357,10 +1360,10 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
             delta: "+2.4pt", dir: "up", sub: "会員のうち直近30日に起動した割合" }),
       kpi({ lab: "会員の預金残高合計", val: "4.82", unit: "兆円",
             delta: "+2.1%", dir: "up", sub: "月末残高・全会員合計" }),
-      kpi({ lab: "月間ポイント原資", val: yen(NANA_TOTAL), unit: "",
+      kpi({ lab: "月間ポイント原資", val: yenV(NANA_TOTAL), unit: yenU(NANA_TOTAL),
             delta: "+4.6%", dir: "down", sub: "1pt＝1円・平均 " + Math.round(NANA_TOTAL / MEMBERS) + "pt/人" }),
       kpi({ lab: "ROI（推定・Lv3）", val: (GAIN_PROGRAM / COST_YEAR).toFixed(1), unit: "倍",
-            sub: "増分収益 " + yen(GAIN_PROGRAM) + "/年（1人あたり ¥" + fmt(DID_PP) +
+            sub: "増分収益 " + yen(GAIN_PROGRAM) + "/年（1人あたり " + fmt(DID_PP) + "円" +
                  "）÷ 年間原資 " + yen(COST_YEAR) })
     ].join("");
 
@@ -1386,7 +1389,7 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
       "ポイント消化率が不連続に動くため。" +
       "<br>収益換算レート（預金利鞘・カード収益率・信託報酬・給与振込LTV）は<b>行内想定値が未確定のため仮値</b>。確定後に差し替える。" +
       "<br><b>サマリーの ROI とロードマップの ROI は母数が異なる。</b>" +
-      "サマリーは<b>プログラム全体</b>（会員 " + man(MEMBERS) + "万人 × 1人あたり増分 ¥" + fmt(DID_PP) +
+      "サマリーは<b>プログラム全体</b>（会員 " + man(MEMBERS) + "万人 × 1人あたり増分 " + fmt(DID_PP) + "円" +
       "/年 ÷ 年間原資）、ロードマップは<b>個別の育成ルート</b>（そのルートの転換益 ÷ そのルートの原資）の投資対効果を示す。";
   }
 
@@ -2078,11 +2081,11 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
       ["TX-20260831-04170","08/31 23:38","M-4821093","QRチェックイン",0,"1,200",0,"提携カフェ 仙台駅前店","要確認"],
       ["TX-20260830-11923","08/30 02:14","M-3910477","ポイント交換",0,0,"18,000","Vポイント","要確認"],
       ["TX-20260830-11902","08/30 02:11","M-3910477","ポイント交換",0,0,"18,000","Vポイント","要確認"],
-      ["TX-20260829-08841","08/29 14:02","M-7742018","キャッシュレス決済","¥412,800","3,300",0,"77カード","要確認"],
+      ["TX-20260829-08841","08/29 14:02","M-7742018","キャッシュレス決済","412,800円","3,300",0,"77カード","要確認"],
       ["TX-20260829-08702","08/29 11:20","M-6630982","QRチェックイン",0,"900",0,"提携店 泉中央店","要確認"],
-      ["TX-20260828-06615","08/28 19:33","M-2284551","キャッシュレス決済","¥98,400","800",0,"77JCBデビット","正常"],
+      ["TX-20260828-06615","08/28 19:33","M-2284551","キャッシュレス決済","98,400円","800",0,"77JCBデビット","正常"],
       ["TX-20260828-06402","08/28 09:51","M-8853120","ポイント交換",0,0,"12,000","PayPayポイント","要確認"],
-      ["TX-20260827-03318","08/27 16:44","M-1194736","キャッシュレス決済","¥62,100","800",0,"77カード","正常"]
+      ["TX-20260827-03318","08/27 16:44","M-1194736","キャッシュレス決済","62,100円","800",0,"77カード","正常"]
     ]
   };
   function scatterPts() {
@@ -2508,9 +2511,9 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
   function drawPromo() {
     var inc = PROMO.actual.reduce(function (a, v, i) { return a + (v - PROMO.baseline[i]); }, 0);
     document.getElementById("promoKpis").innerHTML = [
-      kpi({ fill: true, lab: "施策起因の増分収益（年換算）", val: "¥" + inc.toFixed(0), unit: "百万",
+      kpi({ fill: true, lab: "施策起因の増分収益（年換算）", val: inc.toFixed(0), unit: "百万円",
             sub: "実績収益 − 施策がなかった場合の予測収益" }),
-      kpi({ lab: "未利用ポイント残高（負債）", val: yen(PROMO.liability), unit: "",
+      kpi({ lab: "未利用ポイント残高（負債）", val: yenV(PROMO.liability), unit: yenU(PROMO.liability),
             delta: "+2.8%", dir: "down", sub: "施策で積み上がる将来の支払義務" }),
       kpi({ lab: "施策経由の金融アクション", val: fmt(PROMO.tx), unit: "件",
             delta: "+9.4%", dir: "up", sub: "配信 → 反応 → 到達のファネル最終段" }),
@@ -2537,9 +2540,9 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
       fill: "none", stroke: "#018838", "stroke-width": 2.6, "stroke-linejoin": "round" }));
     s.appendChild(el("circle", { cx: pa[11][0], cy: pa[11][1], r: 5, fill: "#018838", stroke: "#FFFFFF", "stroke-width": 1.6 }));
     halo(s, { x: pa[11][0], y: pa[11][1] - 14, "text-anchor": "end", class: "num", "font-size": 12,
-      "font-weight": 700, fill: "#115A36" }, "¥" + PROMO.actual[11] + "百万");
+      "font-weight": 700, fill: "#115A36" }, PROMO.actual[11] + "百万円");
     halo(s, { x: pb[11][0], y: pb[11][1] + 20, "text-anchor": "end", class: "num", "font-size": 11,
-      "font-weight": 600, fill: "#767676" }, "¥" + PROMO.baseline[11] + "百万");
+      "font-weight": 600, fill: "#767676" }, PROMO.baseline[11] + "百万円");
     var midI = 7;
     halo(s, { x: pa[midI][0], y: (pa[midI][1] + pb[midI][1]) / 2 + 4, "text-anchor": "middle",
       "font-size": 11.5, "font-weight": 700, fill: "#115A36" }, "施策起因の増分");
@@ -2556,15 +2559,15 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
       "<b>増分収益は、施策がなかった場合の予測収益（点線）との差で測る。</b>" +
       "予測は施策開始前のトレンドと季節性から推定し、ホールドアウト群（要件定義 #10・実施可能）の実測で補正する。" +
       "点線と実線の差が開いていない施策は、原資を投じても収益が動いていない。<br>" +
-      "<b>実施期間が長い施策ほど増分が大きいとは限らない。</b>ななポ登録ボーナス（183日・¥90.9百万）に対し、" +
-      "給与振込チャレンジは 92日で ¥142.2百万。期間あたりの効率で並べ替えて原資を再配分する。";
+      "<b>実施期間が長い施策ほど増分が大きいとは限らない。</b>ななポ登録ボーナス（183日・90.9百万円）に対し、" +
+      "給与振込チャレンジは 92日で 142.2百万円。期間あたりの効率で並べ替えて原資を再配分する。";
   }
 
   function drawFraud() {
     var pts = scatterPts(), flagged = pts.filter(function (p) { return p.flag; }).length;
     document.getElementById("fraudKpis").innerHTML = [
       kpi({ fill: true, lab: "しきい値に該当した会員", val: "37", unit: "人",
-            sub: "月間取引50件以上 かつ 獲得1,000pt以上" }),
+            sub: "月間取引50件以上 かつ 付与1,000pt以上" }),
       kpi({ lab: "該当トランザクション", val: fmt(4182), unit: "件",
             sub: "全取引 " + fmt(1206400) + "件の 0.35%" }),
       kpi({ lab: "要確認（付与＜利用）", val: String(flagged), unit: "人",
