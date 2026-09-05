@@ -217,6 +217,33 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
 .tgt.ng{background:var(--rbg); color:var(--r2)}
 .tgt.na{background:var(--nbg); color:var(--n2)}
 
+/* ---------- 施策ライブラリ ---------- */
+.tcards{display:grid; grid-template-columns:repeat(auto-fit,minmax(268px,1fr)); gap:12px}
+.tcard{background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:14px 16px; border-top:3px solid var(--n3)}
+.tcard-h{display:flex; align-items:baseline; gap:8px; margin-bottom:5px}
+.tcard-h b{font-size:13px; font-weight:700}
+.tcard-h .tid{font-family:var(--din); font-size:10px; font-weight:700; letter-spacing:.08em; color:var(--on-fill); border-radius:3px; padding:2px 6px}
+.tcard p{margin:0 0 8px; font-size:11px; color:var(--ink-mute); line-height:1.65}
+.tcard ul{margin:0 0 9px; padding-left:15px; font-size:11px; line-height:1.7}
+.tcard ul li::marker{color:var(--n3)}
+.tcard .gap{display:flex; align-items:center; gap:7px; padding-top:9px; border-top:1px solid var(--line-soft); font-size:10.5px; color:var(--ink-mute)}
+.pid{display:inline-block; font-family:var(--din); font-size:10px; font-weight:700; letter-spacing:.04em;
+  padding:2px 6px; border-radius:3px; margin:1px 3px 1px 0; white-space:nowrap}
+.pid.main{background:var(--main); color:var(--on-fill)}
+.pid.sub{background:var(--nbg); color:var(--n2)}
+.playgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:0 24px; align-items:start}
+.phases{display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:12px; align-items:start}
+.phase{background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:14px 16px}
+.phase-h{display:flex; align-items:baseline; gap:8px; margin-bottom:3px}
+.phase-h b{font-size:13px; font-weight:700}
+.phase-h .w{font-family:var(--din); font-size:10px; font-weight:700; letter-spacing:.08em; color:var(--main)}
+.phase > p{margin:0 0 10px; font-size:10.5px; color:var(--ink-mute); line-height:1.6}
+.phase-i{display:flex; gap:9px; align-items:flex-start; padding:6px 0; border-bottom:1px solid var(--line-soft); font-size:11.5px; line-height:1.55}
+.phase-i:last-child{border-bottom:0}
+.phase-i em{font-style:normal; display:block; font-size:10.5px; color:var(--ink-mute)}
+.pbar{display:flex; height:26px; border-radius:4px; overflow:hidden; margin-top:4px}
+.pbar span{display:flex; align-items:center; justify-content:center; font-family:var(--din); font-size:10px;
+  font-weight:700; color:var(--on-fill); min-width:0; overflow:hidden; white-space:nowrap}
 .note{background:var(--surface); border:1px solid var(--line); border-left:4px solid var(--main); border-radius:6px;
   padding:12px 16px; font-size:11.5px; line-height:1.75; margin-top:12px}
 .note b{color:var(--main)}
@@ -311,6 +338,10 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
       <button type="button" class="nav-btn" data-v="cl">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/></svg>
         クラスター詳細
+      </button>
+      <button type="button" class="nav-btn" data-v="play">
+        <svg viewBox="0 0 24 24"><path d="M4 4h6v6H4z"/><path d="M14 4h6v6h-6z"/><path d="M4 14h6v6H4z"/><path d="M17 14v6"/><path d="M14 17h6"/></svg>
+        施策ライブラリ
       </button>
       <div class="nav-lab">プログラム分析</div>
       <button type="button" class="nav-btn" data-v="mem">
@@ -521,6 +552,82 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
               <div id="clActions"></div></div>
           </div>
         </div>
+        <div class="card" style="margin-top:12px">
+          <div class="card-h"><h3>施策ライブラリの打ち手</h3>
+            <span>他行ベンチマークから導出。<span class="pid main">主軸</span>＝原資の中心、<span class="pid sub">補助</span>＝上乗せ</span></div>
+          <div class="playgrid" id="clPlay"></div>
+        </div>
+      </section>
+
+      <!-- ============ 施策ライブラリ ============ -->
+      <section class="view" id="v-play" hidden>
+        <div class="kpis" id="playKpis"></div>
+
+        <div class="sec-h">
+          <h2>他行に学ぶ6つの型</h2>
+          <p>ポイント戦略に長けた17の金融機関の施策を、設計の型で分類したもの。右下の判定は<strong>ななポの現状</strong>。</p>
+        </div>
+        <div class="tcards" id="tcards"></div>
+
+        <div class="col2">
+          <div>
+            <div class="card"><div class="card-h"><h3>原資配分の構造</h3><span>年間ポイント原資に占める割合</span></div>
+              <svg class="c" id="cAlloc" viewBox="0 0 440 260" role="img" aria-label="原資配分の現状と実施後"></svg>
+              <div class="legend"><i><span class="sq" style="background:var(--n3)"></span>現状（ななポ実配点）</i><i><span class="sq" style="background:var(--g1)"></span>カタログ18本を実施した後</i></div>
+              <p id="allocNote" style="font-size:10.5px;color:var(--ink-mute);margin:10px 0 0;line-height:1.65"></p>
+            </div>
+          </div>
+          <div>
+            <div class="card"><div class="card-h"><h3>打ち手ポートフォリオ</h3><span>原資 × 期待ロイヤルティアップ</span></div>
+              <svg class="c" id="cPort" viewBox="0 0 440 330" role="img" aria-label="打ち手の原資と期待効果"></svg>
+              <div class="legend" id="portLeg"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sec-h">
+          <h2>打ち手カタログ</h2>
+          <p>効率の良い順。<strong>効率＝1人を上位クラスターへ動かすのに要するポイント原資</strong>。行をクリックすると対応する育成ルートを選択します。</p>
+        </div>
+        <div class="filters" style="margin-bottom:10px">
+          <div class="fset"><label for="fType">型</label>
+            <select id="fType">
+              <option value="all">すべての型</option>
+              <option value="T1">型1 ステージ</option>
+              <option value="T2">型2 常時付与</option>
+              <option value="T3">型3 残高連動</option>
+              <option value="T4">型4 切替イベント</option>
+              <option value="T5">型5 ミッション／抽選</option>
+              <option value="T6">型6 資産形成誘導</option>
+            </select>
+          </div>
+          <div class="fset"><label for="fCl">クラスター</label>
+            <select id="fCl"><option value="all">すべてのクラスター</option></select>
+          </div>
+        </div>
+        <div class="tw"><table id="playTable">
+          <thead><tr>
+            <th>ID</th><th>打ち手</th><th>型</th><th>ルート</th><th>対象</th><th class="n">対象人数</th>
+            <th class="n">単価</th><th class="n">反応率</th><th class="n">原資</th><th class="n">期待昇格</th><th class="n">効率</th><th>難度</th>
+          </tr></thead><tbody></tbody>
+        </table></div>
+        <div class="note" id="playNote"></div>
+
+        <div class="sec-h">
+          <h2>打ち手 × クラスター</h2>
+          <p>どのクラスターにどの型を当てるか。<span class="pid main">主軸</span> は原資の中心、<span class="pid sub">補助</span> は上乗せ。</p>
+        </div>
+        <div class="tw"><table id="matTable">
+          <thead><tr>
+            <th>クラスター</th><th class="n">人数</th>
+            <th>型1 ステージ</th><th>型2 常時付与</th><th>型3 残高連動</th><th>型4 切替イベント</th><th>型5 ミッション</th><th>型6 資産形成</th>
+            <th>ねらい</th>
+          </tr></thead><tbody></tbody>
+        </table></div>
+
+        <div class="sec-h"><h2>導入ステップ</h2><p>実装負荷と、効果測定の前提条件から決めた順序</p></div>
+        <div class="phases" id="phases"></div>
+        <div class="note" id="phaseNote"></div>
       </section>
 
       <!-- ============ 会員 ============ -->
@@ -1271,7 +1378,8 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
             '<div class="lever"><span class="tag">' + QUEUE[r.id][1] + "</span><span>" + QUEUE[r.id][0] +
             '<br><span style="color:var(--ink-mute);font-size:11px">' + QUEUE[r.id][2] + "・期限 " +
             QUEUE[r.id][3] + '　<span class="st ' + QUEUE[r.id][4] + '">' + ST_LAB[QUEUE[r.id][4]] +
-            "</span></span></span></div>" : "") + "</div>" +
+            "</span></span></span></div>" : "") +
+          playFor(r.id) + "</div>" +
         "<div><h4>スコアの変化</h4>" + [
           ["取引の広がり", a.b, b.b],
           ["デジタル接点", a.l, b.l],
@@ -1987,6 +2095,29 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
           }).join("");
       }).join("");
     }
+    document.getElementById("clPlay").innerHTML = playForCluster(c.id);
+  }
+
+  // 施策ライブラリへの導線。ルート／クラスターに割り当てた打ち手を並べる。
+  function playLine(p, isMain) {
+    return '<div class="lever"><span class="pid ' + (isMain ? "main" : "sub") + '">' + p.id + "</span>" +
+      "<span>" + p.nm +
+      '<br><span style="color:var(--ink-mute);font-size:11px">' + TYPE[p.t].n +
+      "・単価 " + (p.stock ? "原資なし" : fmt(p.cost) + "pt") +
+      "・期待昇格 " + fmt(p.up) + "人</span></span></div>";
+  }
+  function playFor(routeId) {
+    var ps = PLAY.filter(function (p) { return p.rt.indexOf(routeId) >= 0; });
+    if (!ps.length) return "";
+    return '<h4 style="margin-top:16px">施策ライブラリの打ち手</h4>' +
+      ps.map(function (p) { return playLine(p, true); }).join("");
+  }
+  function playForCluster(id) {
+    var ps = PLAY.filter(function (p) {
+      return p.main.indexOf(id) >= 0 || (p.cl !== "ALL" && p.cl.indexOf(id) >= 0);
+    });
+    if (!ps.length) return '<p style="font-size:12px;color:var(--ink-mute);margin:0">該当する打ち手はありません。</p>';
+    return ps.map(function (p) { return playLine(p, p.main.indexOf(id) >= 0); }).join("");
   }
 
   /* ============================================================
@@ -2861,6 +2992,7 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
     road: ["ロイヤルティ顧客育成ロードマップ", "どのクラスターに誰がいて、次にどこへ、どの施策で動かすか"],
     mig:  ["遷移分析", "期首から期末にかけて、誰がどこへ動いたか"],
     cl:   ["クラスター詳細", "選択したクラスターのプロフィールと打ち手"],
+    play: ["施策ライブラリ", "他行のポイント施策から導いた打ち手と、クラスターへの割り当て"],
     mem:  ["会員", "会員数・構成・増減と、アクティブ率の推移"],
     acq:  ["会員獲得", "新規会員の獲得数・チャネル・紹介と、獲得後の定着"],
     eng:  ["エンゲージメント", "取引の鮮度、ポイント失効、在籍期間、休眠会員"],
@@ -2880,6 +3012,7 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
     document.getElementById("tTitle").textContent = VIEWS[v][0];
     document.getElementById("tSub").textContent = VIEWS[v][1];
     if (v === "cl") drawClusterDetail();
+    if (v === "play") drawPlaybook();
     if (v === "mig") drawMigration();
     if (v === "mem") drawMem();
     if (v === "acq") drawAcq();
@@ -2893,6 +3026,9 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
   Array.prototype.forEach.call(document.querySelectorAll(".nav-btn"), function (b) {
     b.addEventListener("click", function () { show(b.dataset.v); });
   });
+  ["fType", "fCl"].forEach(function (id) {
+    document.getElementById(id).addEventListener("change", drawPlayTable);
+  });
   document.getElementById("fPeriod").addEventListener("change", function (e) {
     period = e.target.value;
     refreshPeriod();
@@ -2905,6 +3041,421 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
     selCluster = RT.filter(function (r) { return r.id === id; })[0].from;
     if (!document.getElementById("v-cl").hidden) drawClusterDetail();
   };
+
+  /* ============================================================
+     施策ライブラリ（他行ベンチマーク × 打ち手カタログ）
+     ============================================================ */
+  var TYPE = {
+    T1: { n:"型1 ステージ",         s:"ステージ",     c:"#115A36" },
+    T2: { n:"型2 常時付与",         s:"常時付与",     c:"#018838" },
+    T3: { n:"型3 残高連動",         s:"残高連動",     c:"#51B883" },
+    T4: { n:"型4 切替イベント",     s:"切替",         c:"#3460FB" },
+    T5: { n:"型5 ミッション／抽選", s:"ミッション",   c:"#00A3BF" },
+    T6: { n:"型6 資産形成誘導",     s:"資産形成",     c:"#767676" }
+  };
+
+  // 他行ベンチマーク（2026年9月時点の公開情報）
+  var BENCH = [
+    { t:"T1", ttl:"取引の広がりに段位をつける",
+      cases:["楽天銀行 ハッピープログラム：5段階。最上位で ATM無料 月7回・他行振込無料 月3回",
+             "住信SBIネット銀行 スマプロランク：無料回数が最大15回",
+             "千葉銀行 ひまわり宣言：取引<b>項目数</b>で3ステージ",
+             "福岡銀行 mybank+：ステージ＋myCoin（地域特産品・他社ポイントへ交換）"],
+      lesson:"判定軸を残高ではなく<b>取引項目数</b>に置く行が多い。本ダッシュボードの横軸と同じ思想。",
+      gap:"大", now:"顧客に見える段位と特典差がない" },
+    { t:"T2", ttl:"行動そのものに値札をつける",
+      cases:["三菱UFJ銀行 メインバンク プラス：2021年に<b>ステージ判定を廃止</b>し取引ごと付与へ",
+             "　ログイン 5Ponta/月、口座振替・カード引落 10Ponta/月、つみたて 1万円ごと 30Ponta/月",
+             "スルガ銀行 Gポイントクラブ：給与受取だけで毎月 50Gポイント"],
+      lesson:"単価は 5〜50pt と極小。原資で買うのではなく<b>「この行動にはポイントが付く」を毎月見せ続ける</b>ことが効いている。",
+      gap:"大", now:"付与は取引結果に対してのみ。行動への値札がない" },
+    { t:"T3", ttl:"ストックに報いる",
+      cases:["三井住友銀行 Olive：残高を増やすほどVポイント。最大20%、1カード月50,000pt上限",
+             "住信SBIネット銀行：月末残高200万円以上 → <b>翌月の</b>デビット還元率 最大2.0%（上限10,000pt）",
+             "楽天証券：投信残高が初めて基準額に到達した時点で付与"],
+      lesson:"他行は残高で終わらせず、<b>残高を条件に次の行動の還元率を上げる</b>二段構えにしている。",
+      gap:"部分", now:"配点の94.7%がこの型。一段目だけで止まっている" },
+    { t:"T4", ttl:"スイッチングコストを買い取る",
+      cases:["イオン銀行：年金受取指定で<b>6カ月間</b>毎月200 WAON POINT",
+             "ゆうちょ銀行：年金受給開始1年後に 1,000円",
+             "あおぞら銀行：給与・年金指定で<b>最大10万円が当たる抽選</b>",
+             "東京スター銀行：5万円以上の給与・年金で毎月抽選25名×25,000円",
+             "みずほ銀行 ご紹介：紹介者・被紹介者の<b>双方</b>に1,000円相当"],
+      lesson:"単価は高い（1,000円〜数万円相当）。<b>抽選にして期待値を下げつつ見出しを大きくする</b>のが定番。",
+      gap:"大", now:"給与・年金受取 各20pt のみ" },
+    { t:"T5", ttl:"頻度をつくる",
+      cases:["楽天銀行：週1回×合計3回のログインで抽選300名×500円。<b>回数が増えるほど応募口数が増える</b>",
+             "三井住友銀行 はじめよう＆おかえり：エントリー後ログインで達成（<b>休眠復帰</b>狙い）",
+             "楽天Edy：複数ミッションから<b>1つ以上</b>達成で150pt",
+             "西日本シティ銀行：デジタルギフトでアプリ利用者を獲得"],
+      lesson:"低単価で起動・ログインの<b>頻度</b>を作る。達成のハードルを下げ、上限は開けておく。",
+      gap:"大", now:"該当なし" },
+    { t:"T6", ttl:"一過性の申込を買わない",
+      cases:["りそな銀行：つみたての<b>開始または増額</b>が条件",
+             "京都銀行 NISA：会員登録が条件。付与ポイントに<b>有効期限</b>を設定",
+             "マネックス証券：<b>3ヶ月連続</b>で継続した人を対象に抽選",
+             "イオン銀行：NISAデビュー応援プラン"],
+      lesson:"条件が「開始」ではなく<b>「3ヶ月連続」「増額」</b>。翌月止める顧客に原資を払わない設計。",
+      gap:"大", now:"投資信託・NISAは付与対象外" }
+  ];
+
+  // 打ち手カタログ。pop はクラスター人数から算出するため、他画面と必ず一致する。
+  //   cost=単価(pt/人) resp=反応率(%) upl=反応者のうち昇格に至る率(%)
+  //   fee:true  … ポイントではなく手数料優遇が原資
+  //   stock:true… 既存の未利用ポイント残高を動かす（新規原資なし）
+  var PLAY = [
+    { id:"P01", t:"T1", nm:"ステージ制度（4段位＋手数料優遇）", rt:["全体"], cl:"ALL", main:["C1","C2","C4","C5"],
+      cost:170, resp:100, upl:0.8, diff:"高", fee:true,
+      bm:"楽天銀行／住信SBI／千葉銀行／福岡銀行",
+      note:"段位と特典差を顧客に見せる。他の17本の受け皿になる基盤投資。" },
+    { id:"P02", t:"T1", nm:"取引項目数ボーナス（階段設計）", rt:["R1","R4"], cl:["C4","C5"], main:["C4","C5"],
+      cost:300, resp:9, upl:26, diff:"中",
+      bm:"千葉銀行 ひまわり宣言",
+      note:"「あと1項目で次の段位」を提示する。横軸＝取引の広がりを直接動かす。" },
+    { id:"P03", t:"T2", nm:"アプリ月次ログインポイント", rt:["R3","R5"], cl:["C3","C6"], main:["C3","C6"],
+      cost:60, resp:34, upl:9, diff:"低",
+      bm:"三菱UFJ メインバンク プラス（5Ponta/月）",
+      note:"単価60pt/年。縦軸＝デジタル接点の底上げに最も効率が良い。" },
+    { id:"P04", t:"T2", nm:"口座振替ポイント（件数連動）", rt:["R1","R6"], cl:["C4","C8"], main:["C8"],
+      cost:120, resp:11, upl:21, diff:"低",
+      bm:"三菱UFJ（10Ponta/月）／スルガ銀行 Gポイント付き口座振替",
+      note:"件数が増えるほど単価を上げる。解約されにくい取引を積む。" },
+    { id:"P05", t:"T2", nm:"つみたて額連動ポイント", rt:["R2"], cl:["C2","C4"], main:["C2"],
+      cost:360, resp:6, upl:33, diff:"中",
+      bm:"三菱UFJ（1万円ごと30Ponta/月）",
+      note:"金額に比例させる。増額のインセンティブが常時働く。" },
+    { id:"P06", t:"T3", nm:"残高ステップアップボーナス", rt:["R7","R9"], cl:["C7","C9"], main:[],
+      cost:200, resp:7, upl:14, diff:"低",
+      bm:"楽天証券 残高初到達ボーナス",
+      note:"基準額に初めて到達した時点で一度だけ付与。継続保有には払わない。" },
+    { id:"P07", t:"T3", nm:"残高条件つきデビット還元率アップ", rt:["R1","R6"], cl:["C4","C8"], main:["C4"],
+      cost:480, resp:13, upl:24, diff:"中",
+      bm:"住信SBI（残高200万円→翌月最大2.0%・上限10,000pt）",
+      note:"残高を条件に、動かせる行動（決済）の還元率を上げる二段構え。" },
+    { id:"P08", t:"T4", nm:"給与振込スタートボーナス", rt:["R1"], cl:["C4"], main:["C4"],
+      cost:1000, resp:12, upl:46, diff:"中",
+      bm:"JRE BANK（1,600pt）／SBI新生銀行／楽天銀行",
+      note:"メインバンク化の起点。昇格寄与率46%と全打ち手で最大級。" },
+    { id:"P09", t:"T4", nm:"年金受取スタート＋6ヶ月継続", rt:["R3"], cl:["C3"], main:["C3"],
+      cost:1200, resp:15, upl:38, diff:"中",
+      bm:"イオン銀行（6カ月間 月200 WAON POINT）／ゆうちょ（1年後1,000円）",
+      note:"C3の年代構成（60代以上71%）に最も合う。受取を継続条件にする。" },
+    { id:"P10", t:"T4", nm:"公共料金おまとめボーナス", rt:["R1","R6"], cl:["C4","C8"], main:["C4"],
+      cost:300, resp:10, upl:27, diff:"低",
+      bm:"スルガ銀行 Gポイント付き口座振替",
+      note:"2件目・3件目に単価を寄せる。ななポの公共料金は現状 各5pt。" },
+    { id:"P11", t:"T4", nm:"家族・友人紹介プログラム", rt:["R8"], cl:["C10"], main:["C10"],
+      cost:2000, resp:2, upl:55, diff:"中",
+      bm:"みずほ銀行 ご紹介プログラム（双方1,000円相当）",
+      note:"双方に付与する。母数50万人のC10に最も届きやすい経路。" },
+    { id:"P12", t:"T5", nm:"連続ログイン抽選", rt:["R5","R9"], cl:["C6","C9"], main:[],
+      cost:15, resp:22, upl:6, diff:"低",
+      bm:"楽天銀行（週1回×3回で抽選300名×500円）",
+      note:"期待値15pt。ログイン回数で応募口数を増やし、頻度を作る。" },
+    { id:"P13", t:"T5", nm:"月替わりミッション（3択）", rt:["R4","R6"], cl:["C5","C8"], main:["C5","C8"],
+      cost:150, resp:27, upl:11, diff:"中",
+      bm:"楽天Edy（1つ以上達成で150pt）",
+      note:"「1つ以上でOK」にして達成率を上げる。最大母数C5の底上げ用。" },
+    { id:"P14", t:"T5", nm:"休眠復帰キャンペーン", rt:["R9"], cl:["C9"], main:["C9"],
+      cost:300, resp:8, upl:19, diff:"低",
+      bm:"三井住友銀行 はじめよう＆おかえりキャンペーン",
+      note:"単価上限を設けて運用する。反応がなければ投資を止める。" },
+    { id:"P15", t:"T5", nm:"アプリDL＋ななポ登録ギフト", rt:["R8"], cl:["C10"], main:["C10"],
+      cost:500, resp:4, upl:42, diff:"低",
+      bm:"西日本シティ銀行（デジタルギフトでアプリ利用者獲得）",
+      note:"C10の一部はホールドアウトとして非配信で残し、効果測定に使う。" },
+    { id:"P16", t:"T6", nm:"NISAつみたて3ヶ月連続", rt:["R1","R2"], cl:["C2","C4"], main:["C2"],
+      cost:500, resp:5, upl:36, diff:"中",
+      bm:"マネックス証券（3ヶ月連続で抽選）／りそな（開始・増額）",
+      note:"申込だけの顧客に払わない。NISAが付与対象になるかは要確認事項。" },
+    { id:"P17", t:"T5", nm:"期限付きポイントによる利用喚起", rt:["全体"], cl:"ALL", main:["C1"],
+      cost:0, resp:31, upl:2, diff:"低", stock:true,
+      bm:"京都銀行 NISAキャンペーン（有効期限つき付与）",
+      note:"新規原資ゼロ。未利用ポイント残高18.42億円という負債を動かす。" },
+    { id:"P18", t:"T6", nm:"資産形成デビュー（少額つみたて）", rt:["R7"], cl:["C7"], main:["C7"],
+      cost:400, resp:6, upl:29, diff:"中",
+      bm:"イオン銀行 NISAデビュー応援プラン",
+      note:"1,000円から。C7ポイントファンに初めての金融取引を作る。" }
+  ];
+
+  var CLMAP = {};
+  CL.forEach(function (c) { CLMAP[c.id] = c; });
+
+  PLAY.forEach(function (p) {
+    p.pop   = p.cl === "ALL" ? MEMBERS
+            : p.cl.reduce(function (a, id) { return a + CLMAP[id].n; }, 0);
+    p.reach = Math.round(p.pop * p.resp / 100);
+    p.bud   = Math.round(p.reach * p.cost);          // 原資（pt 相当）
+    p.up    = Math.round(p.reach * p.upl / 100);     // 期待ロイヤルティアップ（人）
+    p.eff   = p.up ? Math.round(p.bud / p.up) : 0;   // 1人あたり原資
+  });
+  var PLAY_EFF = PLAY.slice().sort(function (a, b) { return a.eff - b.eff; });
+
+  // 集計。P01 は手数料原資、P17 は既存残高なのでポイント原資には数えない。
+  var PT_BUD  = PLAY.reduce(function (a, p) { return a + (p.fee || p.stock ? 0 : p.bud); }, 0);
+  var PT_UP   = PLAY.reduce(function (a, p) { return a + (p.fee ? 0 : p.up); }, 0);
+  var PT_GAIN = PT_UP * DID_PP;
+  var COST_PT_YEAR = NANA_TOTAL * 12;   // 現行ななポの年間付与
+
+  // 現行ななポの配点（2,195pt）を型に割り当てた構成比
+  var NANA_MIX = { T1:0, T2:3.4, T3:94.7, T4:1.8, T5:0, T6:0 };
+
+  var PHASE = [
+    { w:"PHASE 1", ttl:"計測の土台と低単価施策", per:"0〜3ヶ月",
+      why:"原資をほとんど使わずに始められ、かつフェーズ2以降の前提になるもの。",
+      items:[["P17","未利用ポイント残高という負債を動かす。新規原資ゼロ"],
+             ["P12","単価15pt。ミッション運用の型を小さく試す"],
+             ["P03","接点スコアの底上げに最も効率が良い"],
+             ["—","<b>エントリー機構の実装</b>。以降の全施策の前提であり、統制群もここで作る"]] },
+    { w:"PHASE 2", ttl:"取引の広がりを厚くする", per:"3〜6ヶ月",
+      why:"エントリー機構が動いていることが前提。ここから DiD による効果測定を本格化する。",
+      items:[["P02","「あと1項目」を提示する階段設計"],["P04","口座振替の件数連動"],
+             ["P10","公共料金の2件目・3件目に単価を寄せる"],["P13","最大母数C5の底上げ"],
+             ["P14","単価上限つきで休眠を掘り起こす"]] },
+    { w:"PHASE 3", ttl:"高単価・制度変更をともなうもの", per:"6〜12ヶ月",
+      why:"勘定系・手数料体系の変更や大きな原資を要する。フェーズ1〜2の実測値を稟議の根拠にする。",
+      items:[["P01","<b>基盤投資</b>。単体の効率は最下位だが他の17本の受け皿になる"],
+             ["P07","残高→還元率アップの二段構え"],["P08","メインバンク化の起点"],
+             ["P09","C3の年代構成に最も合う"],["P11","母数50万人のC10への経路"],
+             ["P15","一部をホールドアウトとして残す"],["P16","3ヶ月連続を条件にする"],
+             ["P05","つみたて額に比例させる"],["P18","C7に初めての金融取引を作る"]] }
+  ];
+
+  function pidChip(id, isMain) {
+    return '<span class="pid ' + (isMain ? "main" : "sub") + '">' + id + "</span>";
+  }
+
+  function drawPlaybook() {
+    // ---- KPI ----
+    document.getElementById("playKpis").innerHTML =
+      kpi({ fill: true, lab: "打ち手カタログ", val: PLAY.length, unit: "本",
+            sub: "他行17機関の施策を6つの型に整理して導出" }) +
+      kpi({ lab: "提案ポイント原資（年）", val: yenV(PT_BUD), unit: yenU(PT_BUD),
+            delta: "+" + (PT_BUD / COST_PT_YEAR * 100).toFixed(1) + "%", dir: "up",
+            sub: "現行ななポ " + yen(COST_PT_YEAR) + " に対する増分" }) +
+      kpi({ lab: "期待ロイヤルティアップ", val: fmt(PT_UP), unit: "人",
+            sub: "反応者のうち上位クラスターへ動く人数の合計" }) +
+      kpi({ lab: "想定ROI", val: (PT_GAIN / PT_BUD).toFixed(1), unit: "倍",
+            sub: "増分収益 " + yen(PT_GAIN) + " ÷ ポイント原資" }) +
+      kpi({ lab: "平均効率", val: fmt(Math.round(PT_BUD / PT_UP)), unit: "pt/人",
+            sub: "1人を上位クラスターへ動かす原資" });
+
+    // ---- 6つの型 ----
+    document.getElementById("tcards").innerHTML = BENCH.map(function (b) {
+      var t = TYPE[b.t];
+      return '<div class="tcard" style="border-top-color:' + t.c + '">' +
+        '<div class="tcard-h"><span class="tid" style="background:' + t.c + '">' + b.t + "</span>" +
+        "<b>" + t.n.replace(/^型\d /, "") + "</b></div>" +
+        "<p>" + b.ttl + "</p><ul>" +
+        b.cases.map(function (c) { return "<li>" + c + "</li>"; }).join("") + "</ul>" +
+        '<p style="margin-bottom:0">' + b.lesson + "</p>" +
+        '<div class="gap"><span class="pill ' + (b.gap === "大" ? "risk" : "low") + '">ギャップ' + b.gap + "</span>" +
+        "<span>ななポの現状：" + b.now + "</span></div></div>";
+    }).join("");
+
+    // ---- 原資配分 ----
+    var addByType = {}, totalAfter = COST_PT_YEAR + PT_BUD;
+    PLAY.forEach(function (p) {
+      if (p.fee || p.stock) return;
+      addByType[p.t] = (addByType[p.t] || 0) + p.bud;
+    });
+    var allocRows = Object.keys(TYPE).map(function (k) {
+      var now = COST_PT_YEAR * NANA_MIX[k] / 100;
+      var after = now + (addByType[k] || 0);
+      return { label: TYPE[k].n, v: [+(after / totalAfter * 100).toFixed(1), NANA_MIX[k]] };
+    });
+    hGroupBars("cAlloc", allocRows, [{ color: "#018838" }, { color: "#959595" }], 100, "%");
+    document.getElementById("allocNote").innerHTML =
+      "カタログ18本をすべて実施しても、残高連動の比率は <b>94.7% → " +
+      allocRows[2].v[0].toFixed(1) + "%</b> にしか下がらない。" +
+      "新規原資は現行比 +" + (PT_BUD / COST_PT_YEAR * 100).toFixed(1) + "% にすぎないためで、" +
+      "配分構造そのものを変えるには<b>既存配点の組み替え</b>（預金残高の配点の一部を行動・切替へ振り替える）が要る。";
+
+    // ---- ポートフォリオ ----
+    portfolio();
+    document.getElementById("portLeg").innerHTML =
+      Object.keys(TYPE).map(function (k) {
+        return '<i><span class="sq" style="background:' + TYPE[k].c + '"></span>' + TYPE[k].n + "</i>";
+      }).join("") +
+      '<i style="color:#959595">※ 円の面積＝対象人数。P01 は原資が桁違いのため図から除外</i>';
+
+    // ---- カタログ表 ----
+    var sel = document.getElementById("fCl");
+    if (sel.options.length === 1) {
+      CL.forEach(function (c) {
+        sel.appendChild(opt(c.id, c.id + " " + c.name));
+      });
+    }
+    drawPlayTable();
+
+    // ---- マトリクス ----
+    var mtb = document.querySelector("#matTable tbody");
+    mtb.textContent = "";
+    var AIM = {
+      C1:"維持。新規原資は投下せず、未利用ポイントの消化に絞る",
+      C2:"資産形成の継続・増額と、接点のアプリ側への移行",
+      C3:"アプリ初回到達が最優先。年金受取の継続で接点を作る",
+      C4:"給与振込・口座振替・決済で取引の広がりを一気に厚くする",
+      C5:"最大母数。低単価のミッションで底上げし、反応者に切替施策を当てる",
+      C6:"まずアプリを開かせる。原資は最小に抑える",
+      C7:"少額つみたてで初めての金融取引を作る",
+      C8:"口座振替とデビットで取引の広がりを立ち上げる",
+      C9:"単価上限つきで掘り起こす。反応がなければ止める",
+      C10:"アプリ獲得と紹介。一部はホールドアウトとして残す"
+    };
+    CL.forEach(function (c) {
+      var tds = Object.keys(TYPE).map(function (k) {
+        var ids = PLAY.filter(function (p) {
+          return p.t === k && (p.cl === "ALL" || p.cl.indexOf(c.id) >= 0);
+        });
+        if (!ids.length) return '<td style="color:var(--disabled)">—</td>';
+        return "<td>" + ids.map(function (p) {
+          return pidChip(p.id, p.main.indexOf(c.id) >= 0);
+        }).join("") + "</td>";
+      }).join("");
+      var tr = document.createElement("tr");
+      tr.innerHTML = "<td><b>" + c.id + "</b> " + c.name + '</td><td class="n">' + fmt(c.n) + "</td>" +
+        tds + '<td style="font-size:11px;color:var(--ink-mute)">' + AIM[c.id] + "</td>";
+      mtb.appendChild(tr);
+    });
+
+    // ---- 導入ステップ ----
+    document.getElementById("phases").innerHTML = PHASE.map(function (ph) {
+      return '<div class="phase"><div class="phase-h"><span class="w">' + ph.w + "</span><b>" + ph.ttl +
+        '</b><span style="font-size:10.5px;color:var(--ink-mute);margin-left:auto">' + ph.per + "</span></div>" +
+        "<p>" + ph.why + "</p>" +
+        ph.items.map(function (it) {
+          var p = PLAY.filter(function (x) { return x.id === it[0]; })[0];
+          return '<div class="phase-i"><span class="pid ' + (p ? "main" : "sub") + '">' + it[0] + "</span>" +
+            "<span>" + (p ? p.nm : "エントリー機構") + "<em>" + it[1] + "</em></span></div>";
+        }).join("") + "</div>";
+    }).join("");
+
+    var ph1 = PHASE[0].items.reduce(function (a, it) {
+      var p = PLAY.filter(function (x) { return x.id === it[0]; })[0];
+      return a + (p && !p.fee && !p.stock ? p.bud : 0);
+    }, 0);
+    document.getElementById("phaseNote").innerHTML =
+      "<b>フェーズ1の原資は " + yen(ph1) + "</b>（提案原資全体の " +
+      (ph1 / PT_BUD * 100).toFixed(0) + "%）。ここで確かめるのは効果そのものではなく、" +
+      "<b>エントリー・上限管理・統制群の3点が運用に乗るか</b>である。" +
+      "他行の施策に共通する設計文法のうち「エントリー必須」「付与上限の明示」「継続を条件にする」は、" +
+      "いずれも原資管理と効果測定の前提であり、これが無いまま高単価施策（P08・P09・P11）に進むと、" +
+      "原資は出るが効果が測れないという最悪の状態になる。";
+  }
+
+  function opt(val, txt) {
+    var e = document.createElement("option");
+    e.value = val; e.textContent = txt;
+    return e;
+  }
+
+  function drawPlayTable() {
+    var ft = document.getElementById("fType").value;
+    var fc = document.getElementById("fCl").value;
+    var tb = document.querySelector("#playTable tbody");
+    tb.textContent = "";
+    var rows = PLAY_EFF.filter(function (p) {
+      if (ft !== "all" && p.t !== ft) return false;
+      if (fc !== "all" && !(p.cl === "ALL" || p.cl.indexOf(fc) >= 0)) return false;
+      return true;
+    });
+    rows.forEach(function (p) {
+      var t = TYPE[p.t], tr = document.createElement("tr");
+      tr.innerHTML =
+        '<td><span class="pid main">' + p.id + "</span></td>" +
+        "<td><b>" + p.nm + "</b>" +
+          '<div style="font-size:10.5px;color:var(--ink-mute);line-height:1.55;margin-top:2px">' + p.note +
+          "<br>参考：" + p.bm + "</div></td>" +
+        '<td><span class="pill" style="background:' + t.c + ';color:#FFFFFF">' + t.s + "</span></td>" +
+        '<td style="font-size:11px;font-family:var(--din)">' + p.rt.join(" ") + "</td>" +
+        '<td style="font-size:11px;white-space:nowrap">' + (p.cl === "ALL" ? "全会員" : p.cl.join(" ")) + "</td>" +
+        '<td class="n">' + fmt(p.pop) + "</td>" +
+        '<td class="n">' + (p.stock ? "—" : fmt(p.cost) + (p.fee ? "※" : "")) + "</td>" +
+        '<td class="n">' + p.resp + "%</td>" +
+        '<td class="n">' + (p.stock ? "—" : yen(p.bud) + (p.fee ? "※" : "")) + "</td>" +
+        '<td class="n" style="font-weight:700;color:var(--main)">' + fmt(p.up) + "</td>" +
+        '<td class="n">' + (p.stock || !p.up ? "—" : fmt(p.eff)) + "</td>" +
+        "<td>" + p.diff + "</td>";
+      var r = p.rt.filter(function (x) { return /^R\d$/.test(x); })[0];
+      if (r) {
+        tr.style.cursor = "pointer";
+        tr.addEventListener("click", function () { selectRoute(r); show("road"); });
+      }
+      tb.appendChild(tr);
+    });
+    document.getElementById("playNote").innerHTML =
+      "<b>" + rows.length + "本を表示中。</b>" +
+      "効率の分母は<b>期待ロイヤルティアップ人数</b>で、ロードマップのルート別ROIとは分母が異なる（あちらは増分収益）。" +
+      "P01 の単価 170pt※ はポイントではなく<b>手数料優遇の相当額</b>で、ポイント原資には数えていない。" +
+      "単体の効率は 21,250pt/人 と最下位だが、P02 の階段設計も P07 の還元率アップも段位がなければ成立しないため、" +
+      "<b>単独の打ち手ではなく基盤投資として評価する</b>。" +
+      "P17 は既存の未利用ポイント残高を動かすもので新規原資は発生しない。" +
+      "反応率・昇格寄与率はいずれも他行の相場観からの想定値であり、実施後の実測値で置き換える。";
+  }
+
+  // 打ち手ポートフォリオ（原資 × 期待昇格、面積＝対象人数）
+  function portfolio() {
+    var s = clear("cPort"), W = 440, H = 330, X0 = 46, X1 = W - 16, Y0 = 16, Y1 = H - 44;
+    var pts = PLAY.filter(function (p) { return !p.fee; });
+    var xmax = 22, ymax = 9000, POPMAX = 700000;   // 原資は百万pt 単位で見る
+    [0, .25, .5, .75, 1].forEach(function (t) {
+      var y = Y1 - t * (Y1 - Y0);
+      s.appendChild(el("line", { x1: X0, y1: y, x2: X1, y2: y, stroke: "#EFF2F0" }));
+      s.appendChild(el("text", { x: X0 - 6, y: y + 3.5, "text-anchor": "end", class: "num",
+        "font-size": 9, fill: "#767676" }, (ymax * t / 1000).toFixed(1) + "k"));
+      var x = X0 + t * (X1 - X0);
+      s.appendChild(el("text", { x: x, y: Y1 + 15, "text-anchor": "middle", class: "num",
+        "font-size": 9, fill: "#767676" }, (xmax * t).toFixed(0)));
+    });
+    // 平均効率の等高線（この線より上＝平均より効率が良い）
+    var avg = PT_BUD / PT_UP;
+    var xEnd = Math.min(xmax, ymax * avg / 1e6);
+    s.appendChild(el("line", { x1: X0, y1: Y1, x2: X0 + xEnd / xmax * (X1 - X0),
+      y2: Y1 - (xEnd * 1e6 / avg) / ymax * (Y1 - Y0), stroke: "#B9C2BC", "stroke-dasharray": "4 4" }));
+    s.appendChild(el("text", { x: X0 + xEnd / xmax * (X1 - X0) - 4,
+      y: Y1 - (xEnd * 1e6 / avg) / ymax * (Y1 - Y0) - 6, "text-anchor": "end",
+      "font-size": 9, fill: "#959595" }, "平均効率 " + fmt(Math.round(avg)) + "pt/人"));
+
+    var placed = [];
+    pts.forEach(function (p) {
+      var cx = X0 + (p.bud / 1e6) / xmax * (X1 - X0);
+      var cy = Y1 - p.up / ymax * (Y1 - Y0);
+      var r  = 4 + 12 * Math.sqrt(p.pop / POPMAX);
+      s.appendChild(el("circle", { cx: cx, cy: cy, r: r, fill: TYPE[p.t].c,
+        "fill-opacity": .62, stroke: "#FFFFFF", "stroke-width": 1.2 }));
+      var spot = labelPos(cx, cy, r, placed, X0, X1, Y0, Y1);
+      placed.push(spot.box);
+      halo(s, { x: spot.x, y: spot.y, "text-anchor": spot.anchor, class: "num",
+        "font-size": 9.5, "font-weight": 700, fill: "#1A1A1C" }, p.id);
+    });
+    s.appendChild(el("text", { x: (X0 + X1) / 2, y: H - 8, "text-anchor": "middle",
+      "font-size": 10.5, fill: "#767676" }, "ポイント原資（百万pt＝百万円）"));
+    s.appendChild(el("text", { x: 11, y: (Y0 + Y1) / 2, "text-anchor": "middle", "font-size": 10.5,
+      fill: "#767676", transform: "rotate(-90 11 " + ((Y0 + Y1) / 2) + ")" }, "期待ロイヤルティアップ（人）"));
+  }
+
+  // ラベルの置き場所を右→左→上→下の順で探し、既存ラベルと重ならない位置を返す
+  function labelPos(cx, cy, r, placed, X0, X1, Y0, Y1) {
+    var w = 21, h = 11;
+    var cands = [
+      { dx: r + 3,  dy: 3.5, a: "start" }, { dx: -(r + 3), dy: 3.5,      a: "end" },
+      { dx: 0,      dy: -(r + 4), a: "middle" }, { dx: 0,  dy: r + 11,   a: "middle" },
+      { dx: r + 3,  dy: -(r + 1), a: "start" },  { dx: -(r + 3), dy: r + 10, a: "end" }
+    ];
+    for (var i = 0; i < cands.length; i++) {
+      var c = cands[i], x = cx + c.dx, y = cy + c.dy;
+      var bx = c.a === "start" ? x : c.a === "end" ? x - w : x - w / 2;
+      var box = { x: bx, y: y - h + 2, w: w, h: h };
+      if (box.x < X0 || box.x + box.w > X1 || box.y < Y0 || box.y + box.h > Y1) continue;
+      var hit = placed.some(function (q) {
+        return box.x < q.x + q.w && box.x + box.w > q.x && box.y < q.y + q.h && box.y + box.h > q.y;
+      });
+      if (!hit) return { x: x, y: y, anchor: c.a, box: box };
+    }
+    var fx = cx + r + 3, fy = cy + 3.5;
+    return { x: fx, y: fy, anchor: "start", box: { x: fx, y: fy - h + 2, w: w, h: h } };
+  }
 
   /* ============================================================
      初期化
