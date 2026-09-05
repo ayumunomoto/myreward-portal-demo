@@ -86,6 +86,9 @@ button{font-family:inherit; color:inherit}
 .kpi .val{font-family:var(--din); font-size:34px; font-weight:600; line-height:1.15; font-variant-numeric:tabular-nums; letter-spacing:-.01em; white-space:nowrap}
 .kpi.fill .val{font-size:36px}
 .kpi .val small{font-size:14px; font-weight:500; margin-left:2px}
+.kpi .val.w5{font-size:29px} .kpi.fill .val.w5{font-size:31px}
+.kpi .val.w7{font-size:25px} .kpi.fill .val.w7{font-size:26px}
+.kpi .val.w7 small,.kpi .val.w5 small{font-size:12.5px}
 .kpi .sub{font-size:10.5px; color:var(--ink-mute); margin-top:3px; line-height:1.5}
 .kpi.fill .sub{color:rgba(255,255,255,.85)}
 .delta{font-family:var(--din); font-size:11.5px; font-weight:600; font-variant-numeric:tabular-nums}
@@ -266,6 +269,10 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
         クラスター詳細
       </button>
       <div class="nav-lab">プログラム分析</div>
+      <button type="button" class="nav-btn" data-v="mem">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9.5" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        会員
+      </button>
       <button type="button" class="nav-btn" data-v="acq">
         <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6"/><path d="M22 11h-6"/></svg>
         会員獲得
@@ -456,6 +463,40 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
               <div id="clActions"></div></div>
           </div>
         </div>
+      </section>
+
+      <!-- ============ 会員 ============ -->
+      <section class="view" id="v-mem" hidden>
+        <div class="kpis" id="memKpis"></div>
+
+        <div class="sec-h"><h2>会員の構成</h2><p>ななポ会員が個人顧客全体に対してどの層に偏っているか</p></div>
+        <div class="chart-grid">
+          <div class="card"><div class="card-h"><h3>年齢分布</h3><span>会員 ／ 個人顧客全体</span></div>
+            <svg class="c" id="cMemAge" viewBox="0 0 440 260" role="img" aria-label="会員の年齢分布"></svg>
+            <div class="legend"><i><span class="sq" style="background:var(--g1)"></span>ななポ会員</i><i><span class="sq" style="background:var(--nbg)"></span>個人顧客 全体</i></div>
+          </div>
+          <div class="card"><div class="card-h"><h3>性別構成</h3><span>ななポ会員</span></div>
+            <svg class="c" id="cMemSex" viewBox="0 0 440 250" role="img" aria-label="会員の性別構成"></svg>
+          </div>
+        </div>
+        <div class="card" style="margin-top:12px">
+          <div class="card-h"><h3>年代 × 性別</h3><span>会員数（人）</span></div>
+          <svg class="c" id="cPyramid" viewBox="0 0 900 300" role="img" aria-label="年代別・性別の会員数"></svg>
+          <div class="legend"><i><span class="sq" style="background:var(--g1)"></span>男性</i><i><span class="sq" style="background:var(--r1)"></span>女性</i><i><span class="sq" style="background:var(--nbg)"></span>未登録</i></div>
+        </div>
+
+        <div class="sec-h"><h2>会員数の増減</h2><p>入会と退会、その差引の純増。会員数は当月末の実数から逆算している</p></div>
+        <div class="chart-grid">
+          <div class="card"><div class="card-h"><h3>入会・退会と純増</h3><span>直近12ヶ月・人</span></div>
+            <svg class="c" id="cChurn" viewBox="0 0 440 290" role="img" aria-label="入会と退会の推移"></svg>
+            <div class="legend"><i><span class="sq" style="background:var(--g1)"></span>入会</i><i><span class="sq" style="background:var(--r1)"></span>退会</i><i><span class="sq" style="background:var(--g2)"></span>純増</i></div>
+          </div>
+          <div class="card"><div class="card-h"><h3>会員数・アクティブ数・アクティブ率</h3><span>直近12ヶ月</span></div>
+            <svg class="c" id="cActive" viewBox="0 0 440 290" role="img" aria-label="会員数とアクティブ数の推移"></svg>
+            <div class="legend"><i><span class="sq" style="background:var(--gbg)"></span>会員数（万人）</i><i><span class="sq" style="background:var(--g1)"></span>アクティブ会員（万人）</i><i><span class="sq" style="background:var(--g2)"></span>アクティブ率</i></div>
+          </div>
+        </div>
+        <div class="note" id="memNote"></div>
       </section>
 
       <!-- ============ 会員獲得 ============ -->
@@ -1301,7 +1342,8 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
   function kpi(o) {
     return '<div class="kpi' + (o.fill ? " fill" : "") + '">' +
       '<div class="lab">' + o.lab + "</div>" +
-      '<div class="val">' + o.val + (o.unit ? "<small>" + o.unit + "</small>" : "") + "</div>" +
+      '<div class="val' + (String(o.val).length >= 7 ? " w7" : String(o.val).length >= 5 ? " w5" : "") +
+        '">' + o.val + (o.unit ? "<small>" + o.unit + "</small>" : "") + "</div>" +
       '<div class="sub">' + (o.delta ? '<span class="delta ' + o.dir + '">' + o.delta + "</span> " : "") + o.sub + "</div></div>";
   }
 
@@ -1924,6 +1966,23 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
     { lab: "未接続", v: 342400, c: "#D9D9D9" }
   ];
 
+  /* ---------- 会員 ----------
+     会員数は「当月末の実数（MEMBERS）」から、入会・退会を遡って逆算する。
+     ハードコードした系列と実数がずれるのを防ぐため。 */
+  var MEM = {
+    join:  [6120,6480,6710,7240,7080,7390,7610,7840,8010,8180,8340,8420],
+    leave: [ 820, 790, 850, 900, 870, 910, 950, 880, 840, 830, 860, 920],
+    mau:   [38.4,38.9,39.2,39.8,39.5,40.1,40.4,41.0,41.3,41.7,42.0,42.3],
+    sex: [
+      { lab: "女性",   v: 359800, c: "#3460FB" },
+      { lab: "男性",   v: 323400, c: "#018838" },
+      { lab: "未登録", v:  16800, c: "#D9D9D9" }
+    ],
+    sexByAge: [  // 年代ごとの男性比率（残りが女性、未登録は別途按分）
+      0.441, 0.472, 0.487, 0.478, 0.451, 0.428
+    ]
+  };
+
   // 会員獲得
   var ACQ = {
     newM: 8420, newDelta: 12.4, referral: 1140, zeroTx: 1860, firstTx: 4290,
@@ -1934,10 +1993,9 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
       { lab: "アプリ内バナー", v: 1050, keep: 79.4, first: 66.2, cpa: 210, nana: 118 },
       { lab: "会員紹介", v: 1140, keep: 84.1, first: 72.8, cpa: 1000, nana: 134 }
     ],
-    newTrend: [6120,6480,6710,7240,7080,7390,7610,7840,8010,8180,8340,8420],
+    newTrend: MEM.join,
     refTrend: [610,660,700,790,750,810,860,910,980,1040,1090,1140],
-    members:  [62.1,63.0,63.8,64.9,65.6,66.4,67.0,67.9,68.5,69.1,69.6,70.0],
-    withTx:   [41.2,42.0,42.6,44.1,44.0,44.8,45.1,45.9,46.4,47.0,47.4,47.8]
+    members: null, withTx: null   // 下で MEMBERS から逆算して埋める
   };
 
   // エンゲージメント
@@ -2094,6 +2152,190 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
     })();
     donut("cTier", TIERS, fmt(MEMBERS), "ななポ会員");
     stack100("cSeg", SEGS);
+  }
+
+  /* ============================================================
+     会員
+     ============================================================ */
+  // 当月末の会員数から遡って月次の会員数を復元する
+  function memberSeries() {
+    var n = MEM.join.length, out = new Array(n);
+    out[n - 1] = MEMBERS;
+    for (var i = n - 1; i > 0; i--) out[i - 1] = out[i] - (MEM.join[i] - MEM.leave[i]);
+    return out;
+  }
+  var MEM_N = memberSeries();
+  ACQ.members = MEM_N.map(function (v) { return v / 10000; });
+  ACQ.withTx  = MEM_N.map(function (v, i) { return v * (MEM.mau[i] + 26.5) / 100 / 10000; });
+
+  // 年代構成を CL から集計する（会員＝C10 を除く／全体＝C10 を含む）
+  function ageMix(includeC10) {
+    var out = [0, 0, 0, 0, 0, 0], tot = 0;
+    CL.forEach(function (c) {
+      if (!includeC10 && c.id === "C10") return;
+      tot += c.n;
+      c.age.forEach(function (p, i) { out[i] += c.n * p / 100; });
+    });
+    return out.map(function (v) { return v / tot * 100; });
+  }
+
+  function drawMem() {
+    var n = MEM_N.length - 1;
+    var join = MEM.join[n], leave = MEM.leave[n], net = join - leave;
+    var active = Math.round(MEMBERS * MEM.mau[n] / 100);
+    // 平均在籍期間（ENG.tenure の代表値で加重）
+    var tYears = [0.13, 0.63, 2.0, 4.0, 7.5], tShare = [8.2, 19.4, 28.6, 21.1, 22.7];
+    var avgT = tYears.reduce(function (a, y, i) { return a + y * tShare[i]; }, 0) / 100;
+
+    document.getElementById("memKpis").innerHTML = [
+      kpi({ fill: true, lab: "総会員数（ななポ会員）", val: fmt(MEMBERS), unit: "人",
+            delta: "+" + (net / (MEMBERS - net) * 100).toFixed(2) + "%", dir: "up",
+            sub: "会員化率 " + (MEMBERS / TOTAL * 100).toFixed(1) + "%（個人顧客 " + man(TOTAL) + "万人）" }),
+      kpi({ lab: "当月 入会", val: fmt(join), unit: "人",
+            delta: "+" + ((join / MEM.join[n - 1] - 1) * 100).toFixed(1) + "%", dir: "up",
+            sub: "直近12ヶ月の合計 " + fmt(MEM.join.reduce(function (a, b) { return a + b; }, 0)) + "人" }),
+      kpi({ lab: "当月 退会", val: fmt(leave), unit: "人",
+            delta: "+" + ((leave / MEM.leave[n - 1] - 1) * 100).toFixed(1) + "%", dir: "down",
+            sub: "退会率 " + (leave / MEMBERS * 100).toFixed(3) + "%／月" }),
+      kpi({ lab: "純増", val: "+" + fmt(net), unit: "人",
+            sub: "入会 − 退会。12ヶ月で +" + fmt(MEMBERS - MEM_N[0]) + "人" }),
+      kpi({ lab: "アクティブ会員", val: fmt(active), unit: "人",
+            delta: "+0.3pt", dir: "up", sub: "アクティブ率 " + MEM.mau[n].toFixed(1) + "%（直近30日に起動）" }),
+      kpi({ lab: "平均在籍期間", val: avgT.toFixed(1), unit: "年",
+            sub: "5年以上の会員が " + tShare[4].toFixed(1) + "% を占める" })
+    ].join("");
+
+    /* --- 年齢分布：会員 vs 個人顧客全体 --- */
+    var mAge = ageMix(false), aAge = ageMix(true);
+    hGroupBars("cMemAge", AGES.map(function (a, i) {
+      return { label: a, v: [Number(mAge[i].toFixed(1)), Number(aAge[i].toFixed(1))] };
+    }), [{ color: "#018838" }, { color: "#D9D9D9" }], 30, "%");
+
+    /* --- 性別構成 --- */
+    donut("cMemSex", MEM.sex, fmt(MEMBERS), "ななポ会員");
+
+    /* --- 年代 × 性別（人口ピラミッド） --- */
+    (function () {
+      var s = clear("cPyramid"), W = 900, XC = 450, top = 24, rowH = 34;
+      var vals = AGES.map(function (a, i) {
+        var tot = MEMBERS * mAge[i] / 100;
+        var unk = tot * (MEM.sex[2].v / MEMBERS);
+        var m = (tot - unk) * MEM.sexByAge[i];
+        return { age: a, m: m, f: tot - unk - m, u: unk, tot: tot };
+      });
+      var mx = Math.max.apply(null, vals.map(function (v) { return Math.max(v.m, v.f); }));
+      var half = 300;
+      s.appendChild(el("text", { x: XC - 170, y: 14, "text-anchor": "middle", "font-size": 11,
+        "font-weight": 700, fill: "#018838" }, "男性"));
+      s.appendChild(el("text", { x: XC + 170, y: 14, "text-anchor": "middle", "font-size": 11,
+        "font-weight": 700, fill: "#3460FB" }, "女性"));
+      vals.forEach(function (v, i) {
+        var y = top + i * rowH;
+        s.appendChild(el("text", { x: XC, y: y + 12, "text-anchor": "middle", "font-size": 10.5,
+          fill: "#1A1A1C" }, v.age));
+        var wm = v.m / mx * half, wf = v.f / mx * half, wu = v.u / mx * half;
+        s.appendChild(el("rect", { x: XC - 38 - wm, y: y + 2, width: wm, height: 12, rx: 2, fill: "#018838" }));
+        s.appendChild(el("rect", { x: XC + 38, y: y + 2, width: wf, height: 12, rx: 2, fill: "#3460FB" }));
+        s.appendChild(el("rect", { x: XC + 38 + wf, y: y + 2, width: wu, height: 12, rx: 2, fill: "#D9D9D9" }));
+        s.appendChild(el("text", { x: XC - 44 - wm, y: y + 12, "text-anchor": "end", class: "num",
+          "font-size": 10, fill: "#115A36" }, fmt(Math.round(v.m))));
+        s.appendChild(el("text", { x: XC + 44 + wf + wu, y: y + 12, class: "num",
+          "font-size": 10, fill: "#00118F" }, fmt(Math.round(v.f))));
+      });
+      s.setAttribute("viewBox", "0 0 " + W + " " + (top + AGES.length * rowH + 6));
+    })();
+
+    /* --- 入会・退会と純増（発散棒＋折れ線） --- */
+    (function () {
+      var s = clear("cChurn"), W = 440, H = 290, X0 = 42, X1 = W - 42, Y0 = 20, Y1 = H - 40;
+      var step = (X1 - X0) / 12, bw = step * 0.5;
+      // 入会と退会は同一スケール。実際の比（約9:1）が見た目でも保たれるようにする。
+      var mxUp = 9000, mxDn = 1500;
+      var px = (Y1 - Y0) / (mxUp + mxDn);           // 1人あたりの高さ
+      var YC = Y0 + mxUp * px;                       // ゼロ線
+      s.appendChild(el("line", { x1: X0, y1: YC, x2: X1, y2: YC, stroke: "#D9D9D9" }));
+      [0.5, 1].forEach(function (t) {
+        var y = YC - t * mxUp * px;
+        s.appendChild(el("line", { x1: X0, y1: y, x2: X1, y2: y, stroke: "#EFF2F0" }));
+        s.appendChild(el("text", { x: X0 - 6, y: y + 3.5, "text-anchor": "end", class: "num",
+          "font-size": 9, fill: "#767676" }, fmt(mxUp * t)));
+      });
+      s.appendChild(el("text", { x: X0 - 6, y: YC + mxDn * px + 3.5, "text-anchor": "end", class: "num",
+        "font-size": 9, fill: "#767676" }, "−" + fmt(mxDn)));
+      MEM.join.forEach(function (v, i) {
+        s.appendChild(el("rect", { x: X0 + i * step + (step - bw) / 2, y: YC - v * px, width: bw,
+          height: v * px, rx: 1.5, fill: "#018838" }));
+      });
+      MEM.leave.forEach(function (v, i) {
+        s.appendChild(el("rect", { x: X0 + i * step + (step - bw) / 2, y: YC, width: bw,
+          height: v * px, rx: 1.5, fill: "#3460FB" }));
+      });
+      // 退会は入会の約1/9。見た目が潰れるので実数を添える
+      halo(s, { x: X1, y: YC + MEM.leave[11] * px + 13, "text-anchor": "end", class: "num",
+        "font-size": 10, "font-weight": 700, fill: "#00118F" }, "退会 " + fmt(MEM.leave[11]) + "人");
+      var net = MEM.join.map(function (v, i) { return v - MEM.leave[i]; });
+      var pts = net.map(function (v, i) { return [X0 + i * step + step / 2, YC - v * px]; });
+      s.appendChild(el("path", { d: "M" + pts.map(function (q) { return q[0].toFixed(1) + "," + q[1].toFixed(1); }).join(" L"),
+        fill: "none", stroke: "#115A36", "stroke-width": 2.2, "stroke-linejoin": "round" }));
+      s.appendChild(el("circle", { cx: pts[11][0], cy: pts[11][1], r: 4, fill: "#115A36",
+        stroke: "#FFFFFF", "stroke-width": 1.4 }));
+      halo(s, { x: pts[11][0], y: pts[11][1] - 10, "text-anchor": "end", class: "num",
+        "font-size": 11, "font-weight": 700, fill: "#115A36" }, "+" + fmt(net[11]));
+      M12.forEach(function (l, i) {
+        if (i % 2) return;
+        s.appendChild(el("text", { x: X0 + i * step + step / 2, y: Y1 + 22, "text-anchor": "middle",
+          class: "num", "font-size": 9, fill: "#767676" }, l));
+      });
+    })();
+
+    /* --- 会員数・アクティブ数・アクティブ率 --- */
+    (function () {
+      var s = clear("cActive"), W = 440, H = 290, X0 = 42, X1 = W - 42, Y0 = 20, Y1 = H - 40;
+      var step = (X1 - X0) / 12, bw = step * 0.52, mx = 80, mr = 50;
+      [0, .5, 1].forEach(function (t) {
+        var y = Y1 - t * (Y1 - Y0);
+        s.appendChild(el("line", { x1: X0, y1: y, x2: X1, y2: y, stroke: "#EFF2F0" }));
+        s.appendChild(el("text", { x: X0 - 6, y: y + 3.5, "text-anchor": "end", class: "num",
+          "font-size": 9, fill: "#767676" }, (mx * t).toFixed(0)));
+        s.appendChild(el("text", { x: X1 + 6, y: y + 3.5, class: "num", "font-size": 9,
+          fill: "#115A36" }, (mr * t).toFixed(0) + "%"));
+      });
+      MEM_N.forEach(function (v, i) {
+        var h = v / 10000 / mx * (Y1 - Y0);
+        s.appendChild(el("rect", { x: X0 + i * step + (step - bw) / 2, y: Y1 - h, width: bw,
+          height: h, rx: 1.5, fill: "#9BD4B5" }));
+        var ha = v * MEM.mau[i] / 100 / 10000 / mx * (Y1 - Y0);
+        s.appendChild(el("rect", { x: X0 + i * step + (step - bw) / 2, y: Y1 - ha, width: bw,
+          height: ha, rx: 1.5, fill: "#018838" }));
+      });
+      var pts = MEM.mau.map(function (v, i) { return [X0 + i * step + step / 2, Y1 - v / mr * (Y1 - Y0)]; });
+      s.appendChild(el("path", { d: "M" + pts.map(function (q) { return q[0].toFixed(1) + "," + q[1].toFixed(1); }).join(" L"),
+        fill: "none", stroke: "#115A36", "stroke-width": 2.2, "stroke-linejoin": "round" }));
+      s.appendChild(el("circle", { cx: pts[11][0], cy: pts[11][1], r: 4, fill: "#115A36",
+        stroke: "#FFFFFF", "stroke-width": 1.4 }));
+      halo(s, { x: pts[11][0], y: pts[11][1] - 10, "text-anchor": "end", class: "num",
+        "font-size": 11, "font-weight": 700, fill: "#115A36" }, MEM.mau[11].toFixed(1) + "%");
+      M12.forEach(function (l, i) {
+        if (i % 2) return;
+        s.appendChild(el("text", { x: X0 + i * step + step / 2, y: Y1 + 16, "text-anchor": "middle",
+          class: "num", "font-size": 9, fill: "#767676" }, l));
+      });
+    })();
+
+    var youngM = mAge[0] + mAge[1], youngA = aAge[0] + aAge[1];
+    var oldM = mAge[4] + mAge[5], oldA = aAge[4] + aAge[5];
+    document.getElementById("memNote").innerHTML =
+      "<b>会員の年齢分布は、個人顧客全体よりわずかに若年へ寄っている。</b>" +
+      "30代以下は全体 " + youngA.toFixed(1) + "% に対して会員 " + youngM.toFixed(1) + "%（+" +
+      (youngM - youngA).toFixed(1) + "pt）、60代以上は全体 " + oldA.toFixed(1) + "% に対して会員 " +
+      oldM.toFixed(1) + "%（" + (oldM - oldA).toFixed(1) + "pt）。差は数ポイントで、" +
+      "<b>「若年層しか会員になっていない」わけではない</b>。ただし C3 サイレント優良（70代以上が40%）が" +
+      "未接続のまま残っているため、<b>高齢層は会員化の余地がまだ大きい</b>。<br>" +
+      "<b>退会率は月 " + (MEM.leave[n] / MEMBERS * 100).toFixed(3) + "% と極めて低い。</b>" +
+      "銀行口座に紐づくため能動的な退会がほぼ起きない。したがって<b>会員数の増減より、" +
+      "アクティブ率（現在 " + MEM.mau[n].toFixed(1) + "%）と休眠率を見るべき</b>で、" +
+      "「退会していないが動いていない会員」＝ C9 休眠・離反予備軍 " + man(byId.C9.n) + "万人が実質的な離反である。<br>" +
+      "会員数は当月末の実数から入会・退会を遡って復元しているため、会員獲得画面の推移と一致する。";
   }
 
   function drawAcq() {
@@ -2365,6 +2607,7 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
     road: ["ロイヤルティ顧客育成ロードマップ", "どのクラスターに誰がいて、次にどこへ、どの施策で動かすか"],
     mig:  ["遷移分析", "期首から期末にかけて、誰がどこへ動いたか"],
     cl:   ["クラスター詳細", "選択したクラスターのプロフィールと打ち手"],
+    mem:  ["会員", "会員数・構成・増減と、アクティブ率の推移"],
     acq:  ["会員獲得", "新規会員の獲得数・チャネル・紹介と、獲得後の定着"],
     eng:  ["エンゲージメント", "取引の鮮度、ポイント失効、在籍期間、休眠会員"],
     prt:  ["交換・パートナー", "どの交換先で償還が進み、その後どれだけ再取引につながるか"],
@@ -2384,6 +2627,7 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
     document.getElementById("tSub").textContent = VIEWS[v][1];
     if (v === "cl") drawClusterDetail();
     if (v === "mig") drawMigration();
+    if (v === "mem") drawMem();
     if (v === "acq") drawAcq();
     if (v === "eng") drawEng();
     if (v === "prt") drawPrt();
