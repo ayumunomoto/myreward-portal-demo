@@ -4,7 +4,9 @@
 
 ## 公開・共有
 
-**共有URLの正は Vercel。** commit → push で反映される。
+**共有URLの正は Vercel。** 本番は https://myreward-portal-demo.vercel.app
+（`/lite` `/hub` `/admin` `/dashboard`）。`main` への push で反映される。
+プロジェクト画面に出る `...-<ハッシュ>-<スコープ>.vercel.app` はデプロイ単位の固定URLなので配らない。
 
 **Claude Artifact への公開・再公開はしない。** 更新のたびに公開済みの全文を
 読み直す必要があり、1回の更新にかかるコストが大きいため運用から外した。

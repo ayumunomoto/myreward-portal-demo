@@ -4,17 +4,17 @@
 
 ## 3種類のビルド
 
-- **`index.html`(フル版)** — https://ayumunomoto.github.io/myreward-portal-demo/
+- **`index.html`(フル版)** — https://myreward-portal-demo.vercel.app/
   通常/スポーツ観光/わかおしっ！の3モード切替、ガチャ、キャラクター演出・ストーリーゲージ、QR決済・チェックイン、リワード交換(カテゴリ別・共通ポイント交換)、アンケートチャレンジ、プッシュ通知デモ、利用履歴。下部ナビで各画面を行き来する。
-- **`lite.html`(コア版)** — https://ayumunomoto.github.io/myreward-portal-demo/lite.html
+- **`lite.html`(コア版)** — https://myreward-portal-demo.vercel.app/lite
   モードを1本化し、以下6モジュールのみに絞った構成:
   ポイント基盤(残高カード+履歴) / リワード交換(カテゴリ別・共通ポイント交換) / QR決済・チェックイン / チャレンジ(アンケート含む) / プッシュ通知。下部ナビで各画面を行き来する。
-- **`hub.html`(ハブ版)** — https://ayumunomoto.github.io/myreward-portal-demo/hub.html
+- **`hub.html`(ハブ版)** — https://myreward-portal-demo.vercel.app/hub
   コア版と同じ6モジュール構成だが、下部ナビを置かず、ホーム画面(残高カード)から必要な画面へ遷移する構成。残高カード内に「QRを読む」ボタンと「履歴を見る」ボタン、チャレンジ/リワードは各プロモカードの「すべて見る」から遷移する。各画面には戻るボタンを設置。
 
 ## 管理画面(CMS)プロトタイプ
 
-- **`admin.html`** — https://ayumunomoto.github.io/myreward-portal-demo/admin.html
+- **`admin.html`** — https://myreward-portal-demo.vercel.app/admin
   上記アプリ向けの「アンケート」「プッシュ通知」を作成・配信・実績分析する運用者向け管理画面。デスクトップのダッシュボードUI(サイドバー+テーブル+フォーム)で、消費者向けアプリの3ビルドとはコードを共有していない独立したプロトタイプ。
   - アンケート管理: 質問設計(選択式、追加/削除可)、報酬ポイント設定、対象セグメント/配信チャネル/配信期間の設定、リアルタイムプレビュー、回答結果の設問別グラフ表示。
   - プッシュ通知管理: タイトル・本文・画像(プリセットのライブラリから選択)・リンク先の設定、即時配信/日時予約、消費者アプリの通知カードを再現したリアルタイムプレビュー、配信後の開封率/タップ率などの実績ファネル。
@@ -23,7 +23,7 @@
 
 ## 効果測定ダッシュボード プロトタイプ
 
-- **`dashboard.html`** — https://ayumunomoto.github.io/myreward-portal-demo/dashboard.html
+- **`dashboard.html`** — https://myreward-portal-demo.vercel.app/dashboard
   銀行のロイヤリティプログラムが金融取引をどれだけ動かしたかを測り、次にどの顧客層へ何を打つかを決めるための行内向けダッシュボード。要件は `docs/dashboard-requirements.md`、施策の根拠は `docs/point-campaign-benchmark.md`。`admin.html` と同様、消費者向けアプリとはコードを共有しない独立したプロトタイプ。
   - **目玉機能「ロイヤルティ顧客育成ロードマップ」**: 縦軸＝デジタル接点スコア、横軸＝取引の広がりスコアの2軸マップに、10クラスターをバブル（面積＝人数、色＝ななポ月間付与pt）で配置し、**育成ルートを矢印で重ねて描く**。ルートを選ぶと対象人数・想定転換率・必要ポイント原資・想定増分収益・ROI と、既存CMSのレバー（チャレンジ／プッシュ／アンケート／リワード／QR）に対応した打ち手が出る。C3→C10 の離反リスクのみ相対パレット（青・破線）で表示。
   - 画面構成(12画面): サマリー(会員/非会員のDiD比較・ポイント経済・ランク分布) / 育成ロードマップ / 遷移分析(10×10遷移マトリクス) / クラスター詳細 / **施策ライブラリ** / **会員**(総会員数・年齢分布・性別構成・年代×性別・入会/退会/純増・会員数とアクティブ率の推移) / 会員獲得 / エンゲージメント / 交換・パートナー / 満足度(NPS・CSAT) / 施策効果 / 不正検知。
@@ -39,8 +39,15 @@
 Claude Artifact への再公開は運用から外した（更新のたびに公開済み全文の読み直しが必要になり、
 1回の更新にかかるコストが大きいため）。
 
-静的サイトなのでビルド設定は不要。Vercel のダッシュボードでこのリポジトリを Import すれば、
-Framework Preset は "Other"、Build Command 空欄、Output Directory はリポジトリ直下のままデプロイできる。
+- 本番ドメイン: **https://myreward-portal-demo.vercel.app** ← 配るのはこれ
+- Vercel プロジェクト: `Loyalty` / `myreward-portal-demo`（GitHub 連携済み。`main` への push で本番が更新される）
+
+Vercel のプロジェクト画面には、上記ドメインとは別に
+`myreward-portal-demo-<ハッシュ>-<スコープ>.vercel.app` という**そのデプロイ1回に固定されたURL**が
+表示される（`Visit` ボタンもこちらを開く）。push のたびに変わるので配らないこと。
+
+静的サイトなのでビルド設定は不要（Framework Preset は "Other"、Build Command 空欄、
+Output Directory はリポジトリ直下）。
 
 - `vercel.json` — `cleanUrls`（`/dashboard` で `dashboard.html` を配信）、
   全ファイルに `Cache-Control: max-age=0, must-revalidate`（ETag による再検証は効くので転送量は増やさず、
@@ -101,7 +108,9 @@ Vercel は `assets/` をそのまま配信するので、**通常の更新でこ
 
 ## デモ公開(GitHub Pages・従来手段)
 
-Vercel を使わない場合の代替。`main` を配信するため、レビュー中のブランチは見えない。
+**現在は無効化済み。** 共有URLを Vercel に一本化したため、2026-09-06 に GitHub Pages を停止した
+(`ayumunomoto.github.io/myreward-portal-demo/` は 404 になる)。以下は Vercel を使わない場合の
+復旧手順として残してあるだけ。`main` を配信するため、レビュー中のブランチは見えない。
 
 このリポジトリを GitHub にプッシュし、Pages を有効化すると `https://<ユーザー名>.github.io/<リポジトリ名>/` で複数人にURLを配布してデモできる(サブパスの `/lite.html` `/hub.html` も同様)。
 
@@ -122,4 +131,4 @@ gh repo create <リポジトリ名> --public --source=. --remote=origin --push
 
 - 「わかおしっ！」モードのキャラクターイラストは和歌山市の公式PRキャラクターの画像を使用している(`assets/theme-switch.js` のみに含まれ、`lite.html`/`hub.html` には一切含まれない)。社外・商用利用には和歌山市への事前相談と利用許諾申請(無償・2年以内)が必要。本プロトタイプはあくまで内部検討用。
 - リワードの「共通ポイント交換」(Vポイント/dポイント/PayPayポイント/楽天ポイント)のロゴは、実物ロゴを模した独自デザイン(色・形状のみ参考)であり、各社の公式ロゴデータそのものではない。
-- GitHub Pages は無料プランの場合、公開リポジトリでのみ利用可能(=サイトは非公開URLではあるがインターネット上に公開される)。社外に見せたくない情報が含まれていないか確認のうえ公開すること。
+- リポジトリが public なため、Vercel の本番URLはURLを知っていれば誰でも閲覧できる(`X-Robots-Tag: noindex` で検索避けはしているが、アクセス制限ではない)。社外に見せたくない情報が含まれていないか確認のうえ公開すること。行内限定にする場合は Vercel の Settings > Deployment Protection で Vercel Authentication を有効にする(Hobby プランでも無料)。
