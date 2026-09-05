@@ -335,12 +335,12 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
       <section class="view" id="v-sum">
         <div class="kpis" id="sumKpis"></div>
 
-        <div class="sec-h"><h2>ポイント経済</h2><p>獲得・償還・失効と、その差引で積み上がる未使用ポイント残高（会計上の負債）</p></div>
+        <div class="sec-h"><h2>ポイント経済</h2><p>付与・利用・失効と、その差引で積み上がる未利用ポイント残高（会計上の負債）</p></div>
         <div class="kpis" id="ptKpis"></div>
         <div class="chart-grid" style="margin-top:12px">
-          <div class="card"><div class="card-h"><h3>ポイントの獲得・償還・失効の推移</h3><span>直近12ヶ月・百万pt（＝百万円）</span></div>
-            <svg class="c" id="cPoints" viewBox="0 0 440 260" role="img" aria-label="ポイントの獲得・償還・失効の推移"></svg>
-            <div class="legend"><i><span class="sq" style="background:var(--g1)"></span>獲得</i><i><span class="sq" style="background:var(--g3)"></span>償還</i><i><span class="sq" style="background:var(--n3)"></span>失効</i><i><span class="sq" style="background:var(--g2)"></span>償還率</i></div>
+          <div class="card"><div class="card-h"><h3>ポイントの付与・利用・失効の推移</h3><span>直近12ヶ月・百万pt（＝百万円）</span></div>
+            <svg class="c" id="cPoints" viewBox="0 0 440 260" role="img" aria-label="ポイントの付与・利用・失効の推移"></svg>
+            <div class="legend"><i><span class="sq" style="background:var(--g1)"></span>付与</i><i><span class="sq" style="background:var(--g3)"></span>利用</i><i><span class="sq" style="background:var(--n3)"></span>失効</i><i><span class="sq" style="background:var(--g2)"></span>利用率</i></div>
           </div>
           <div class="card"><div class="card-h"><h3>ランク分布</h3><span>ななポ会員のステージ</span></div>
             <svg class="c" id="cTier" viewBox="0 0 440 250" role="img" aria-label="ランク分布"></svg>
@@ -355,9 +355,9 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
             <svg class="c" id="cCompare" viewBox="0 0 440 250" role="img" aria-label="会員と非会員の金融取引指標の比較"></svg>
             <div class="legend"><i><span class="sq" style="background:var(--g1)"></span>ななポ会員</i><i><span class="sq" style="background:var(--r1)"></span>非会員（対照群）</i></div>
           </div>
-          <div class="card"><div class="card-h"><h3>会員数とネット昇格率の推移</h3><span>直近12ヶ月</span></div>
-            <svg class="c" id="cTrend" viewBox="0 0 440 250" role="img" aria-label="会員数とネット昇格率の月次推移"></svg>
-            <div class="legend"><i><span class="sq" style="background:var(--gbg)"></span>会員数（万人）</i><i><span class="sq" style="background:var(--g2)"></span>ネット昇格率</i></div>
+          <div class="card"><div class="card-h"><h3>会員数とロイヤルティアップ率の推移</h3><span>直近12ヶ月</span></div>
+            <svg class="c" id="cTrend" viewBox="0 0 440 250" role="img" aria-label="会員数とロイヤルティアップ率の月次推移"></svg>
+            <div class="legend"><i><span class="sq" style="background:var(--gbg)"></span>会員数（万人）</i><i><span class="sq" style="background:var(--g2)"></span>ロイヤルティアップ率</i></div>
           </div>
         </div>
         <div class="note" id="sumNote"></div>
@@ -536,7 +536,7 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
         <div class="chart-grid" style="margin-top:12px">
           <div class="card"><div class="card-h"><h3>在籍期間別のエンゲージメント</h3><span>会員登録からの経過</span></div>
             <svg class="c" id="cTenure" viewBox="0 0 440 260" role="img" aria-label="在籍期間別のエンゲージメント"></svg>
-            <div class="legend"><i><span class="sq" style="background:var(--g1)"></span>MAU率</i><i><span class="sq" style="background:var(--r1)"></span>ポイント償還率</i></div></div>
+            <div class="legend"><i><span class="sq" style="background:var(--g1)"></span>MAU率</i><i><span class="sq" style="background:var(--r1)"></span>ポイント利用率</i></div></div>
           <div class="card"><div class="card-h"><h3>休眠会員の推移</h3><span>90日以上 未起動</span></div>
             <svg class="c" id="cInactive" viewBox="0 0 440 260" role="img" aria-label="休眠会員の推移"></svg>
             <div class="legend"><i><span class="sq" style="background:var(--nbg)"></span>休眠会員数（万人）</i><i><span class="sq" style="background:var(--r1)"></span>休眠率</i></div></div>
@@ -548,14 +548,14 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
       <section class="view" id="v-prt" hidden>
         <div class="kpis" id="prtKpis"></div>
         <div class="chart-grid" style="margin-top:12px">
-          <div class="card"><div class="card-h"><h3>交換先別のポイント償還</h3><span>当月・百万pt</span></div>
-            <svg class="c" id="cPartner" viewBox="0 0 440 250" role="img" aria-label="交換先別のポイント償還"></svg></div>
+          <div class="card"><div class="card-h"><h3>交換先別のポイント利用</h3><span>当月・百万pt</span></div>
+            <svg class="c" id="cPartner" viewBox="0 0 440 250" role="img" aria-label="交換先別のポイント利用"></svg></div>
           <div class="card"><div class="card-h"><h3>交換先別の交換単価と交換者数</h3><span>1回あたり平均</span></div>
             <svg class="c" id="cPartner2" viewBox="0 0 440 250" role="img" aria-label="交換先別の交換単価"></svg></div>
         </div>
-        <div class="sec-h"><h2>交換先・リワード別の実績</h2><p>どの交換先が償還を進めるか。償還は未使用ポイント負債を減らし、再来の起点にもなる</p></div>
+        <div class="sec-h"><h2>交換先・リワード別の実績</h2><p>どの交換先が利用を進めるか。利用は未利用ポイント負債を減らし、再来の起点にもなる</p></div>
         <div class="tw"><table id="prtTable">
-          <thead><tr><th>交換先・リワード</th><th>種別</th><th class="n">交換件数</th><th class="n">償還pt</th><th class="n">構成比</th><th class="n">交換単価</th><th class="n">交換後30日の再取引率</th></tr></thead>
+          <thead><tr><th>交換先・リワード</th><th>種別</th><th class="n">交換件数</th><th class="n">利用pt</th><th class="n">構成比</th><th class="n">交換単価</th><th class="n">交換後30日の再取引率</th></tr></thead>
           <tbody></tbody></table></div>
         <div class="note" id="prtNote"></div>
       </section>
@@ -616,7 +616,7 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
           <div class="filters" style="gap:10px">
             <div class="fset"><label for="thTx">月間取引件数が</label>
               <select id="thTx"><option value="30">30件以上</option><option value="50" selected>50件以上</option><option value="100">100件以上</option></select></div>
-            <div class="fset"><label for="thPt">月間獲得ptが</label>
+            <div class="fset"><label for="thPt">月間付与ptが</label>
               <select id="thPt"><option value="500">500pt以上</option><option value="1000" selected>1,000pt以上</option><option value="2000">2,000pt以上</option></select></div>
             <div class="fset"><label for="thKind">種別</label>
               <select id="thKind"><option>すべて</option><option>QRチェックイン</option><option>キャッシュレス決済</option><option>ポイント交換</option></select></div>
@@ -625,13 +625,13 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
         <div class="chart-grid" style="margin-top:12px">
           <div class="card"><div class="card-h"><h3>該当会員ランキング</h3><span>月間取引件数</span></div>
             <svg class="c" id="cLeader" viewBox="0 0 440 340" role="img" aria-label="該当会員の取引件数ランキング"></svg></div>
-          <div class="card"><div class="card-h"><h3>獲得 ／ 償還の散布図</h3><span>横＝獲得pt、縦＝償還pt、面積＝取引件数</span></div>
-            <svg class="c" id="cScatter" viewBox="0 0 440 340" role="img" aria-label="ポイント獲得と償還の散布図"></svg>
-            <div class="legend"><i><span class="sq" style="background:var(--r1)"></span>要確認（獲得に対して償還が過大）</i><i><span class="sq" style="background:var(--g3)"></span>正常範囲</i></div></div>
+          <div class="card"><div class="card-h"><h3>付与 ／ 利用の散布図</h3><span>横＝付与pt、縦＝利用pt、面積＝取引件数</span></div>
+            <svg class="c" id="cScatter" viewBox="0 0 440 340" role="img" aria-label="ポイント付与と利用の散布図"></svg>
+            <div class="legend"><i><span class="sq" style="background:var(--r1)"></span>要確認（付与に対して利用が過大）</i><i><span class="sq" style="background:var(--g3)"></span>正常範囲</i></div></div>
         </div>
         <div class="sec-h"><h2>該当トランザクション明細</h2><p>しきい値に該当した会員の取引。個人特定を避けるため会員IDのみを表示します</p></div>
         <div class="tw"><table id="fraudTable">
-          <thead><tr><th>取引ID</th><th>日時</th><th>会員ID</th><th>種別</th><th class="n">取引額</th><th class="n">獲得pt</th><th class="n">償還pt</th><th>取引店・加盟店</th><th>判定</th></tr></thead>
+          <thead><tr><th>取引ID</th><th>日時</th><th>会員ID</th><th>種別</th><th class="n">取引額</th><th class="n">付与pt</th><th class="n">利用pt</th><th>取引店・加盟店</th><th>判定</th></tr></thead>
           <tbody></tbody></table></div>
         <div class="note" id="fraudNote"></div>
       </section>
@@ -1349,7 +1349,7 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
 
   function drawSummary() {
     document.getElementById("sumKpis").innerHTML = [
-      kpi({ fill: true, lab: "ネット昇格率（北極星指標）", val: "+4.2", unit: "%",
+      kpi({ fill: true, lab: "ロイヤルティアップ率（北極星指標）", val: "+4.2", unit: "%",
             delta: "+1.1pt", dir: "up", sub: "上位遷移 − 下位遷移 ÷ 対象者数・前年同月比" }),
       kpi({ lab: "ななポ会員数", val: man(MEMBERS), unit: "万人",
             delta: "+3.8%", dir: "up", sub: "会員化率 " + (MEMBERS / TOTAL * 100).toFixed(1) + "%（個人顧客 " + man(TOTAL) + "万人）" }),
@@ -1382,7 +1382,7 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
       "<b>比較は Lv3（DiD＋傾向スコアマッチング）。</b>" +
       "年代・預金残高帯・取引年数を揃えた未接続層（C10・" + man(byId.C10.n) + "万人）を対照群として抽出している。" +
       "単純比較（Lv1）ではもともと優良な顧客ほどアプリを使うという選択バイアスが乗るため、因果とは言えない。" +
-      "<b>3月にネット昇格率が 1.9% へ落ち込む</b>のは、ななポの有効期限（獲得から2年経過後の年度末）で失効が集中し、" +
+      "<b>3月にロイヤルティアップ率が 1.9% へ落ち込む</b>のは、ななポの有効期限（付与から2年経過後の年度末）で失効が集中し、" +
       "ポイント消化率が不連続に動くため。" +
       "<br>収益換算レート（預金利鞘・カード収益率・信託報酬・給与振込LTV）は<b>行内想定値が未確定のため仮値</b>。確定後に差し替える。" +
       "<br><b>サマリーの ROI とロードマップの ROI は母数が異なる。</b>" +
@@ -1427,7 +1427,7 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
     }, 0);
     var acqTotal = PIPE.R8.acts.reduce(function (x, y) { return x + y[1]; }, 0);
     document.getElementById("roadKpis").innerHTML = [
-      kpi({ fill: true, lab: "ネット昇格率（" + P.label + "・" + P.range + "）",
+      kpi({ fill: true, lab: "ロイヤルティアップ率（" + P.label + "・" + P.range + "）",
             val: (TR.net >= 0 ? "+" : "") + TR.net.toFixed(2), unit: "%",
             sub: "（昇格 − 降格）÷ 個人顧客 " + man(TOTAL) + "万人" }),
       kpi({ lab: "昇格", val: fmt(TR.up), unit: "人",
@@ -1573,7 +1573,7 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
   function drawMigration() {
     var P = PERIODS[period];
     document.getElementById("migKpis").innerHTML = [
-      kpi({ fill: true, lab: "ネット昇格率（" + P.label + "・" + P.range + "）",
+      kpi({ fill: true, lab: "ロイヤルティアップ率（" + P.label + "・" + P.range + "）",
             val: (TR.net >= 0 ? "+" : "") + TR.net.toFixed(2), unit: "%",
             sub: "（昇格 " + fmt(TR.up) + "人 − 降格 " + fmt(TR.down) + "人）÷ " + man(TOTAL) + "万人" }),
       kpi({ lab: "滞留", val: fmt(TR.M.reduce(function (a, r, i) { return a + r[i]; }, 0)), unit: "人",
@@ -1927,7 +1927,7 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
       s.appendChild(el("text", { x: x, y: Y1 + 15, "text-anchor": "middle", class: "num",
         "font-size": 9, fill: "#767676" }, (xmax * t / 1000).toFixed(1) + "k"));
     });
-    // 参照線：償還 = 獲得
+    // 参照線：利用 = 獲得
     s.appendChild(el("line", { x1: X0, y1: Y1, x2: X0 + (X1 - X0) * Math.min(1, ymax / xmax),
       y2: Y0, stroke: "#D9D9D9", "stroke-dasharray": "4 4" }));
     pts.forEach(function (q) {
@@ -2104,14 +2104,14 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
   function drawPointEconomy() {
     var last = PT.accrued.length - 1;
     document.getElementById("ptKpis").innerHTML = [
-      kpi({ lab: "当月 ポイント獲得", val: PT.accrued[last].toFixed(1), unit: "百万pt",
+      kpi({ lab: "当月 ポイント付与", val: PT.accrued[last].toFixed(1), unit: "百万pt",
             delta: "+0.5%", dir: "up", sub: "1pt＝1円。会員 " + man(MEMBERS) + "万人" }),
-      kpi({ lab: "当月 ポイント償還", val: PT.redeemed[last].toFixed(1), unit: "百万pt",
-            delta: "+1.5%", dir: "up", sub: "償還率 " + (PT.redeemed[last] / PT.accrued[last] * 100).toFixed(1) + "%" }),
+      kpi({ lab: "当月 ポイント利用", val: PT.redeemed[last].toFixed(1), unit: "百万pt",
+            delta: "+1.5%", dir: "up", sub: "利用率 " + (PT.redeemed[last] / PT.accrued[last] * 100).toFixed(1) + "%" }),
       kpi({ lab: "当月 ポイント失効", val: PT.expired[last].toFixed(1), unit: "百万pt",
-            delta: "+88.2%", dir: "down", sub: "有効期限は獲得から2年経過後の年度末" }),
-      kpi({ fill: true, lab: "未使用ポイント残高（負債）", val: fmt(PT.balance), unit: "百万pt",
-            sub: "会計上は引当金。償還が進まないほど積み上がる" })
+            delta: "+88.2%", dir: "down", sub: "有効期限は付与から2年経過後の年度末" }),
+      kpi({ fill: true, lab: "未利用ポイント残高（負債）", val: fmt(PT.balance), unit: "百万pt",
+            sub: "会計上は引当金。利用が進まないほど積み上がる" })
     ].join("");
     (function () {
       var s = clear("cPoints"), W = 440, H = 260, X0 = 42, X1 = W - 40, Y0 = 18, Y1 = H - 34;
@@ -2407,20 +2407,20 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
     s.setAttribute("viewBox", "0 0 " + W + " " + (top + ENG.tenure.length * rowH + 4));
     barLine("cInactive", M12, ENG.inactiveN, "#D9D9D9", [{ data: ENG.inactiveR, color: "#3460FB" }], 30, 45);
     document.getElementById("engNote").innerHTML =
-      "<b>在籍期間が長くなるほど MAU 率は下がり、償還率は上がる。</b>" +
-      "3ヶ月未満の MAU 61.2% が 5年以上で 31.4% まで落ちる一方、償還率は 18.4% → 56.8% に上がる。" +
+      "<b>在籍期間が長くなるほど MAU 率は下がり、利用率は上がる。</b>" +
+      "3ヶ月未満の MAU 61.2% が 5年以上で 31.4% まで落ちる一方、利用率は 18.4% → 56.8% に上がる。" +
       "つまり<b>長期会員は「アプリを開かないが、貯まったら交換する」層に変わっていく</b>。" +
       "接点スコア（縦軸）の低下は在籍期間の関数でもあるため、クラスター遷移を評価するときは在籍期間で層別する。<br>" +
       "<b>3月の失効 28.4百万pt・7.1万人は最大の改善余地。</b>失効予告（要件定義 14.3 #14）で事前に交換を促せば、" +
-      "未使用ポイント負債の圧縮と再来訪の両方に効く。";
+      "未利用ポイント負債の圧縮と再来訪の両方に効く。";
   }
 
   function drawPrt() {
     var totPt = PARTNERS.reduce(function (a, b) { return a + b.pt; }, 0);
     var totCnt = PARTNERS.reduce(function (a, b) { return a + b.cnt; }, 0);
     document.getElementById("prtKpis").innerHTML = [
-      kpi({ fill: true, lab: "当月 ポイント償還", val: (totPt / 1000000).toFixed(1), unit: "百万pt",
-            sub: "獲得 " + PT.accrued[11].toFixed(1) + "百万pt に対して " + (totPt / 1000000 / PT.accrued[11] * 100).toFixed(1) + "%" }),
+      kpi({ fill: true, lab: "当月 ポイント利用", val: (totPt / 1000000).toFixed(1), unit: "百万pt",
+            sub: "付与 " + PT.accrued[11].toFixed(1) + "百万pt に対して " + (totPt / 1000000 / PT.accrued[11] * 100).toFixed(1) + "%" }),
       kpi({ lab: "交換件数", val: fmt(totCnt), unit: "件", delta: "+3.2%", dir: "up",
             sub: "交換した会員 " + fmt(Math.round(totCnt * 0.71)) + "人" }),
       kpi({ lab: "平均交換単価", val: Math.round(totPt / totCnt), unit: "pt",
@@ -2458,10 +2458,10 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
       tb.appendChild(tr);
     });
     document.getElementById("prtNote").innerHTML =
-      "<b>共通ポイントへの交換が償還額の 83.6% を占めるが、交換後の再取引率は低い。</b>" +
+      "<b>共通ポイントへの交換が利用額の 83.6% を占めるが、交換後の再取引率は低い。</b>" +
       "Vポイント 34.2%・PayPay 31.8% に対し、グループアセット（ATM手数料無料券 61.4%、資産運用相談優待 68.9%）は倍近い。" +
       "共通ポイントは<b>ポイントが行外へ流出して関係が切れる</b>のに対し、行内リワードは次の来店・取引につながる。<br>" +
-      "ただし共通ポイントは交換のしやすさで<b>償還率そのものを押し上げ、未使用ポイント負債を減らす</b>役割がある。" +
+      "ただし共通ポイントは交換のしやすさで<b>利用率そのものを押し上げ、未利用ポイント負債を減らす</b>役割がある。" +
       "「負債を減らす交換先」と「関係を深める交換先」を分けて設計し、後者の品揃えを増やすのが打ち手になる。";
   }
 
@@ -2510,7 +2510,7 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
     document.getElementById("promoKpis").innerHTML = [
       kpi({ fill: true, lab: "施策起因の増分収益（年換算）", val: "¥" + inc.toFixed(0), unit: "百万",
             sub: "実績収益 − 施策がなかった場合の予測収益" }),
-      kpi({ lab: "未使用ポイント残高（負債）", val: yen(PROMO.liability), unit: "",
+      kpi({ lab: "未利用ポイント残高（負債）", val: yen(PROMO.liability), unit: "",
             delta: "+2.8%", dir: "down", sub: "施策で積み上がる将来の支払義務" }),
       kpi({ lab: "施策経由の金融アクション", val: fmt(PROMO.tx), unit: "件",
             delta: "+9.4%", dir: "up", sub: "配信 → 反応 → 到達のファネル最終段" }),
@@ -2567,14 +2567,14 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
             sub: "月間取引50件以上 かつ 獲得1,000pt以上" }),
       kpi({ lab: "該当トランザクション", val: fmt(4182), unit: "件",
             sub: "全取引 " + fmt(1206400) + "件の 0.35%" }),
-      kpi({ lab: "要確認（獲得＜償還）", val: String(flagged), unit: "人",
-            delta: "+2人", dir: "down", sub: "獲得に対して償還が過大な会員" }),
-      kpi({ lab: "該当会員の獲得pt", val: "1.24", unit: "百万pt",
-            sub: "当月獲得の 1.5%。金額では " + yen(1240000) })
+      kpi({ lab: "要確認（付与＜利用）", val: String(flagged), unit: "人",
+            delta: "+2人", dir: "down", sub: "付与に対して利用が過大な会員" }),
+      kpi({ lab: "該当会員の付与pt", val: "1.24", unit: "百万pt",
+            sub: "当月付与の 1.5%。金額では " + yen(1240000) })
     ].join("");
     hBars("cLeader", FRAUD.leader.map(function (l) { return { label: l.lab, v: l.v }; }), 450, "件",
       function (row, i) { return FRAUD.leader[i].flag ? "#3460FB" : "#51B883"; });
-    scatter("cScatter", pts, 5000, 5000, "獲得ポイント（pt / 月）", "償還ポイント（pt / 月）");
+    scatter("cScatter", pts, 5000, 5000, "付与ポイント（pt / 月）", "利用ポイント（pt / 月）");
     var tb = document.querySelector("#fraudTable tbody"); tb.textContent = "";
     FRAUD.tx.forEach(function (r) {
       var tr = document.createElement("tr");
@@ -2592,7 +2592,7 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
     document.getElementById("fraudNote").innerHTML =
       "<b>このレポート自体が不正を検知するわけではない。</b>しきい値をこちらで設定し、該当した会員を目視で確認する運用になる。" +
       "上のセレクタで条件を変えると母集団が変わる。<br>" +
-      "散布図の破線は「償還＝獲得」。<b>破線より上（獲得より償還が多い）は、通常の利用では起こりにくい</b>。" +
+      "散布図の破線は「利用＝付与」。<b>破線より上（付与より利用が多い）は、通常の利用では起こりにくい</b>。" +
       "同一店舗での短時間の連続QRチェックイン（TX-20260831-04170〜04182 は9分間に3回）や、" +
       "深夜の連続ポイント交換が典型的なパターン。<br>" +
       "個人特定を避けるため会員IDのみを表示している。実運用ではしきい値超過時のアラート通知" +
@@ -2610,10 +2610,10 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
     mem:  ["会員", "会員数・構成・増減と、アクティブ率の推移"],
     acq:  ["会員獲得", "新規会員の獲得数・チャネル・紹介と、獲得後の定着"],
     eng:  ["エンゲージメント", "取引の鮮度、ポイント失効、在籍期間、休眠会員"],
-    prt:  ["交換・パートナー", "どの交換先で償還が進み、その後どれだけ再取引につながるか"],
+    prt:  ["交換・パートナー", "どの交換先で利用が進み、その後どれだけ再取引につながるか"],
     sat:  ["満足度（NPS / CSAT）", "推奨意向と満足度、そのクラスター別の分布"],
     camp: ["施策効果", "施策の収益貢献と、配信 → 金融アクション到達のファネル"],
-    fraud:["不正検知", "しきい値に該当したポイント獲得・償還の確認"]
+    fraud:["不正検知", "しきい値に該当したポイント付与・利用の確認"]
   };
   function show(v) {
     Object.keys(VIEWS).forEach(function (k) {
