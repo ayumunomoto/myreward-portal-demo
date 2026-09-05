@@ -33,6 +33,32 @@
   - スコアの配点は **77ポイントサービス「ななポ」の実配点**（預金残高 10〜2,000pt／ローン残高 10〜80pt／給与・年金受取 各20pt／キャッシュレス決済 10〜80pt／公共料金 各5pt）を出発点に設計している。人数・収益換算レートはダミー値。
   - デザインは **東京都デジタルサービス局「ダッシュボード作成ガイドブック」**のカラーパレット・フォントサイズ・配置ルール（左上→右下、注目指標は背景色で強調）に準拠。チャートは外部ライブラリ不使用のインラインSVG。
 
+## 公開(Vercel)
+
+静的サイトなのでビルド設定は不要。Vercel のダッシュボードでこのリポジトリを Import すれば、
+Framework Preset は "Other"、Build Command 空欄、Output Directory はリポジトリ直下のままデプロイできる。
+
+- `vercel.json` — `cleanUrls`（`/dashboard` で `dashboard.html` を配信）、
+  全ファイルに `Cache-Control: max-age=0, must-revalidate`（ETag による再検証は効くので転送量は増やさず、
+  複数端末で古い版が残らない）と `X-Robots-Tag: noindex, nofollow` を付与。
+- `robots.txt` — 検索エンジンからの巡回を拒否。
+
+公開後のパス:
+
+| パス | 内容 |
+| --- | --- |
+| `/` | マイリワードポータル(通常版) |
+| `/lite` | コア版 |
+| `/hub` | ハブ版 |
+| `/admin` | 管理画面(CMS) |
+| `/dashboard` | ロイヤルティ顧客育成ダッシュボード |
+
+Vercel は main へのマージで本番、それ以外のブランチへの push で
+プレビューデプロイを自動生成する。レビュー中の機能はプレビューURLで共有できる。
+
+本番URLは既定で誰でも閲覧できる。行内限定にする場合は Vercel の
+Deployment Protection（パスワード保護 / Vercel Authentication）を有効にする。
+
 ## コード構成(共通更新の仕組み)
 
 3系統に共通するロジック・スタイル・データ(状態管理、QR決済フロー、リワード交換フロー、チャレンジ、履歴、プッシュ通知、共通ポイント交換ロゴ、写真素材など)は `assets/core.css` と `assets/core.js` に集約している。フル版だけが使うモード切替・ガチャ・キャラクター演出・ストーリーゲージ・桜演出は `assets/theme-switch.css` / `assets/theme-switch.js` に分離し、`index.html` だけが読み込む。
