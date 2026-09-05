@@ -173,6 +173,41 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
 .legend i{font-style:normal; display:inline-flex; align-items:center; gap:6px}
 .legend .sq{width:10px; height:10px; border-radius:2px; flex:none}
 
+/* ---------- サマリー：コックピット ---------- */
+.hero{background:var(--main); color:var(--on-fill); border-radius:10px; padding:22px 28px 24px;
+  display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:30px; align-items:center; margin-bottom:12px}
+.hero-lab{font-size:12.5px; font-weight:700; letter-spacing:.02em; margin-bottom:2px}
+.hero-sub{font-size:11px; color:rgba(255,255,255,.82); line-height:1.6}
+.hero-val{font-family:var(--din); font-size:78px; font-weight:600; line-height:1; letter-spacing:-.02em;
+  font-variant-numeric:tabular-nums; display:flex; align-items:baseline; gap:6px; margin:6px 0 10px}
+.hero-val small{font-size:26px; font-weight:500}
+.hero-val .dlt{font-family:var(--din); font-size:15px; font-weight:600; background:rgba(255,255,255,.18);
+  border-radius:20px; padding:3px 12px; margin-left:8px; align-self:center}
+.hero-gauge{height:8px; border-radius:4px; background:rgba(255,255,255,.25); overflow:hidden; margin:12px 0 6px}
+.hero-gauge i{display:block; height:100%; background:#FFFFFF}
+.hero-right{display:grid; gap:14px}
+.hero-spark{background:rgba(255,255,255,.12); border-radius:8px; padding:10px 14px 6px}
+.hero-spark .t{font-size:10.5px; color:rgba(255,255,255,.85); margin-bottom:2px}
+.hero-mini{display:grid; grid-template-columns:repeat(3,1fr); gap:14px}
+.hero-mini div{border-left:2px solid rgba(255,255,255,.35); padding-left:11px}
+.hero-mini .l{font-size:10.5px; color:rgba(255,255,255,.82)}
+.hero-mini .v{font-family:var(--din); font-size:23px; font-weight:600; font-variant-numeric:tabular-nums; line-height:1.25}
+
+.vitals{display:grid; grid-template-columns:repeat(auto-fit,minmax(172px,1fr)); gap:12px}
+.vital{background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:15px 17px 12px;
+  display:flex; flex-direction:column; gap:2px}
+.vital .l{font-size:11px; font-weight:500; line-height:1.4}
+.vital .v{font-family:var(--din); font-size:34px; font-weight:600; line-height:1.1; font-variant-numeric:tabular-nums;
+  letter-spacing:-.015em; white-space:nowrap}
+.vital .v small{font-size:13px; font-weight:500; margin-left:1px}
+.vital .m{display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; font-size:10.5px; color:var(--ink-mute); line-height:1.5}
+.vital svg{margin-top:6px}
+.tgt{display:inline-block; font-family:var(--din); font-size:9.5px; font-weight:700; letter-spacing:.06em;
+  padding:2px 7px; border-radius:3px; white-space:nowrap}
+.tgt.ok{background:var(--gbg); color:#0C3D22}
+.tgt.ng{background:var(--rbg); color:var(--r2)}
+.tgt.na{background:var(--nbg); color:var(--n2)}
+
 .note{background:var(--surface); border:1px solid var(--line); border-left:4px solid var(--main); border-radius:6px;
   padding:12px 16px; font-size:11.5px; line-height:1.75; margin-top:12px}
 .note b{color:var(--main)}
@@ -333,11 +368,14 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
     <div class="wrap">
       <!-- ============ サマリー ============ -->
       <section class="view" id="v-sum">
-        <div class="kpis" id="sumKpis"></div>
+        <div class="hero" id="hero"></div>
+        <div class="vitals" id="vitals"></div>
 
-        <div class="sec-h"><h2>ポイント経済</h2><p>付与・利用・失効と、その差引で積み上がる未利用ポイント残高（会計上の負債）</p></div>
-        <div class="kpis" id="ptKpis"></div>
-        <div class="chart-grid" style="margin-top:12px">
+        <div class="sec-h"><h2>ポイントの流れ</h2><p>今月付与したポイントが、どれだけ使われ、失効し、残高として積み上がったか</p></div>
+        <div class="card"><svg class="c" id="cFlow" viewBox="0 0 1240 250" role="img" aria-label="ポイントの付与・利用・失効の流れ"></svg></div>
+
+        <div class="sec-h"><h2>ポイント経済</h2><p>付与・利用・失効の推移と、会員のランク構成</p></div>
+        <div class="chart-grid">
           <div class="card"><div class="card-h"><h3>ポイントの付与・利用・失効の推移</h3><span>直近12ヶ月・百万pt（＝百万円）</span></div>
             <svg class="c" id="cPoints" viewBox="0 0 440 260" role="img" aria-label="ポイントの付与・利用・失効の推移"></svg>
             <div class="legend"><i><span class="sq" style="background:var(--g1)"></span>付与</i><i><span class="sq" style="background:var(--g3)"></span>利用</i><i><span class="sq" style="background:var(--n3)"></span>失効</i><i><span class="sq" style="background:var(--g2)"></span>利用率</i></div>
@@ -1350,23 +1388,128 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
       '<div class="sub">' + (o.delta ? '<span class="delta ' + o.dir + '">' + o.delta + "</span> " : "") + o.sub + "</div></div>";
   }
 
+  // 小さな折れ線（タイル内）
+  function spark(data, w, h, color, fillOp) {
+    var mn = Math.min.apply(null, data), mx = Math.max.apply(null, data);
+    var pad = (mx - mn) * 0.18 || 1, lo = mn - pad, hi = mx + pad;
+    var pts = data.map(function (v, i) {
+      return [i / (data.length - 1) * w, h - (v - lo) / (hi - lo) * h];
+    });
+    var d = "M" + pts.map(function (q) { return q[0].toFixed(1) + "," + q[1].toFixed(1); }).join(" L");
+    return '<svg viewBox="0 0 ' + w + " " + h + '" width="100%" height="' + h +
+      '" preserveAspectRatio="none" aria-hidden="true">' +
+      (fillOp ? '<path d="' + d + " L" + w + "," + h + " L0," + h + ' Z" fill="' + color +
+        '" fill-opacity="' + fillOp + '"/>' : "") +
+      '<path d="' + d + '" fill="none" stroke="' + color + '" stroke-width="2" stroke-linejoin="round"/>' +
+      '<circle cx="' + pts[pts.length - 1][0] + '" cy="' + pts[pts.length - 1][1].toFixed(1) +
+      '" r="3" fill="' + color + '"/></svg>';
+  }
+
+  function vital(o) {
+    return '<div class="vital"><div class="l">' + o.lab + "</div>" +
+      '<div class="v">' + o.val + (o.unit ? "<small>" + o.unit + "</small>" : "") + "</div>" +
+      '<div class="m">' + (o.delta ? '<span class="delta ' + o.dir + '">' + o.delta + "</span>" : "") +
+        "<span>" + o.sub + "</span>" +
+        (o.tgt ? '<span class="tgt ' + o.tgtState + '">' + o.tgt + "</span>" : "") + "</div>" +
+      (o.spark || "") + "</div>";
+  }
+
   function drawSummary() {
-    document.getElementById("sumKpis").innerHTML = [
-      kpi({ fill: true, lab: "ロイヤルティアップ率（北極星指標）", val: "+4.2", unit: "%",
-            delta: "+1.1pt", dir: "up", sub: "上位遷移 − 下位遷移 ÷ 対象者数・前年同月比" }),
-      kpi({ lab: "ななポ会員数", val: man(MEMBERS), unit: "万人",
-            delta: "+3.8%", dir: "up", sub: "会員化率 " + (MEMBERS / TOTAL * 100).toFixed(1) + "%（個人顧客 " + man(TOTAL) + "万人）" }),
-      kpi({ lab: "アプリ MAU 率", val: "42.3", unit: "%",
-            delta: "+2.4pt", dir: "up", sub: "会員のうち直近30日に起動した割合" }),
-      kpi({ lab: "会員の預金残高合計", val: "4.82", unit: "兆円",
-            delta: "+2.1%", dir: "up", sub: "月末残高・全会員合計" }),
-      kpi({ lab: "月間ポイント原資", val: yenV(NANA_TOTAL), unit: yenU(NANA_TOTAL),
-            delta: "+4.6%", dir: "down", sub: "1pt＝1円・平均 " + Math.round(NANA_TOTAL / MEMBERS) + "pt/人" }),
-      kpi({ lab: "ROI（推定・Lv3）", val: (GAIN_PROGRAM / COST_YEAR).toFixed(1), unit: "倍",
-            sub: "増分収益 " + yen(GAIN_PROGRAM) + "/年（1人あたり " + fmt(DID_PP) + "円" +
-                 "）÷ 年間原資 " + yen(COST_YEAR) })
+    var LU = [2.1, 2.4, 2.2, 2.8, 3.0, 2.7, 1.9, 3.4, 3.6, 3.9, 4.0, 4.2];   // ロイヤルティアップ率
+    var TARGET = 5.0;
+
+    /* ---------- ヒーロー：北極星指標 ---------- */
+    document.getElementById("hero").innerHTML =
+      "<div>" +
+        '<div class="hero-lab">ロイヤルティアップ率　<span style="font-weight:400;opacity:.8">北極星指標</span></div>' +
+        '<div class="hero-sub">上位クラスターへ動いた人数 − 下位へ動いた人数 ÷ 個人顧客 ' + man(TOTAL) + "万人</div>" +
+        '<div class="hero-val">+4.2<small>%</small><span class="dlt">前年同月比 +1.1pt</span></div>' +
+        '<div class="hero-gauge"><i style="width:' + (4.2 / TARGET * 100).toFixed(0) + '%"></i></div>' +
+        '<div class="hero-sub">年度目標 +' + TARGET.toFixed(1) + "% に対して <strong>" +
+          (4.2 / TARGET * 100).toFixed(0) + "%</strong> の進捗</div>" +
+      "</div>" +
+      '<div class="hero-right">' +
+        '<div class="hero-spark"><div class="t">直近12ヶ月</div>' +
+          spark(LU, 300, 54, "#FFFFFF", 0.18) + "</div>" +
+        '<div class="hero-mini">' +
+          '<div><div class="l">昇格</div><div class="v">48,285</div></div>' +
+          '<div><div class="l">降格・離反</div><div class="v">19,423</div></div>' +
+          '<div><div class="l">昇格 ÷ 降格</div><div class="v">2.49<span style="font-size:13px">倍</span></div></div>' +
+        "</div>" +
+      "</div>";
+
+    /* ---------- バイタルサイン ---------- */
+    var roi = GAIN_PROGRAM / COST_YEAR;
+    document.getElementById("vitals").innerHTML = [
+      vital({ lab: "増分収益（年換算・Lv3）", val: yenV(GAIN_PROGRAM), unit: yenU(GAIN_PROGRAM),
+        delta: "+8.4%", dir: "up", sub: "会員1人あたり " + fmt(DID_PP) + "円",
+        tgt: "目標 28億円 達成", tgtState: "ok",
+        spark: spark([24.1,24.6,25.2,26.1,26.6,27.3,27.8,28.4,29.1,29.7,30.3,30.8], 200, 34, "#018838", .14) }),
+      vital({ lab: "ROI", val: roi.toFixed(1), unit: "倍",
+        delta: "+0.2", dir: "up", sub: "増分収益 ÷ 年間原資 " + yen(COST_YEAR),
+        tgt: "目標 3.0倍 達成", tgtState: "ok",
+        spark: spark([2.7,2.7,2.8,2.9,2.9,3.0,3.0,3.1,3.1,3.2,3.2,3.2], 200, 34, "#018838", .14) }),
+      vital({ lab: "ななポ会員数", val: man(MEMBERS), unit: "万人",
+        delta: "+1.1%", dir: "up", sub: "会員化率 " + (MEMBERS / TOTAL * 100).toFixed(1) + "%",
+        tgt: "目標 75万人 93%", tgtState: "na",
+        spark: spark(MEM_N.map(function (v) { return v / 10000; }), 200, 34, "#018838", .14) }),
+      vital({ lab: "アプリ MAU 率", val: "42.3", unit: "%",
+        delta: "+2.4pt", dir: "up", sub: "アクティブ " + fmt(Math.round(MEMBERS * .423)) + "人",
+        tgt: "目標 50% 未達", tgtState: "ng",
+        spark: spark(MEM.mau, 200, 34, "#018838", .14) }),
+      vital({ lab: "ポイント利用率", val: (PT.redeemed[11] / PT.accrued[11] * 100).toFixed(1), unit: "%",
+        delta: "+1.0pt", dir: "up", sub: "利用 " + PT.redeemed[11].toFixed(1) + " ÷ 付与 " + PT.accrued[11].toFixed(1) + "百万pt",
+        tgt: "目標 60% 未達", tgtState: "ng",
+        spark: spark(PT.redeemed.map(function (v, i) { return v / PT.accrued[i] * 100; }), 200, 34, "#018838", .14) }),
+      vital({ lab: "未利用ポイント残高（負債）", val: yenV(PT.balance * 1000000), unit: yenU(PT.balance * 1000000),
+        delta: "+2.8%", dir: "down", sub: fmt(PT.balance) + "百万pt（1pt＝1円）",
+        tgt: "増加を抑制したい", tgtState: "ng",
+        spark: spark([1610,1642,1679,1712,1748,1781,1772,1794,1806,1819,1831,1842], 200, 34, "#959595", .14) })
     ].join("");
 
+    /* ---------- ポイントの流れ（付与 → 利用／失効／残高） ---------- */
+    (function () {
+      var s = clear("cFlow"), W = 1240, SX = 116, SW = 30, TX = 806, TW = 30;
+      var acc = PT.accrued[11], use = PT.redeemed[11], exp = PT.expired[11], keep = acc - use - exp;
+      var H = 168, sy0 = 40, top = 26, gap = 22;
+      var segs = [
+        { lab: "ポイント利用", v: use,  c: "#018838", note: "交換・リワードへ" },
+        { lab: "失効",         v: exp,  c: "#959595", note: "有効期限切れ" },
+        { lab: "残高へ積み増し", v: keep, c: "#9BD4B5", note: "未利用ポイント残高が増える" }
+      ];
+      var totalTH = H + gap * (segs.length - 1);
+      // 付与の帯
+      s.appendChild(el("rect", { x: SX, y: sy0, width: SW, height: H, rx: 3, fill: "#115A36" }));
+      s.appendChild(el("text", { x: SX, y: sy0 - 26, "font-size": 11.5, "font-weight": 700,
+        fill: "#1A1A1C" }, "今月のポイント付与"));
+      s.appendChild(el("text", { x: SX, y: sy0 - 8, class: "num",
+        "font-size": 17, "font-weight": 600, fill: "#115A36" }, acc.toFixed(1) + "百万pt"));
+      var sy = sy0, ty = top;
+      segs.forEach(function (g) {
+        var sh = g.v / acc * H, th = g.v / acc * H;
+        var x1 = SX + SW, x2 = TX, mid = (x1 + x2) / 2;
+        s.appendChild(el("path", {
+          d: "M" + x1 + "," + sy + " C" + mid + "," + sy + " " + mid + "," + ty + " " + x2 + "," + ty +
+             " L" + x2 + "," + (ty + th) + " C" + mid + "," + (ty + th) + " " + mid + "," + (sy + sh) +
+             " " + x1 + "," + (sy + sh) + " Z",
+          fill: g.c, "fill-opacity": .5 }));
+        s.appendChild(el("rect", { x: TX, y: ty, width: TW, height: th, rx: 3, fill: g.c }));
+        s.appendChild(el("text", { x: TX + TW + 14, y: ty + th / 2 - 6, "font-size": 11.5,
+          "font-weight": 700, fill: "#1A1A1C" }, g.lab));
+        s.appendChild(el("text", { x: TX + TW + 14, y: ty + th / 2 + 11, class: "num",
+          "font-size": 15, "font-weight": 600, fill: g.c === "#9BD4B5" ? "#115A36" : g.c },
+          g.v.toFixed(1) + "百万pt　" + (g.v / acc * 100).toFixed(1) + "%"));
+        s.appendChild(el("text", { x: TX + TW + 14, y: ty + th / 2 + 25, "font-size": 10,
+          fill: "#767676" }, g.note));
+        sy += sh; ty += th + gap;
+      });
+      s.setAttribute("viewBox", "0 0 " + W + " " + Math.max(250, ty + 4));
+      s.appendChild(el("text", { x: SX, y: ty - 12, "font-size": 10.5, fill: "#767676" },
+        "1pt＝1円。未利用ポイント残高の累計は " + fmt(PT.balance) + "百万pt（" +
+        yen(PT.balance * 1000000) + "）で、これが会計上の引当対象になる。"));
+    })();
+
+    /* ---------- 会員 ／ 非会員の比較 ---------- */
     hGroupBars("cCompare", [
       { label: "預金平残",        v: [168, 100] },
       { label: "給与振込 設定率", v: [141, 100] },
@@ -1375,22 +1518,20 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
       { label: "NISA 保有率",     v: [187, 100] }
     ], [{ color: "#018838" }, { color: "#3460FB" }], 240, "");
 
-    comboChart("cTrend",
-      ["9月", "10月", "11月", "12月", "1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月"],
-      [62.1, 63.0, 63.8, 64.9, 65.6, 66.4, 67.0, 67.9, 68.5, 69.1, 69.6, 70.0],
-      [2.1, 2.4, 2.2, 2.8, 3.0, 2.7, 1.9, 3.4, 3.6, 3.9, 4.0, 4.2],
-      80, 5);
+    comboChart("cTrend", M12,
+      MEM_N.map(function (v) { return v / 10000; }), LU, 80, 5);
 
     document.getElementById("sumNote").innerHTML =
       "<b>比較は Lv3（DiD＋傾向スコアマッチング）。</b>" +
       "年代・預金残高帯・取引年数を揃えた未接続層（C10・" + man(byId.C10.n) + "万人）を対照群として抽出している。" +
       "単純比較（Lv1）ではもともと優良な顧客ほどアプリを使うという選択バイアスが乗るため、因果とは言えない。" +
-      "<b>3月にロイヤルティアップ率が 1.9% へ落ち込む</b>のは、ななポの有効期限（付与から2年経過後の年度末）で失効が集中し、" +
-      "ポイント消化率が不連続に動くため。" +
-      "<br>収益換算レート（預金利鞘・カード収益率・信託報酬・給与振込LTV）は<b>行内想定値が未確定のため仮値</b>。確定後に差し替える。" +
+      "<b>3月にロイヤルティアップ率が 1.9% へ落ち込む</b>のは、ななポの有効期限（付与から2年経過後の年度末）で" +
+      "失効が集中し、ポイント利用率が不連続に動くため。" +
+      "<br>収益換算レート（預金利鞘・カード収益率・信託報酬・給与振込LTV）は<b>行内想定値が未確定のため仮値</b>。" +
+      "目標値（ロイヤルティアップ率 +5.0%、ROI 3.0倍、MAU 50%、ポイント利用率 60%）も暫定で、行内の年度計画に差し替える。" +
       "<br><b>サマリーの ROI とロードマップの ROI は母数が異なる。</b>" +
-      "サマリーは<b>プログラム全体</b>（会員 " + man(MEMBERS) + "万人 × 1人あたり増分 " + fmt(DID_PP) + "円" +
-      "/年 ÷ 年間原資）、ロードマップは<b>個別の育成ルート</b>（そのルートの転換益 ÷ そのルートの原資）の投資対効果を示す。";
+      "サマリーは<b>プログラム全体</b>（会員 " + man(MEMBERS) + "万人 × 1人あたり増分 " + fmt(DID_PP) +
+      "円/年 ÷ 年間原資）、ロードマップは<b>個別の育成ルート</b>（そのルートの転換益 ÷ そのルートの原資）を示す。";
   }
 
   /* ============================================================
@@ -2105,17 +2246,6 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
      追加ビューの描画
      ============================================================ */
   function drawPointEconomy() {
-    var last = PT.accrued.length - 1;
-    document.getElementById("ptKpis").innerHTML = [
-      kpi({ lab: "当月 ポイント付与", val: PT.accrued[last].toFixed(1), unit: "百万pt",
-            delta: "+0.5%", dir: "up", sub: "1pt＝1円。会員 " + man(MEMBERS) + "万人" }),
-      kpi({ lab: "当月 ポイント利用", val: PT.redeemed[last].toFixed(1), unit: "百万pt",
-            delta: "+1.5%", dir: "up", sub: "利用率 " + (PT.redeemed[last] / PT.accrued[last] * 100).toFixed(1) + "%" }),
-      kpi({ lab: "当月 ポイント失効", val: PT.expired[last].toFixed(1), unit: "百万pt",
-            delta: "+88.2%", dir: "down", sub: "有効期限は付与から2年経過後の年度末" }),
-      kpi({ fill: true, lab: "未利用ポイント残高（負債）", val: fmt(PT.balance), unit: "百万pt",
-            sub: "会計上は引当金。利用が進まないほど積み上がる" })
-    ].join("");
     (function () {
       var s = clear("cPoints"), W = 440, H = 260, X0 = 42, X1 = W - 40, Y0 = 18, Y1 = H - 34;
       var n = 12, step = (X1 - X0) / n, bw = (step * 0.74) / 3, mx = 90;
