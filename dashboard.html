@@ -173,6 +173,52 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
 .note{background:var(--surface); border:1px solid var(--line); border-left:4px solid var(--main); border-radius:6px;
   padding:12px 16px; font-size:11.5px; line-height:1.75; margin-top:12px}
 .note b{color:var(--main)}
+/* 週次運用パーツ */
+.fset.per{border-color:var(--main); background:#F1F8F4}
+.fset.per label{color:var(--main)}
+.digest{background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:14px 18px; margin-bottom:12px}
+.digest h3{margin:0 0 10px; font-size:13px; font-weight:700; display:flex; align-items:center; gap:8px}
+.digest h3 .per{font-family:var(--din); font-size:10px; letter-spacing:.1em; color:var(--on-fill); background:var(--main); border-radius:3px; padding:2px 7px}
+.dg{display:grid; grid-template-columns:74px 1fr auto; gap:12px; align-items:baseline; padding:8px 0; border-bottom:1px solid var(--line-soft); font-size:12px}
+.dg:last-child{border-bottom:0}
+.dg .d{font-family:var(--din); font-size:14px; font-weight:700; font-variant-numeric:tabular-nums; text-align:right}
+.dg .d.up{color:var(--main)} .dg .d.down{color:var(--r1)} .dg .d.flat{color:var(--ink-mute)}
+.dg .act{font-size:11px; color:var(--ink-mute); text-align:right; white-space:nowrap}
+.dg-none{font-size:12px; color:var(--ink-mute); padding:6px 0}
+
+.pipe{display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:10px}
+.pipe-card{background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:13px 15px}
+.pipe-card.hot{border-color:var(--main); border-width:2px; padding:12px 14px}
+.pipe-h{display:flex; align-items:baseline; gap:8px; margin-bottom:6px}
+.pipe-h b{font-family:var(--din); font-size:13px; font-weight:700}
+.pipe-h span{font-size:10.5px; color:var(--ink-mute)}
+.pipe-n{font-family:var(--din); font-size:26px; font-weight:600; font-variant-numeric:tabular-nums; line-height:1.2}
+.pipe-n small{font-size:12px; font-weight:500; margin-left:2px}
+.pipe-sub{font-size:10.5px; color:var(--ink-mute); line-height:1.55; margin:2px 0 9px}
+.pipe-acts{display:flex; flex-direction:column; gap:4px}
+.pa{display:grid; grid-template-columns:1fr auto; gap:8px; font-size:11px; align-items:baseline}
+.pa b{font-family:var(--din); font-variant-numeric:tabular-nums; font-weight:600}
+.pa i{font-style:normal; display:block; height:4px; border-radius:2px; background:var(--gbg); margin-top:3px}
+
+.pace{display:grid; grid-template-columns:1fr; gap:8px}
+.pace-bar{position:relative; height:22px; border-radius:4px; background:#EFF3F0; overflow:hidden}
+.pace-bar i{display:block; height:100%; background:var(--g1)}
+.pace-bar u{position:absolute; top:-3px; bottom:-3px; width:2px; background:var(--ink); text-decoration:none}
+.pace-lab{display:flex; justify-content:space-between; font-size:11px; color:var(--ink-mute)}
+
+#migSvg{display:block; width:100%; height:auto; font-family:var(--jp)}
+#migSvg text{font-family:var(--jp)}
+#migSvg .num{font-family:var(--din); font-variant-numeric:tabular-nums}
+
+.queue td .own{display:inline-flex; align-items:center; gap:6px}
+.queue td .av{width:20px; height:20px; border-radius:50%; background:var(--gbg); color:#0C3D22;
+  font-size:9.5px; font-weight:700; display:grid; place-items:center; flex:none}
+.st{display:inline-block; font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:11px; white-space:nowrap}
+.st.run{background:var(--main); color:var(--on-fill)}
+.st.wait{background:var(--nbg); color:var(--n2)}
+.st.late{background:var(--rbg); color:var(--r2)}
+.st.done{background:var(--gbg); color:#0C3D22}
+
 .foot{margin-top:34px; padding-top:14px; border-top:1px solid var(--line); font-size:10.5px; color:var(--ink-mute); line-height:1.7}
 
 @media (max-width:1180px){ .road{grid-template-columns:1fr} }
@@ -211,6 +257,10 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
         <svg viewBox="0 0 24 24"><path d="M3 21 21 3"/><circle cx="6" cy="18" r="2.4"/><circle cx="12" cy="12" r="2.4"/><circle cx="18" cy="6" r="2.4"/></svg>
         育成ロードマップ
       </button>
+      <button type="button" class="nav-btn" data-v="mig">
+        <svg viewBox="0 0 24 24"><path d="M4 7h11"/><path d="m12 4 3 3-3 3"/><path d="M20 17H9"/><path d="m12 14-3 3 3 3"/></svg>
+        遷移分析
+      </button>
       <button type="button" class="nav-btn" data-v="cl">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/></svg>
         クラスター詳細
@@ -240,6 +290,13 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
           <select id="fSex"><option>全体</option><option>男性</option><option>女性</option></select></div>
         <div class="fset"><label for="fArea">エリア</label>
           <select id="fArea"><option>全エリア</option><option>仙台市</option><option>仙台市以外・宮城県内</option><option>県外</option></select></div>
+        <div class="fset per"><label for="fPeriod">期間</label>
+          <select id="fPeriod">
+            <option value="w">今週（9/1〜9/5）</option>
+            <option value="m" selected>今月（8月）</option>
+            <option value="q">四半期（6〜8月）</option>
+            <option value="y">年度累計（4〜8月）</option>
+          </select></div>
         <span class="asof">as of 2026-08 月末</span>
       </div>
     </header>
@@ -267,9 +324,12 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
       <section class="view" id="v-road" hidden>
         <div class="kpis" id="roadKpis"></div>
 
+        <div class="sec-h"><h2>変化ダイジェスト</h2><p>選択期間で動いたものだけを表示します。動いていない指標は出しません。</p></div>
+        <div class="digest" id="digest"></div>
+
         <div class="sec-h">
           <h2>ロイヤルティ顧客育成ロードマップ</h2>
-          <p>縦軸＝デジタル接点スコア／横軸＝取引の広がりスコア。矢印は育成ルート、太さは想定転換人数。</p>
+          <p>縦軸＝デジタル接点スコア／横軸＝取引の広がりスコア。<strong>矢印の太さは選択期間の実績遷移人数</strong>、バブルの脇は同期間の増減。</p>
         </div>
 
         <div class="road">
@@ -278,9 +338,9 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
             <div class="rm-legend">
               <i><span class="sw" style="background:var(--g2)"></span><span class="sw" style="background:var(--g1)"></span><span class="sw" style="background:var(--g3)"></span><span class="sw" style="background:var(--gbg)"></span>色＝ななポ実績（月間付与pt）</i>
               <i><span class="sw" style="background:var(--nbg);width:15px;height:15px"></span>面積＝人数</i>
-              <i><span class="swline"></span>育成ルート</i>
+              <i><span class="swline"></span>育成ルート（実績フロー）</i>
               <i><span class="swline dash"></span>離反リスク</i>
-              <i style="color:#959595">※ C10 は人数が突出するため面積上限でクリップ表示</i>
+              <i style="color:#959595">※ 数値は選択期間の実績遷移人数</i>
             </div>
           </div>
 
@@ -291,6 +351,22 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
         </div>
 
         <div class="rt-detail" id="rtDetail" aria-live="polite"></div>
+
+        <div class="sec-h">
+          <h2>昇格予備軍</h2>
+          <p>クラスター境界まであと少しの顧客。<strong>今週アプローチすべき対象</strong>で、月末の遷移はここから生まれます。</p>
+        </div>
+        <div class="pipe" id="pipe"></div>
+        <div class="note" id="pipeNote"></div>
+
+        <div class="sec-h"><h2>原資消化ペース</h2><p>月次のポイント原資予算に対する消化状況。縦線が日割ペース。</p></div>
+        <div class="card"><div class="pace" id="pace"></div></div>
+
+        <div class="sec-h"><h2>アクションキュー</h2><p>週次の運用単位。担当・期限・ステータスを持つ実行タスク。</p></div>
+        <div class="tw"><table class="queue" id="queueTable">
+          <thead><tr><th>ルート</th><th>今週のアクション</th><th>チャネル</th><th class="n">対象</th><th>担当</th><th>期限</th><th>状態</th></tr></thead>
+          <tbody></tbody>
+        </table></div>
 
         <div class="sec-h"><h2>クラスター一覧</h2><p>行をクリックすると該当クラスターのルートを選択します</p></div>
         <div class="tw"><table id="clTable">
@@ -304,6 +380,23 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
           「色は濃いのに左下にいる」クラスター（C3 サイレント優良）は、失ったときの損失が最も大きい。
           育成とは、バブルを<b>右上へ動かすこと</b>であり、矢印はそのための経路と施策を表す。
         </div>
+      </section>
+
+      <!-- ============ 遷移分析 ============ -->
+      <section class="view" id="v-mig" hidden>
+        <div class="kpis" id="migKpis"></div>
+        <div class="sec-h"><h2>クラスター遷移マトリクス</h2><p>行＝期首クラスター、列＝期末クラスター。対角＝滞留。色が濃いほど人数が多い。</p></div>
+        <div class="card"><svg id="migSvg" viewBox="0 0 900 560" role="img" aria-label="クラスター遷移マトリクス"></svg></div>
+        <div class="chart-grid" style="margin-top:12px">
+          <div class="card"><div class="card-h"><h3>昇格 ／ 降格の内訳</h3><span>選択期間・上位10件</span></div>
+            <svg class="c" id="cFlows" viewBox="0 0 440 300" role="img" aria-label="昇格と降格の内訳"></svg>
+            <div class="legend"><i><span class="sq" style="background:var(--g1)"></span>昇格</i><i><span class="sq" style="background:var(--r1)"></span>降格・離反</i></div>
+          </div>
+          <div class="card"><div class="card-h"><h3>期首 → 期末の人数変化</h3><span>クラスター別</span></div>
+            <svg class="c" id="cDelta" viewBox="0 0 440 300" role="img" aria-label="クラスター別の人数変化"></svg>
+          </div>
+        </div>
+        <div class="note" id="migNote"></div>
       </section>
 
       <!-- ============ クラスター詳細 ============ -->
@@ -468,6 +561,119 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
   // 離反リスク（相対パレット・破線）
   var RISK = { from:"C3", to:"C10", label:"離反リスク" };
 
+  // 昇格予備軍：クラスター境界まであと少しの顧客と、その「あと1アクション」の内訳
+  var PIPE = {
+    R1: { gap: "取引の広がり 62〜69（境界70まで残り1〜8pt）", acts: [
+      ["給与振込 未設定", 3180], ["カード決済 月10万円まであと3万円未満", 2640],
+      ["公共料金 あと1件で3件", 2010], ["NISA 未申込", 1590]] },
+    R2: { gap: "デジタル接点 62〜69（境界70まで残り1〜8pt）", acts: [
+      ["アプリ90日 未起動", 2460], ["通知許諾OFF", 1720],
+      ["ポイント未交換（残高100pt超）", 1180], ["投信・NISA画面 未到達", 790]] },
+    R3: { gap: "デジタル接点 32〜39（境界40まで残り1〜8pt）", acts: [
+      ["ななポ未登録（アプリ登録済）", 5140], ["通知許諾OFF", 3560],
+      ["直近30日 未起動", 2610], ["Web通帳 未切替", 1520]] },
+    R4: { gap: "デジタル接点 62〜69（境界70まで残り1〜8pt）", acts: [
+      ["チャレンジ 未着手", 8390], ["通知許諾OFF", 5240],
+      ["機能到達 3カテゴリ以下", 4190], ["ポイント未交換", 3150]] },
+    R5: { gap: "デジタル接点 32〜39（境界40まで残り1〜8pt）", acts: [
+      ["直近30日 未起動", 5420], ["通知許諾OFF", 4340],
+      ["生体認証 未設定", 2170], ["Web通帳 未切替", 1080]] },
+    R6: { gap: "取引の広がり 32〜39（境界40まで残り1〜8pt）", acts: [
+      ["ポイント残高100pt未満", 3500], ["デビット未利用", 2450],
+      ["口座振替 0件", 1400], ["給与振込 未設定", 1040]] },
+    R7: { gap: "取引の広がり 32〜39（境界40まで残り1〜8pt）", acts: [
+      ["デビット未利用", 2350], ["預金50万円未満", 1410],
+      ["口座振替 0件", 940], ["つみたて未設定", 470]] },
+    R8: { gap: "アプリ登録すれば接点スコアが立ち上がる層", acts: [
+      ["アプリDL済・ななポ未登録", 25240], ["Web明細 利用中", 17670],
+      ["窓口来店 直近3ヶ月あり", 10100], ["ATM 月2回以上利用", 7570]] },
+    R9: { gap: "デジタル接点 32〜39（境界40まで残り1〜8pt）", acts: [
+      ["残高50万円以上（休眠）", 4050], ["口座振替 1件あり", 3040],
+      ["直近1年 入出金あり", 2020], ["カード保有・未利用", 1010]] }
+  };
+
+  // 週次アクションキュー
+  var QUEUE = {
+    R1: ["給与振込チャレンジを未設定3,180人へ配信", "プッシュ", "CRM 佐藤", "9/8(月)", "run"],
+    R2: ["運用レポート初回配信のクリエイティブ確定", "プッシュ", "マーケ 田中", "9/9(火)", "wait"],
+    R3: ["仙台市内20店舗へ誘導QRポスター発送", "店頭", "営業推進 鈴木", "9/5(金)", "late"],
+    R4: ["9月のネクストアクション文面をA/B入稿", "アプリ内", "CRM 佐藤", "9/10(水)", "run"],
+    R5: ["入出金即時通知の許諾促進バナー掲出", "アプリ内", "CRM 高橋", "9/12(金)", "wait"],
+    R6: ["オンボーディング3ステップの離脱箇所を特定", "分析", "分析 伊藤", "9/11(木)", "run"],
+    R7: ["デビット初回利用チャレンジの原資申請", "稟議", "企画 渡辺", "9/16(火)", "wait"],
+    R8: ["ATM画面のDL訴求を全台へ展開（第2弾）", "ATM", "チャネル 山本", "9/19(金)", "wait"],
+    R9: ["復活ボーナスの原資単価上限を150ptに設定", "運用", "企画 渡辺", "9/4(木)", "done"]
+  };
+
+  // クラスターの序列（昇格／降格の判定に使う）
+  var RANK = { C1:10, C2:9, C4:8, C5:7, C3:6, C6:5, C8:4, C7:3, C9:2, C10:1 };
+
+  // 月次の遷移率（対角以外）。期間 k ヶ月ぶんに線形スケールして使う。
+  var FLOW = {
+    C1: { C2:.020, C3:.010 },
+    C2: { C1:.035, C3:.020, C5:.015 },
+    C3: { C2:.028, C6:.015, C10:.012 },
+    C4: { C1:.055, C2:.015, C5:.030 },
+    C5: { C4:.045, C2:.015, C6:.025, C8:.010 },
+    C6: { C5:.050, C3:.015, C9:.020 },
+    C7: { C5:.030, C8:.035, C9:.015 },
+    C8: { C5:.050, C7:.020, C9:.030 },
+    C9: { C8:.030, C6:.020, C10:.015 },
+    C10:{ C6:.012, C8:.008, C9:.005 }
+  };
+
+  var PERIODS = {
+    w: { k: 0.23, label: "今週", range: "9/1〜9/5", days: 5 },
+    m: { k: 1,    label: "今月", range: "8月",      days: 31 },
+    q: { k: 3,    label: "四半期", range: "6〜8月", days: 92 },
+    y: { k: 5,    label: "年度累計", range: "4〜8月", days: 153 }
+  };
+  var period = "m";
+
+  var IDS = CL.map(function (c) { return c.id; });
+
+  // 期末（＝現在）人数から期首人数を逆算し、遷移マトリクスを組む。
+  // x・P = y を Richardson 反復（P = I − D、D は微小）で解く。
+  function buildTransition(k) {
+    var n = IDS.length, P = [], i, j;
+    for (i = 0; i < n; i++) {
+      P.push([]); var off = 0;
+      for (j = 0; j < n; j++) P[i].push(0);
+      var f = FLOW[IDS[i]] || {};
+      for (var t in f) {
+        var jj = IDS.indexOf(t);
+        var v = Math.min(0.6, f[t] * k);
+        P[i][jj] = v; off += v;
+      }
+      P[i][i] = 1 - off;
+    }
+    var y = CL.map(function (c) { return c.n; });
+    var x = y.slice();
+    for (var it = 0; it < 80; it++) {
+      var z = new Array(n).fill(0);
+      for (i = 0; i < n; i++) for (j = 0; j < n; j++) z[j] += x[i] * P[i][j];
+      for (i = 0; i < n; i++) x[i] = Math.max(0, x[i] + (y[i] - z[i]));
+    }
+    var M = [];
+    for (i = 0; i < n; i++) {
+      M.push([]);
+      for (j = 0; j < n; j++) M[i].push(Math.round(x[i] * P[i][j]));
+    }
+    var start = M.map(function (r) { return r.reduce(function (a, b) { return a + b; }, 0); });
+    var end = new Array(n).fill(0);
+    for (i = 0; i < n; i++) for (j = 0; j < n; j++) end[j] += M[i][j];
+    var up = 0, down = 0;
+    for (i = 0; i < n; i++) for (j = 0; j < n; j++) {
+      if (i === j) continue;
+      if (RANK[IDS[j]] > RANK[IDS[i]]) up += M[i][j]; else down += M[i][j];
+    }
+    return { M: M, start: start, end: end, up: up, down: down,
+             net: (up - down) / TOTAL * 100, k: k };
+  }
+  var TR = null;
+  function flowOf(from, to) { return TR.M[IDS.indexOf(from)][IDS.indexOf(to)]; }
+  function deltaOf(id) { var i = IDS.indexOf(id); return TR.end[i] - TR.start[i]; }
+
   var UNIT = 300;          // 1人あたり想定ポイント原資(pt = 円)
   var GAIN = {             // 転換1人あたりの年間増分収益（仮値）
     R1:18900, R2:14800, R3:14300, R4:4000, R5:3400, R6:3000, R7:4500, R8:3000, R9:1900
@@ -520,7 +726,6 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
   // ラベルは他のバブル・他のラベルと重ならない位置を選ぶ（下→上→右→左）
   var placedLabels = [];
   function labelSpot(c, p, r) {
-    if (c.id === "C10") return { x: p.x + r + 12, y: p.y - 2, anchor: "start", w: 92, h: 28 };
     var W = Math.max(58, c.name.length * 11);
     var cands = [
       { x: p.x,           y: p.y + r + 15, anchor: "middle", w: W, h: 28 },
@@ -561,8 +766,8 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
     parent.appendChild(el("text", a, txt));
   }
 
-  var C10POS = { x: 196, y: 588 };
-  function pos(c) { return c.id === "C10" ? C10POS : { x: fx(c.b), y: fy(c.l) }; }
+  var BAND = { y: 532, h: 62 };
+  function pos(c) { return c.id === "C10" ? { x: fx(51), y: BAND.y } : { x: fx(c.b), y: fy(c.l) }; }
 
   function arc(a, bb, ra, rb, curve, headroom) {
     var dx = bb.x - a.x, dy = bb.y - a.y, L = Math.hypot(dx, dy) || 1;
@@ -585,8 +790,9 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
 
     var defs = el("defs");
     [["ahOn", "#018838"], ["ahSel", "#115A36"], ["ahOff", "#BFC5C2"], ["ahRisk", "#3460FB"]].forEach(function (m) {
-      var mk = el("marker", { id: m[0], viewBox: "0 0 10 10", refX: 8, refY: 5,
-        markerWidth: 6, markerHeight: 6, orient: "auto-start-reverse" });
+      var mk = el("marker", { id: m[0], viewBox: "0 0 10 10", refX: 7.5, refY: 5,
+        markerUnits: "userSpaceOnUse", markerWidth: 13, markerHeight: 13,
+        orient: "auto-start-reverse" });
       mk.appendChild(el("path", { d: "M0,0 L10,5 L0,10 z", fill: m[1] }));
       defs.appendChild(mk);
     });
@@ -632,30 +838,65 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
     s.appendChild(yTitle);
 
     /* --- 未接続層バンド --- */
-    s.appendChild(el("line", { x1: PX0, y1: 516, x2: PX1, y2: 516, stroke: "#D9D9D9" }));
-    s.appendChild(el("text", { x: PX0, y: 534, "font-size": 11, "font-weight": 700, fill: "#767676" },
-      "グリッド外｜アプリ未登録（ななポ付与なし・効果測定の対照群）"));
+    s.appendChild(el("line", { x1: PX0, y1: 516, x2: PX1, y2: 516, stroke: "#D9D9D9",
+      "stroke-dasharray": "4 3" }));
+    (function () {
+      var c = byId.C10, g = el("g", { class: "bub", "data-c": "C10", tabindex: 0, role: "button",
+        "aria-label": "未接続層 " + fmt(c.n) + "人" });
+      var d = deltaOf("C10");
+      g.appendChild(el("rect", { x: PX0, y: BAND.y, width: PX1 - PX0, height: BAND.h, rx: 4,
+        fill: "#E9ECEA", stroke: "#959595", "stroke-width": 1.5, "stroke-dasharray": "6 4" }));
+      g.appendChild(el("text", { x: PX0 + 16, y: BAND.y + 25, "font-size": 13, "font-weight": 700,
+        fill: "#1A1A1C", "pointer-events": "none" }, "C10　未接続層"));
+      g.appendChild(el("text", { x: PX0 + 16, y: BAND.y + 45, "font-size": 10.5,
+        fill: "#767676", "pointer-events": "none" },
+        "アプリ未登録／ななポ付与なし／効果測定の対照群"));
+      g.appendChild(el("text", { x: PX1 - 16, y: BAND.y + 27, "text-anchor": "end", class: "num",
+        "font-size": 22, "font-weight": 600, fill: "#4D4D4D", "pointer-events": "none" },
+        man(c.n) + "万人"));
+      g.appendChild(el("text", { x: PX1 - 16, y: BAND.y + 45, "text-anchor": "end", class: "num",
+        "font-size": 10.5, fill: d < 0 ? "#018838" : "#767676", "pointer-events": "none" },
+        "個人顧客の " + (c.n / TOTAL * 100).toFixed(1) + "%　" +
+        (d > 0 ? "+" : "") + fmt(d) + "人（" + PERIODS[period].label + "）"));
+      // 母数バー（グリッド内の会員数との比）
+      var bw = (PX1 - PX0 - 32) * (c.n / TOTAL);
+      g.appendChild(el("rect", { x: PX0 + 16, y: BAND.y + 52, width: bw, height: 5, rx: 2.5,
+        fill: "#959595", "pointer-events": "none" }));
+      g.addEventListener("click", function () { pickCluster("C10"); });
+      g.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pickCluster("C10"); } });
+      s.appendChild(g);
+    })();
 
     var gRoutes = el("g"), gBubs = el("g");
     s.appendChild(gRoutes); s.appendChild(gBubs);
 
     /* --- 育成ルート --- */
-    var curves = { R1: -24, R2: -22, R3: 24, R4: -26, R5: 22, R6: -20, R7: 38, R8: -14, R9: 24 };
+    var curves = { R1: -24, R2: -20, R3: 22, R4: -14, R5: 18, R6: -20, R7: 38, R8: 0, R9: 22 };
+    var maxFlow = Math.max.apply(null, RT.map(function (r) { return flowOf(r.from, r.to); }));
     RT.forEach(function (rt) {
       var a = byId[rt.from], b = byId[rt.to];
-      var pa = pos(a), pb = pos(b), ra = rad(a.n), rb = rad(b.n);
+      var pa = pos(a), pb = pos(b);
+      var ra = rt.from === "C10" ? 0 : rad(a.n), rb = rad(b.n);
       var on = rt.id === selRoute;
-      var d = arc(pa, pb, ra, rb, curves[rt.id] || 0, 11);
+      var n = flowOf(rt.from, rt.to);
+      var d = arc(pa, pb, ra, rb, curves[rt.id] || 0, 13);
       var stroke = on ? "#115A36" : (rt.pri ? "#018838" : "#BFC5C2");
-      var w = on ? 5.5 : Math.max(1.6, Math.sqrt(rt.conv) / 42);
-      if (rt.from === "C10" && !on) w = 1.6;
+      var w = on ? (3.6 + n / maxFlow * 4.4) : (1.4 + n / maxFlow * 3.6);
       var g = el("g", { class: "rtpath", "data-r": rt.id, style: "cursor:pointer" });
-      g.appendChild(el("path", { d: d, fill: "none", stroke: "transparent", "stroke-width": 16 }));
-      g.appendChild(el("path", {
+      g.appendChild(el("path", { d: d, fill: "none", stroke: "transparent", "stroke-width": 18 }));
+      var path = el("path", {
         d: d, fill: "none", stroke: stroke, "stroke-width": w, "stroke-linecap": "round",
         "marker-end": "url(#" + (on ? "ahSel" : (rt.pri ? "ahOn" : "ahOff")) + ")",
-        opacity: on ? 1 : (rt.pri ? .95 : .8)
-      }));
+        opacity: on ? 1 : (rt.pri ? .95 : .75)
+      });
+      g.appendChild(path);
+      if (on || rt.pri) {
+        var mp = path.getPointAtLength(path.getTotalLength() * 0.5);
+        halo(g, { x: mp.x, y: mp.y - 8, "text-anchor": "middle", class: "num",
+          "font-size": on ? 12 : 10.5, "font-weight": 700,
+          fill: on ? "#115A36" : "#018838", "pointer-events": "none" }, fmt(n) + "人");
+      }
       g.addEventListener("click", function () { selectRoute(rt.id); });
       gRoutes.appendChild(g);
     });
@@ -663,22 +904,24 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
     /* --- 離反リスク（相対パレット・破線） --- */
     (function () {
       var a = byId[RISK.from], b = byId[RISK.to];
-      var pa = pos(a), pb = pos(b);
+      var pa = pos(a), pb = { x: fx(79), y: BAND.y };
       gRoutes.appendChild(el("path", {
-        d: arc(pa, pb, rad(a.n), rad(b.n), 58, 11), fill: "none",
+        d: arc(pa, pb, rad(a.n), 0, 34, 11), fill: "none",
         stroke: "#3460FB", "stroke-width": 2, "stroke-dasharray": "6 4",
         "marker-end": "url(#ahRisk)", opacity: .85
       }));
-      var rp = el("path", { d: arc(pa, pb, rad(a.n), rad(b.n), 58, 11), fill: "none", stroke: "none" });
+      var rp = el("path", { d: arc(pa, pb, rad(a.n), 0, 34, 11), fill: "none", stroke: "none" });
       gRoutes.appendChild(rp);
       var mp = rp.getPointAtLength(rp.getTotalLength() * 0.5);
       halo(gRoutes, { x: mp.x, y: mp.y - 8, "text-anchor": "middle",
-        "font-size": 10.5, "font-weight": 700, fill: "#3460FB" }, "離反リスク");
+        "font-size": 10.5, "font-weight": 700, fill: "#3460FB" },
+        "離反 " + fmt(flowOf(RISK.from, RISK.to)) + "人");
     })();
 
     /* --- バブル --- */
     var rt0 = RT.filter(function (r) { return r.id === selRoute; })[0];
     CL.forEach(function (c) {
+      if (c.id === "C10") return;
       var p = pos(c), r = rad(c.n);
       var inRoute = rt0 && (c.id === rt0.from || c.id === rt0.to);
       var g = el("g", { class: "bub", "data-c": c.id, tabindex: 0, role: "button",
@@ -695,8 +938,10 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
       halo(g, { x: lp.x, y: lp.y, "text-anchor": lp.anchor, "font-size": 11,
         "font-weight": inRoute ? 700 : 500, fill: inRoute ? "#115A36" : "#1A1A1C",
         "pointer-events": "none" }, c.name);
+      var dn = deltaOf(c.id);
       halo(g, { x: lp.x, y: lp.y + 13, "text-anchor": lp.anchor, class: "num",
-        "font-size": 10, fill: "#767676", "pointer-events": "none" }, man(c.n) + "万人");
+        "font-size": 10, fill: "#767676", "pointer-events": "none" },
+        man(c.n) + "万人　" + (dn > 0 ? "+" : "") + fmt(dn));
       g.addEventListener("click", function () { pickCluster(c.id); });
       g.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pickCluster(c.id); } });
       gBubs.appendChild(g);
@@ -724,9 +969,12 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
       b.type = "button";
       b.className = "rt" + (r.pri ? " pri" : "");
       b.setAttribute("aria-pressed", String(r.id === selRoute));
+      var n = flowOf(r.from, r.to);
       b.innerHTML =
         '<span class="rt-rank">' + r.rank + "</span>" +
-        '<span><span class="rt-path">' + r.from + ' <em>→</em> ' + r.to + "</span>" +
+        '<span><span class="rt-path">' + r.from + ' <em>→</em> ' + r.to +
+          '<span style="font-family:var(--jp);font-size:11px;font-weight:500;color:var(--ink-mute);margin-left:8px">' +
+          PERIODS[period].label + " 実績 " + fmt(n) + "人</span></span>" +
         '<span class="rt-name">' + byId[r.from].name + " → " + byId[r.to].name + "</span></span>" +
         '<span class="rt-roi"><b>' + r.roi.toFixed(1) + "x</b><span>ROI</span></span>";
       b.addEventListener("click", function () { selectRoute(r.id); });
@@ -738,6 +986,8 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
     var r = RT.filter(function (x) { return x.id === selRoute; })[0];
     var a = byId[r.from], b = byId[r.to];
     var box = document.getElementById("rtDetail");
+    var q = PIPE[r.id];
+    var pipeN = q ? q.acts.reduce(function (x, y) { return x + y[1]; }, 0) : 0;
     var stat = function (l, v, u) {
       return '<div class="rd-stat"><div class="l">' + l + '</div><div class="v">' + v +
              (u ? "<small>" + u + "</small>" : "") + "</div></div>";
@@ -749,17 +999,22 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
       '<p class="rd-note">' + r.why + "</p>" +
       '<div class="rd-grid">' +
         stat("対象人数", man(r.target), "万人") +
-        stat("想定転換率", r.cvr, "%") +
-        stat("想定転換人数", fmt(r.conv), "人") +
+        stat(PERIODS[period].label + " 実績遷移", fmt(flowOf(r.from, r.to)), "人") +
+        stat("昇格予備軍", fmt(pipeN), "人") +
+        stat("想定転換人数 / 年", fmt(r.conv), "人") +
         stat("必要ポイント原資", yen(r.cost), "") +
-        stat("想定増分収益 / 年", yen(r.gain), "") +
         stat("ROI", r.roi.toFixed(1), "倍") +
       "</div>" +
       '<div class="rd-cols">' +
         "<div><h4>打ち手（既存CMSのレバー）</h4>" +
           r.lev.map(function (l) {
             return '<div class="lever"><span class="tag">' + l[0] + "</span><span>" + l[1] + "</span></div>";
-          }).join("") + "</div>" +
+          }).join("") +
+          (QUEUE[r.id] ? '<h4 style="margin-top:16px">今週のアクション</h4>' +
+            '<div class="lever"><span class="tag">' + QUEUE[r.id][1] + "</span><span>" + QUEUE[r.id][0] +
+            '<br><span style="color:var(--ink-mute);font-size:11px">' + QUEUE[r.id][2] + "・期限 " +
+            QUEUE[r.id][3] + '　<span class="st ' + QUEUE[r.id][4] + '">' + ST_LAB[QUEUE[r.id][4]] +
+            "</span></span></span></div>" : "") + "</div>" +
         "<div><h4>スコアの変化</h4>" + [
           ["取引の広がり", a.b, b.b],
           ["デジタル接点", a.l, b.l],
@@ -968,20 +1223,257 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
   }
 
   function drawRoadKpis() {
-    var pri = RT.filter(function (r) { return r.pri; });
-    var conv = pri.reduce(function (a, r) { return a + r.conv; }, 0);
-    var cost = pri.reduce(function (a, r) { return a + r.cost; }, 0);
-    var gain = pri.reduce(function (a, r) { return a + r.gain; }, 0);
+    var P = PERIODS[period];
+    var pipeTotal = RT.reduce(function (a, r) {
+      if (r.from === "C10") return a;
+      var q = PIPE[r.id]; return a + (q ? q.acts.reduce(function (x, y) { return x + y[1]; }, 0) : 0);
+    }, 0);
+    var acqTotal = PIPE.R8.acts.reduce(function (x, y) { return x + y[1]; }, 0);
     document.getElementById("roadKpis").innerHTML = [
-      kpi({ fill: true, lab: "重点3ルートの想定転換人数", val: fmt(conv), unit: "人",
-            sub: "R1 C4→C1 ／ R3 C3→C2 ／ R4 C5→C4" }),
-      kpi({ lab: "必要ポイント原資", val: yen(cost), unit: "",
-            sub: "対象 " + man(pri.reduce(function (a, r) { return a + r.target; }, 0)) + "万人 × 300pt（1pt＝1円）" }),
-      kpi({ lab: "想定増分収益 / 年", val: yen(gain), unit: "",
-            sub: "転換1人あたりの年間増分収益 × 転換人数" }),
-      kpi({ lab: "重点3ルートの ROI", val: (gain / cost).toFixed(1), unit: "倍",
-            sub: "収益換算レートは仮値（行内想定値が未確定）" })
+      kpi({ fill: true, lab: "ネット昇格率（" + P.label + "・" + P.range + "）",
+            val: (TR.net >= 0 ? "+" : "") + TR.net.toFixed(2), unit: "%",
+            sub: "（昇格 − 降格）÷ 個人顧客 " + man(TOTAL) + "万人" }),
+      kpi({ lab: "昇格", val: fmt(TR.up), unit: "人",
+            sub: "上位クラスターへ移動した人数" }),
+      kpi({ lab: "降格・離反", val: fmt(TR.down), unit: "人",
+            sub: "下位クラスターへ移動した人数" }),
+      kpi({ lab: "昇格予備軍", val: fmt(pipeTotal), unit: "人",
+            sub: "境界まであと1〜8pt。別途 C10 のアプリ獲得見込み " + man(acqTotal) + "万人" })
     ].join("");
+  }
+
+  /* ---------- 変化ダイジェスト ---------- */
+  // 実績 ÷ 計画。期間が短いほど振れ幅が大きく、長い期間ほど均される。
+  var VAR_BASE = { R1:.18, R2:.03, R3:-.21, R4:.06, R5:-.06, R6:.11, R7:-.12, R8:.02, R9:.31 };
+  var VAR_RISK = .14;
+  var VAR_SCALE = { w: 1.4, m: 1.0, q: 0.6, y: 0.45 };
+  var ACT = {
+    R1: "予備軍への配信を継続。原資の追加投下を検討",
+    R3: "誘導QRの店頭展開が遅延。営業推進に確認",
+    R6: "オンボーディング完走率が改善。文面を横展開",
+    R7: "デビット施策が効いていない。原資単価を見直す",
+    R9: "復活ボーナスが想定以上。単価上限の妥当性を確認",
+    RISK: "通知許諾38%が制約。店頭・紙DMで補う"
+  };
+  function drawDigest() {
+    var P = PERIODS[period], sc = VAR_SCALE[period], rows = [];
+    RT.forEach(function (r) {
+      var now = flowOf(r.from, r.to);
+      var diff = (VAR_BASE[r.id] || 0) * sc * 100;
+      var plan = Math.round(now / (1 + diff / 100));
+      rows.push({ id: r.id, lab: r.from + " → " + r.to + "　" + byId[r.from].name + " から " + byId[r.to].name,
+        now: now, plan: plan, diff: diff, risk: false,
+        act: ACT[r.id] || (diff > 0 ? "計画超過。配信量の調整を検討" : "計画未達。打ち手を見直す") });
+    });
+    var risk = flowOf(RISK.from, RISK.to), rdiff = VAR_RISK * sc * 100;
+    rows.push({ id: "RISK", lab: "C3 → C10　サイレント優良の離反", now: risk,
+      plan: Math.round(risk / (1 + rdiff / 100)), diff: rdiff, risk: true, act: ACT.RISK });
+    rows.sort(function (a, b) { return Math.abs(b.diff) - Math.abs(a.diff); });
+    var shown = rows.filter(function (r) { return Math.abs(r.diff) >= 8; }).slice(0, 5);
+
+    var box = document.getElementById("digest");
+    var head = '<h3><span class="per">' + P.label + " " + P.range + "</span>計画比 ±8% を超えて動いたもの　" +
+               shown.length + " 件 / " + rows.length + " ルート</h3>";
+    if (!shown.length) {
+      box.innerHTML = head +
+        '<p class="dg-none">計画比 ±8% を超える変化はありません。<strong>見るべき変化がない</strong>、という状態です。' +
+        "期間を短くすると振れ幅の大きいルートが出ます。</p>";
+      return;
+    }
+    box.innerHTML = head + shown.map(function (r) {
+      // 離反ルートは増えたら悪い（色を反転させる）
+      var good = r.risk ? r.diff < 0 : r.diff > 0;
+      return '<div class="dg"><span class="d ' + (good ? "up" : "down") + '">' +
+        (r.diff > 0 ? "+" : "") + r.diff.toFixed(1) + "%</span>" +
+        "<span>" + r.lab + '　<span style="color:var(--ink-mute)">実績 ' + fmt(r.now) +
+        "人 / 計画 " + fmt(r.plan) + "人</span></span>" +
+        '<span class="act">' + r.act + "</span></div>";
+    }).join("");
+  }
+
+  /* ---------- 昇格予備軍 ---------- */
+  function drawPipe() {
+    var box = document.getElementById("pipe");
+    box.innerHTML = RT.map(function (r) {
+      var q = PIPE[r.id]; if (!q) return "";
+      var tot = q.acts.reduce(function (a, b) { return a + b[1]; }, 0);
+      var mx = Math.max.apply(null, q.acts.map(function (a) { return a[1]; }));
+      var src = byId[r.from];
+      var reach = Math.round(tot * src.optin / 100);
+      return '<div class="pipe-card' + (r.pri ? " hot" : "") + '" data-r="' + r.id + '" style="cursor:pointer">' +
+        '<div class="pipe-h"><b>' + r.from + " → " + r.to + "</b><span>" + src.name + "</span></div>" +
+        '<div class="pipe-n">' + fmt(tot) + "<small>人</small></div>" +
+        '<p class="pipe-sub">' + q.gap + "<br>プッシュ到達可能 <strong>" + fmt(reach) +
+        "人</strong>（許諾 " + (src.optin || 0) + "%）</p>" +
+        '<div class="pipe-acts">' + q.acts.map(function (a) {
+          return '<div class="pa"><span>' + a[0] + '<i style="width:' + (a[1] / mx * 100) + '%"></i></span>' +
+                 "<b>" + fmt(a[1]) + "</b></div>";
+        }).join("") + "</div></div>";
+    }).join("");
+    Array.prototype.forEach.call(box.querySelectorAll(".pipe-card"), function (c) {
+      c.addEventListener("click", function () {
+        selectRoute(c.dataset.r);
+        document.getElementById("rtDetail").scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
+    document.getElementById("pipeNote").innerHTML =
+      "<b>週次で見るべきはここ。</b>クラスターの確定は月次なので、遷移そのものは週の途中では動かない。" +
+      "週次に意味があるのは<b>「今月中に境界を越えそうな人」</b>で、その内訳（あと1アクションで何が足りないか）が" +
+      "そのまま今週の配信対象になる。カードをクリックすると該当ルートの詳細に移動する。";
+  }
+
+  /* ---------- 原資消化ペース ---------- */
+  var PACE = [
+    { lab: "施策原資 合計", budget: 95000000, used: 17480000 },
+    { lab: "R1 給与振込チャレンジ（C4→C1）", budget: 19000000, used: 7600000 },
+    { lab: "R3 初回ログインボーナス（C3→C2）", budget: 25700000, used: 1390000 },
+    { lab: "R8 ななポ登録ボーナス（C10→C6）", budget: 30000000, used: 5400000 }
+  ];
+  function drawPace() {
+    var elapsed = 5 / 30;   // 9月5日時点
+    document.getElementById("pace").innerHTML = PACE.map(function (r) {
+      var pct = r.used / r.budget, over = pct > elapsed * 1.25, slow = pct < elapsed * 0.6;
+      return '<div><div class="pace-lab"><span><strong>' + r.lab + "</strong></span>" +
+        "<span>" + yen(r.used) + " / " + yen(r.budget) + "　" + (pct * 100).toFixed(1) + "%" +
+        (over ? '　<strong style="color:var(--r1)">ペース超過</strong>' :
+         slow ? '　<strong style="color:var(--ink-mute)">ペース未達</strong>' : "") + "</span></div>" +
+        '<div class="pace-bar"><i style="width:' + (pct * 100).toFixed(1) + "%;background:" +
+        (over ? "#3460FB" : "#018838") + '"></i>' +
+        '<u style="left:' + (elapsed * 100).toFixed(1) + '%"></u></div></div>';
+    }).join("") +
+    '<p style="font-size:10.5px;color:var(--ink-mute);margin:4px 0 0">縦線は日割ペース（9月5日時点 = 16.7%）。' +
+    'ペース超過は月内で原資が尽きる見込み、ペース未達は配信が回っていない可能性を示す。' +
+    '変化ダイジェストと符合しているか（R1 は計画超過かつ原資も先行、R3 は未達かつ原資も未消化）を毎週確認する。</p>';
+  }
+
+  /* ---------- アクションキュー ---------- */
+  var ST_LAB = { run: "進行中", wait: "未着手", late: "期限超過", done: "完了" };
+  function drawQueue() {
+    var tb = document.querySelector("#queueTable tbody");
+    tb.textContent = "";
+    var order = { late: 0, run: 1, wait: 2, done: 3 };
+    RT.slice().sort(function (a, b) {
+      return order[QUEUE[a.id][4]] - order[QUEUE[b.id][4]];
+    }).forEach(function (r) {
+      var q = QUEUE[r.id]; if (!q) return;
+      var pipeN = PIPE[r.id] ? PIPE[r.id].acts.reduce(function (a, b) { return a + b[1]; }, 0) : 0;
+      var tr = document.createElement("tr");
+      tr.style.cursor = "pointer";
+      tr.innerHTML =
+        '<td><span class="cid">' + r.from + " → " + r.to + "</span></td>" +
+        "<td>" + q[0] + "</td>" +
+        '<td><span class="pill low">' + q[1] + "</span></td>" +
+        '<td class="n">' + fmt(pipeN) + "</td>" +
+        '<td><span class="own"><span class="av">' + q[2].slice(-2) + "</span>" + q[2] + "</span></td>" +
+        '<td class="n">' + q[3] + "</td>" +
+        '<td><span class="st ' + q[4] + '">' + ST_LAB[q[4]] + "</span></td>";
+      tr.addEventListener("click", function () { selectRoute(r.id); });
+      tb.appendChild(tr);
+    });
+  }
+
+  /* ---------- 遷移マトリクス ---------- */
+  function drawMigration() {
+    var P = PERIODS[period];
+    document.getElementById("migKpis").innerHTML = [
+      kpi({ fill: true, lab: "ネット昇格率（" + P.label + "・" + P.range + "）",
+            val: (TR.net >= 0 ? "+" : "") + TR.net.toFixed(2), unit: "%",
+            sub: "（昇格 " + fmt(TR.up) + "人 − 降格 " + fmt(TR.down) + "人）÷ " + man(TOTAL) + "万人" }),
+      kpi({ lab: "滞留", val: fmt(TR.M.reduce(function (a, r, i) { return a + r[i]; }, 0)), unit: "人",
+            sub: "同じクラスターに留まった人数" }),
+      kpi({ lab: "昇格 ÷ 降格", val: (TR.up / TR.down).toFixed(2), unit: "倍",
+            sub: "1.0 を下回るとプログラムが逆回転している" }),
+      kpi({ lab: "C10 からの流入", val: fmt(TR.M[IDS.indexOf("C10")].reduce(function (a, v, j) {
+              return j === IDS.indexOf("C10") ? a : a + v; }, 0)), unit: "人",
+            sub: "未接続層のアプリ獲得数" })
+    ].join("");
+
+    var s2 = document.getElementById("migSvg");
+    s2.textContent = "";
+    var n = IDS.length, L = 92, T = 78, CW = 74, CH = 42;
+    var maxOff = 0;
+    TR.M.forEach(function (row, i) { row.forEach(function (v, j) { if (i !== j) maxOff = Math.max(maxOff, v); }); });
+
+    s2.appendChild(el("text", { x: L, y: 22, "font-size": 11, "font-weight": 700, fill: "#767676" }, "期首 ↓"));
+    s2.appendChild(el("text", { x: L + CW * n / 2, y: 22, "text-anchor": "middle",
+      "font-size": 11, "font-weight": 700, fill: "#767676" }, "期末 →"));
+    IDS.forEach(function (id, j) {
+      s2.appendChild(el("text", { x: L + j * CW + CW / 2, y: T - 24, "text-anchor": "middle",
+        class: "num", "font-size": 11.5, "font-weight": 700, fill: "#1A1A1C" }, id));
+      s2.appendChild(el("text", { x: L + j * CW + CW / 2, y: T - 10, "text-anchor": "middle",
+        "font-size": 8.5, fill: "#959595" }, byId[id].name.slice(0, 6)));
+    });
+    TR.M.forEach(function (row, i) {
+      s2.appendChild(el("text", { x: L - 10, y: T + i * CH + CH / 2 + 4, "text-anchor": "end",
+        class: "num", "font-size": 11.5, "font-weight": 700, fill: "#1A1A1C" }, IDS[i]));
+      row.forEach(function (v, j) {
+        var x = L + j * CW, y = T + i * CH, diag = i === j;
+        var up = RANK[IDS[j]] > RANK[IDS[i]];
+        var t = diag ? 0 : Math.min(1, v / maxOff);
+        var fill = diag ? "#F2F4F3" : (v === 0 ? "#FCFDFC" : (up ? "#018838" : "#3460FB"));
+        s2.appendChild(el("rect", { x: x + 1, y: y + 1, width: CW - 2, height: CH - 2, rx: 2,
+          fill: fill, "fill-opacity": diag ? 1 : (0.10 + t * 0.90),
+          stroke: "#FFFFFF", "stroke-width": 1 }));
+        if (v > 0) {
+          s2.appendChild(el("text", { x: x + CW / 2, y: y + CH / 2 + 4, "text-anchor": "middle",
+            class: "num", "font-size": diag ? 10 : 11, "font-weight": diag ? 400 : 600,
+            fill: diag ? "#959595" : (t > 0.55 ? "#FFFFFF" : "#1A1A1C") }, fmt(v)));
+        }
+      });
+    });
+    var by = T + n * CH + 26;
+    var lx = L;
+    [["#018838", "昇格"], ["#3460FB", "降格・離反"], ["#E4E7E5", "滞留（対角）"]].forEach(function (g) {
+      s2.appendChild(el("rect", { x: lx, y: by - 9, width: 11, height: 11, rx: 2, fill: g[0] }));
+      s2.appendChild(el("text", { x: lx + 16, y: by, "font-size": 11, fill: "#1A1A1C" }, g[1]));
+      lx += 16 + g[1].length * 12 + 22;
+    });
+    s2.appendChild(el("text", { x: lx, y: by, "font-size": 11, fill: "#767676" }, "単位：人"));
+    s2.setAttribute("viewBox", "0 0 " + (L + n * CW + 16) + " " + (by + 14));
+
+    // 昇格／降格の内訳
+    var flows = [];
+    TR.M.forEach(function (row, i) {
+      row.forEach(function (v, j) {
+        if (i === j || v === 0) return;
+        flows.push({ lab: IDS[i] + " → " + IDS[j], v: v, up: RANK[IDS[j]] > RANK[IDS[i]] });
+      });
+    });
+    flows.sort(function (a, b) { return b.v - a.v; });
+    var top = flows.slice(0, 10);
+    hBars("cFlows", top.map(function (f) { return { label: f.lab, v: f.v }; }),
+      top[0].v, "人", function (row, i) { return top[i].up ? "#018838" : "#3460FB"; });
+
+    // 期首→期末の人数変化
+    var s3 = clear("cDelta"), W = 440, X0 = 92, XC = 270, top2 = 14, rowH = 27;
+    var deltas = IDS.map(function (id, i) { return { id: id, d: TR.end[i] - TR.start[i] }; });
+    var mx = Math.max.apply(null, deltas.map(function (d) { return Math.abs(d.d); })) || 1;
+    deltas.forEach(function (d, i) {
+      var y = top2 + i * rowH;
+      s3.appendChild(el("text", { x: X0 - 6, y: y + 14, "text-anchor": "end", "font-size": 11,
+        fill: "#1A1A1C" }, d.id + " " + byId[d.id].name.slice(0, 6)));
+      var w = Math.abs(d.d) / mx * 120;
+      s3.appendChild(el("line", { x1: XC, y1: top2, x2: XC, y2: top2 + IDS.length * rowH - 8, stroke: "#D9D9D9" }));
+      s3.appendChild(el("rect", { x: d.d >= 0 ? XC : XC - w, y: y + 4, width: w, height: 13, rx: 2,
+        fill: d.d >= 0 ? "#018838" : "#3460FB" }));
+      s3.appendChild(el("text", { x: d.d >= 0 ? XC + w + 6 : XC - w - 6, y: y + 14,
+        "text-anchor": d.d >= 0 ? "start" : "end", class: "num", "font-size": 11, "font-weight": 600,
+        fill: d.d >= 0 ? "#115A36" : "#00118F" }, (d.d > 0 ? "+" : "") + fmt(d.d)));
+    });
+    s3.setAttribute("viewBox", "0 0 " + W + " " + (top2 + IDS.length * rowH + 6));
+
+    document.getElementById("migNote").innerHTML =
+      "<b>期首人数は、期末（現在）の人数と遷移率から逆算している。</b>" +
+      "期間が長いほど遷移率を線形に外挿するため、四半期・年度累計は近似値。" +
+      "実装時は実データのスナップショット（月次確定値）を突き合わせる。" +
+      "<br><b>「昇格 ÷ 降格」が 1.0 を下回ったらプログラムは逆回転している。</b>" +
+      "現在は " + (TR.up / TR.down).toFixed(2) + " 倍。C3 サイレント優良からの離反（C10 への戻り）が最大の下押し要因。";
+  }
+
+  function refreshPeriod() {
+    TR = buildTransition(PERIODS[period].k);
+    drawRoadKpis(); drawDigest(); drawRoadmap(); drawRouteList(); drawRouteDetail();
+    drawPipe(); drawPace(); drawQueue(); drawClusterTable(); drawMigration();
   }
 
   /* ============================================================
@@ -1113,6 +1605,7 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
   var VIEWS = {
     sum:  ["サマリー", "ロイヤリティプログラムの事業効果と、会員／非会員の比較"],
     road: ["ロイヤルティ顧客育成ロードマップ", "どのクラスターに誰がいて、次にどこへ、どの施策で動かすか"],
+    mig:  ["遷移分析", "期首から期末にかけて、誰がどこへ動いたか"],
     cl:   ["クラスター詳細", "選択したクラスターのプロフィールと打ち手"],
     camp: ["施策効果", "配信 → 反応 → 金融アクション到達のファネルと費用対効果"]
   };
@@ -1127,10 +1620,15 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
     document.getElementById("tTitle").textContent = VIEWS[v][0];
     document.getElementById("tSub").textContent = VIEWS[v][1];
     if (v === "cl") drawClusterDetail();
+    if (v === "mig") drawMigration();
     window.scrollTo({ top: 0, behavior: "instant" });
   }
   Array.prototype.forEach.call(document.querySelectorAll(".nav-btn"), function (b) {
     b.addEventListener("click", function () { show(b.dataset.v); });
+  });
+  document.getElementById("fPeriod").addEventListener("change", function (e) {
+    period = e.target.value;
+    refreshPeriod();
   });
 
   // ロードマップ側の選択をクラスター詳細に連動させる
@@ -1145,13 +1643,9 @@ svg.c .num{font-family:var(--din); font-variant-numeric:tabular-nums}
      初期化
      ============================================================ */
   drawSummary();
-  drawRoadKpis();
-  drawRoadmap();
-  drawRouteList();
-  drawRouteDetail();
-  drawClusterTable();
   drawCampaign();
   selCluster = RT[0].from;
+  refreshPeriod();
   drawClusterDetail();
 
   document.getElementById("foot").innerHTML =
